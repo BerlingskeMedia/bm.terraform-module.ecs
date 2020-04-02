@@ -111,11 +111,11 @@ module "default_backend_web_app" {
   alb_ingress_unauthenticated_paths               = ["/*"]
   codepipeline_enabled                            = true
   repo_owner                                      = var.codepipeline_repo_owner
-  codepipeline_branch                             = var.codepipeline_branch
-  codepipeline_github_oauth_token                 = var.codepipeline_github_oauth_token
-  codepipeline_github_webhooks_token              = var.codepipeline_github_webhooks_token
-  codepipeline_repo_name                          = var.codepipeline_repo_name
-  codepipeline_build_image                        = var.codepipeline_build_image
+  //codepipeline_branch                             = var.codepipeline_branch
+  //codepipeline_github_oauth_token                 = var.codepipeline_github_oauth_token
+  //codepipeline_github_webhooks_token              = var.codepipeline_github_webhooks_token
+  //codepipeline_repo_name                          = var.codepipeline_repo_name
+  //codepipeline_build_image                        = var.codepipeline_build_image
 
 
 
