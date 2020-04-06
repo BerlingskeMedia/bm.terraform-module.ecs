@@ -81,6 +81,28 @@ variable "rds_port" {
 
 #### ECS section
 
+variable "entrypoint" {
+  type        = list(string)
+  description = "The entry point that is passed to the container"
+  default     = null
+}
+
+variable "command" {
+  type        = list(string)
+  description = "The command that is passed to the container"
+  default     = null
+}
+
+variable "mount_points" {
+  type = list(object({
+    containerPath = string
+    sourceVolume  = string
+  }))
+
+  description = "Container mount points. This is a list of maps, where each map should contain a `containerPath` and `sourceVolume`"
+  default     = null
+}
+
 variable "codepipeline_enabled" {
   type        = bool
   description = "A boolean to enable/disable AWS Codepipeline and ECR"
@@ -109,6 +131,18 @@ variable "container_memory_reservation" {
   type        = number
   description = "The amount of RAM (Soft Limit) to allow container to use in MB. This value must be less than `container_memory` if set"
   default     = 128
+}
+
+variable "ulimits" {
+  type = list(object({
+    name      = string
+    softLimit = number
+    hardLimit = number
+  }))
+
+  description = "The ulimits to configure for the container. This is a list of maps. Each map should contain \"name\", \"softLimit\" and \"hardLimit\""
+
+  default = []
 }
 
 variable "container_port" {
@@ -269,6 +303,18 @@ variable "alb_ingress_authenticated_paths" {
   description = "Authenticated path pattern to match (a maximum of 1 can be defined)"
 }
 
+variable "alb_ingress_authenticated_listener_arns" {
+  type        = list(string)
+  description = "A list of authenticated ALB listener ARNs to attach ALB listener rules to"
+  default     = []
+}
+
+variable "alb_ingress_authenticated_listener_arns_count" {
+  type        = number
+  description = "The number of authenticated ARNs in `alb_ingress_authenticated_listener_arns`. This is necessary to work around a limitation in Terraform where counts cannot be computed"
+  default     = 0
+}
+
 variable "aws_logs_region" {
   type        = string
   description = "The region for the AWS Cloudwatch Logs group"
@@ -279,6 +325,12 @@ variable "log_driver" {
   type        = string
   description = "The log driver to use for the container. If using Fargate launch type, only supported value is awslogs"
   default     = "awslogs"
+}
+
+variable "log_retention_in_days" {
+  type = string
+  description = "Log retention measured in days"
+  default = "14"
 }
 
 variable "ecs_alarms_enabled" {
@@ -365,13 +417,18 @@ variable "ecs_security_group_ids" {
   default     = []
 }
 
-variable "codepipeline_github_oauth_token" {
+/*variable "codepipeline_github_oauth_token" {
   type        = string
   description = "GitHub Oauth Token with permissions to access private repositories"
   default     = ""
+}*/
+variable "ssm_github_oauth_token" {
+  type        = string
+  description = "ARN of parameter storing github oauth token"
+  default     = ""
 }
 
-variable "codepipeline_github_webhooks_token" {
+variable "github_webhooks_token" {
   type        = string
   description = "GitHub OAuth Token with permissions to create webhooks. If not provided, can be sourced from the `GITHUB_TOKEN` environment variable"
   default     = ""
@@ -383,19 +440,19 @@ variable "codepipeline_github_webhook_events" {
   default     = ["push"]
 }
 
-variable "codepipeline_repo_owner" {
+variable "github_repo_owner" {
   type        = string
   description = "GitHub Organization or Username"
   default     = ""
 }
 
-variable "codepipeline_repo_name" {
+variable "github_repo_name" {
   type        = string
   description = "GitHub repository name of the application to be built and deployed to ECS"
   default     = ""
 }
 
-variable "codepipeline_branch" {
+variable "github_branch_name" {
   type        = string
   description = "Branch of the GitHub repository, e.g. `master`"
   default     = ""
@@ -573,4 +630,127 @@ variable "codepipeline_s3_bucket_force_destroy" {
   type        = bool
   description = "A boolean that indicates all objects should be deleted from the CodePipeline artifact store S3 bucket so that the bucket can be destroyed without error"
   default     = false
+}
+
+variable "volumes" {
+  type = list(object({
+    host_path = string
+    name      = string
+    docker_volume_configuration = list(object({
+      autoprovision = bool
+      driver        = string
+      driver_opts   = map(string)
+      labels        = map(string)
+      scope         = string
+    }))
+  }))
+  description = "Task volume definitions as list of configuration objects"
+  default     = []
+}
+
+
+variable "init_containers" {
+  type = list(object({
+    container_definition = any
+    condition            = string
+  }))
+  description = "A list of additional init containers to start. The map contains the container_definition (JSON) and the main container's dependency condition (string) on the init container. The latter can be one of START, COMPLETE, SUCCESS or HEALTHY."
+  default     = []
+}
+
+
+variable "task_cpu" {
+  type        = number
+  description = "The number of CPU units used by the task. If unspecified, it will default to `container_cpu`. If using `FARGATE` launch type `task_cpu` must match supported memory values (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size)"
+  default     = null
+}
+
+variable "task_memory" {
+  type        = number
+  description = "The amount of memory (in MiB) used by the task. If unspecified, it will default to `container_memory`. If using Fargate launch type `task_memory` must match supported cpu value (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size)"
+  default     = null
+}
+
+variable "build_timeout" {
+  type        = number
+  default     = 60
+  description = "How long in minutes, from 5 to 480 (8 hours), for AWS CodeBuild to wait until timing out any related build that does not get marked as completed"
+}
+
+variable "buildspec" {
+  type        = string
+  description = "Declaration to use for building the project. [For more info](http://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html)"
+  default     = ""
+}
+
+variable "alb_target_group_alarms_alarm_actions" {
+  type        = list(string)
+  description = "A list of ARNs (i.e. SNS Topic ARN) to execute when ALB Target Group alarms transition into an ALARM state from any other state"
+  default     = []
+}
+
+variable "alb_target_group_alarms_ok_actions" {
+  type        = list(string)
+  description = "A list of ARNs (i.e. SNS Topic ARN) to execute when ALB Target Group alarms transition into an OK state from any other state"
+  default     = []
+}
+
+variable "alb_target_group_alarms_insufficient_data_actions" {
+  type        = list(string)
+  description = "A list of ARNs (i.e. SNS Topic ARN) to execute when ALB Target Group alarms transition into an INSUFFICIENT_DATA state from any other state"
+  default     = []
+}
+
+variable "alb_arn_suffix" {
+  type        = string
+  description = "ARN suffix of the ALB for the Target Group"
+  default     = ""
+}
+
+variable "ecs_alarms_memory_utilization_low_ok_actions" {
+  type        = list(string)
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on Memory Utilization Low OK action"
+  default     = []
+}
+
+variable "ecs_alarms_memory_utilization_high_alarm_actions" {
+  type        = list(string)
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on Memory Utilization High Alarm action"
+  default     = []
+}
+
+variable "ecs_alarms_memory_utilization_high_ok_actions" {
+  type        = list(string)
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on Memory Utilization High OK action"
+  default     = []
+}
+
+variable "ecs_alarms_memory_utilization_low_alarm_actions" {
+  type        = list(string)
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on Memory Utilization Low Alarm action"
+  default     = []
+}
+
+variable "ecs_alarms_cpu_utilization_high_alarm_actions" {
+  type        = list(string)
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization High Alarm action"
+  default     = []
+}
+
+variable "ecs_alarms_cpu_utilization_high_ok_actions" {
+  type        = list(string)
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization High OK action"
+  default     = []
+}
+
+variable "ecs_alarms_cpu_utilization_low_alarm_actions" {
+  type        = list(string)
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization Low Alarm action"
+  default     = []
+}
+
+variable "ecs_alarms_cpu_utilization_low_ok_actions" {
+  type        = list(string)
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization Low OK action"
+  default     = []
 }
