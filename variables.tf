@@ -539,7 +539,7 @@ variable "poll_source_changes" {
 variable "webhook_enabled" {
   type        = bool
   description = "Set to false to prevent the module from creating any webhook resources"
-  default     = true
+  default     = false
 }
 
 variable "webhook_target_action" {
@@ -658,6 +658,7 @@ variable "init_containers" {
   default     = []
 }
 
+//variable "custom_container_definitions" {}
 
 variable "task_cpu" {
   type        = number
@@ -675,12 +676,6 @@ variable "build_timeout" {
   type        = number
   default     = 60
   description = "How long in minutes, from 5 to 480 (8 hours), for AWS CodeBuild to wait until timing out any related build that does not get marked as completed"
-}
-
-variable "buildspec" {
-  type        = string
-  description = "Declaration to use for building the project. [For more info](http://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html)"
-  default     = ""
 }
 
 variable "alb_target_group_alarms_alarm_actions" {
@@ -753,4 +748,47 @@ variable "ecs_alarms_cpu_utilization_low_ok_actions" {
   type        = list(string)
   description = "A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization Low OK action"
   default     = []
+}
+
+
+variable "drone-io_enabled" {
+  type = bool
+  description = "Determines if should use Drone.io"
+  default =  false
+}
+
+variable "ecr_namespaces" {
+  type = list(string)
+  description = "If provided, will create namespaces for ECR"
+  default = []
+}
+
+variable "ecr_enabled" {
+  type = bool
+  description = "Determine if ECR should be created (codepipeline_enabled=true also will result creating ECR)"
+  default = false
+}
+
+variable "disable_primary_container_definition" {
+  type = bool
+  description = "If set true - will prevent using auto generated container definition. In this case you have to provide custom configuration with 'custom_container_definition"
+  default = false
+}
+
+variable "custom_container_definition_1" {
+  description = ""
+  //type = list(object())
+  default = []
+}
+
+variable "disable_secondary_container_definition" {
+  type = bool
+  description = "If set true - will prevent using auto generated container definition. In this case you have to provide custom configuration with 'custom_container_definition"
+  default = false
+}
+
+variable "custom_container_definition_2" {
+  description = ""
+  //type = list(object())
+  default = []
 }
