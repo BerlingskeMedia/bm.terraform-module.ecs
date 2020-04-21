@@ -24,6 +24,7 @@ module "network" {
   region             = var.region
   availability_zones = local.availability_zones
   igw_id             = var.igw_id
+  nat_id             = var.nat_id
   vpc_id             = var.vpc_id
   app_cidr           = var.application_cidr
 }
