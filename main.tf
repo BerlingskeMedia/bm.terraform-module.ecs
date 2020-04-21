@@ -155,8 +155,8 @@ data "aws_ssm_parameter" "github_oauth_token" {
 ############## default webapp
 
 module "ecr" {
-  //source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr"
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=3e03498ecff1a87407dffa5c59db9852a1ac3cdd"
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr"
+  //source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=3e03498ecff1a87407dffa5c59db9852a1ac3cdd"
   //source = "../bm.terraform-module.ecr"
   enabled    = var.ecr_enabled
   name       = var.name
