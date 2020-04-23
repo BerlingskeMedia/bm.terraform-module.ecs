@@ -246,9 +246,9 @@ module "container_definition" {
   //source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.22.0"
   source = "git::https://github.com/BerlingskeMedia/bm.terraform-module.container_definition"
   //source = "../container_definition"
-  containers_map = module.ecr.name_to_url
-  container_name = module.label.id
-  container_image              = local.container_images
+  containers_map  = module.ecr.name_to_url
+  container_name  = module.label.id
+  container_image = local.container_images
   //container_image              = ""
   container_memory             = var.container_memory
   container_memory_reservation = var.container_memory_reservation
