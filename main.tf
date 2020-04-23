@@ -239,14 +239,23 @@ module "alb_ingress" {
 // TODO: change tagging from latest to other
 locals {
   // hard tag latest on every image
-  container_image = var.ecr_enabled ? lenght(module.ecr.registry_url) > 0 ? element(formatlist("%s:latest", module.ecr.registry_url),0) : "" : var.container_image
+  container_image = var.ecr_enabled ? lenght(module.ecr.registry_url) > 0 ? element(formatlist("%s:latest", module.ecr.registry_url), 0) : "" : var.container_image
+
+  port_mappings = var.container_port_mappings == null ? [
+    {
+      containerPort = var.container_port
+      hostPort      = var.container_port
+      protocol      = "tcp"
+    }
+  ] : var.container_port_mappings
 }
 
 module "container_definition" {
   //source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.22.0"
   source = "git::https://github.com/BerlingskeMedia/bm.terraform-module.container_definition"
   //source = "../container_definition"
-  containers_map  = module.ecr.name_to_url
+  containers_map = module.ecr.name_to_url
+  //containers_map  = {}
   container_name  = module.label.id
   container_image = local.container_image
   //container_image              = ""
@@ -255,13 +264,14 @@ module "container_definition" {
   container_cpu                = var.container_cpu
   healthcheck                  = var.healthcheck
   environment                  = var.environment
-  port_mappings                = var.container_port_mappings
-  secrets                      = var.secrets
-  ulimits                      = var.ulimits
-  entrypoint                   = var.entrypoint
-  command                      = var.command
-  mount_points                 = var.mount_points
-  container_depends_on         = local.container_depends_on
+  //port_mappings                = var.container_port_mappings
+  secrets              = var.secrets
+  ulimits              = var.ulimits
+  entrypoint           = var.entrypoint
+  command              = var.command
+  mount_points         = var.mount_points
+  container_depends_on = local.container_depends_on
+  port_mappings        = local.port_mappings
 
   log_configuration = {
     logDriver = var.log_driver
