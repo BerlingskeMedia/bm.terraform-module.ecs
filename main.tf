@@ -239,7 +239,7 @@ module "alb_ingress" {
 // TODO: change tagging from latest to other
 locals {
   // hard tag latest on every image
-  container_images = var.ecr_enabled ? formatlist("%s:latest", module.ecr.registry_url) : [var.container_image]
+  container_image = var.ecr_enabled ? lenght(module.ecr.registry_url) > 0 ? element(formatlist("%s:latest", module.ecr.registry_url),0) : "" : var.container_image
 }
 
 module "container_definition" {
@@ -248,7 +248,7 @@ module "container_definition" {
   //source = "../container_definition"
   containers_map  = module.ecr.name_to_url
   container_name  = module.label.id
-  container_image = local.container_images
+  container_image = local.container_image
   //container_image              = ""
   container_memory             = var.container_memory
   container_memory_reservation = var.container_memory_reservation
