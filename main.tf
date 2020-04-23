@@ -239,7 +239,7 @@ module "alb_ingress" {
 // TODO: change tagging from latest to other
 locals {
   // hard tag latest on every image
-  container_images = ecr_enabled ? formatlist("%s:latest", module.ecr.registry_url) : [var.container_image]
+  container_images = var.ecr_enabled ? formatlist("%s:latest", module.ecr.registry_url) : [var.container_image]
 }
 
 module "container_definition" {
