@@ -333,9 +333,9 @@ variable "log_driver" {
 }
 
 variable "log_retention_in_days" {
-  type = string
+  type        = string
   description = "Log retention measured in days"
-  default = "14"
+  default     = "14"
 }
 
 variable "ecs_alarms_enabled" {
@@ -757,27 +757,27 @@ variable "ecs_alarms_cpu_utilization_low_ok_actions" {
 
 
 variable "drone-io_enabled" {
-  type = bool
+  type        = bool
   description = "Determines if should use Drone.io"
-  default =  false
+  default     = false
 }
 
 variable "ecr_namespaces" {
-  type = list(string)
+  type        = list(string)
   description = "If provided, will create namespaces for ECR"
-  default = []
+  default     = []
 }
 
 variable "ecr_enabled" {
-  type = bool
+  type        = bool
   description = "Determine if ECR should be created (codepipeline_enabled=true also will result creating ECR)"
-  default = false
+  default     = false
 }
 
 variable "disable_primary_container_definition" {
-  type = bool
+  type        = bool
   description = "If set true - will prevent using auto generated container definition. In this case you have to provide custom configuration with 'custom_container_definition"
-  default = false
+  default     = false
 }
 
 variable "custom_container_definition_1" {
@@ -787,9 +787,9 @@ variable "custom_container_definition_1" {
 }
 
 variable "disable_secondary_container_definition" {
-  type = bool
+  type        = bool
   description = "If set true - will prevent using auto generated container definition. In this case you have to provide custom configuration with 'custom_container_definition"
-  default = false
+  default     = false
 }
 
 variable "custom_container_definition_2" {

@@ -117,7 +117,7 @@ data "aws_ssm_parameter" "github_oauth_token" {
   alb_ingress_unauthenticated_listener_arns_count = 1
   alb_security_group                              = module.security.alb_sg_id
   alb_ingress_healthcheck_path                    = "/healthcheck"
-  alb_ingress_unauthenticated_paths               = ["*//*"]
+  alb_ingress_unauthenticated_paths               = ["*/ /*"]
 
   # ECS cluster
   ecs_cluster_arn        = aws_ecs_cluster.default.arn
@@ -155,7 +155,7 @@ data "aws_ssm_parameter" "github_oauth_token" {
 ############## default webapp
 
 module "ecr" {
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr"
+  source = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr"
   //source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=3e03498ecff1a87407dffa5c59db9852a1ac3cdd"
   //source = "../bm.terraform-module.ecr"
   enabled    = var.ecr_enabled
@@ -173,14 +173,14 @@ resource "aws_cloudwatch_log_group" "app" {
 }
 
 module "alb_ingress" {
-  source                       = "git::https://github.com/cloudposse/terraform-aws-alb-ingress.git?ref=tags/0.9.0"
-  name                         = var.name
-  namespace                    = var.namespace
-  stage                        = var.stage
-  attributes                   = var.attributes
-  vpc_id                       = var.vpc_id
-  port                         = var.container_port
-  health_check_path            = var.alb_ingress_healthcheck_path
+  source            = "git::https://github.com/cloudposse/terraform-aws-alb-ingress.git?ref=tags/0.9.0"
+  name              = var.name
+  namespace         = var.namespace
+  stage             = var.stage
+  attributes        = var.attributes
+  vpc_id            = var.vpc_id
+  port              = var.container_port
+  health_check_path = var.alb_ingress_healthcheck_path
   //default_target_group_enabled = true
   default_target_group_enabled = true
 
@@ -244,12 +244,12 @@ locals {
 
 module "container_definition" {
   //source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.22.0"
-  source                       = "git::https://github.com/BerlingskeMedia/bm.terraform-module.container_definition"
+  source = "git::https://github.com/BerlingskeMedia/bm.terraform-module.container_definition"
   //source = "../container_definition"
   containers_map = module.ecr.name_to_url
-  container_name               = module.label.id
+  container_name = module.label.id
   //container_image              = local.container_images
-  container_image = ""
+  container_image              = ""
   container_memory             = var.container_memory
   container_memory_reservation = var.container_memory_reservation
   container_cpu                = var.container_cpu
@@ -277,24 +277,10 @@ module "container_definition" {
 
 locals {
 
-  /*alb = {
-    container_name   = module.label.id
-    container_port   = var.container_port
-    elb_name         = null
-    //target_group_arn = module.alb_ingress.target_group_arn
-    target_group_arn = module.alb.default_target_group_arn
-  }*/
-  alb1 = {
-    container_name   = "bt-testing-mx-tools-nginx-container"
-    container_port   = "80"
-    elb_name         = null
-    //target_group_arn = module.alb_ingress.target_group_arn
-    target_group_arn = module.alb.default_target_group_arn
-  }
-  alb2 = {
-    container_name   = "bt-testing-mx-tools-mxtools-container"
-    container_port   = "80"
-    elb_name         = null
+  alb = {
+    container_name = module.label.id
+    container_port = var.container_port
+    elb_name       = null
     //target_group_arn = module.alb_ingress.target_group_arn
     target_group_arn = module.alb.default_target_group_arn
   }
@@ -305,8 +291,8 @@ locals {
     target_group_arn = var.nlb_ingress_target_group_arn
   }*/
   //load_balancers = var.nlb_ingress_target_group_arn != "" ? [local.alb, local.nlb] : [local.alb]
-  load_balancers_1 = [local.alb1]
-  load_balancers_2 = [local.alb2]
+  load_balancers = [local.alb]
+  /*load_balancers_2 = [local.alb2]*/
   init_container_definitions = [
     for init_container in var.init_containers : lookup(init_container, "container_definition")
   ]
@@ -319,7 +305,7 @@ locals {
       condition     = init_container.condition
     }
   ]
-  primary_container_definition = var.disable_primary_container_definition ? var.custom_container_definition_1 : module.container_definition.json_map
+  primary_container_definition   = var.disable_primary_container_definition ? var.custom_container_definition_1 : module.container_definition.json_map
   secondary_container_definition = var.disable_secondary_container_definition ? var.custom_container_definition_2 : []
 }
 
@@ -334,14 +320,14 @@ data "aws_ecr_image" "service_image" {
 
 
 module "ecs_alb_service_task" {
-  source                            = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task.git?ref=tags/0.21.0"
+  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task.git?ref=tags/0.21.0"
   //source = "../terraform-aws-ecs-alb-service-task"
-  name                              = var.name
-  namespace                         = var.namespace
-  stage                             = var.stage
-  attributes                        = var.attributes
-  alb_security_group                = module.security.alb_sg_id
-  use_alb_security_group            = true
+  name                   = var.name
+  namespace              = var.namespace
+  stage                  = var.stage
+  attributes             = var.attributes
+  alb_security_group     = module.security.alb_sg_id
+  use_alb_security_group = true
   //nlb_cidr_blocks                   = var.nlb_cidr_blocks
   //use_nlb_cidr_blocks               = var.use_nlb_cidr_blocks
   container_definition_json         = "[${join(",", concat(local.init_container_definitions, local.primary_container_definition))}]"
@@ -356,12 +342,12 @@ module "ecs_alb_service_task" {
   subnet_ids                        = module.network.private_subnets
   container_port                    = var.container_port
   //nlb_container_port                = var.nlb_container_port
-  tags                              = var.tags
-  volumes                           = var.volumes
-  ecs_load_balancers                = local.load_balancers_1
+  tags               = var.tags
+  volumes            = var.volumes
+  ecs_load_balancers = local.load_balancers
 }
 
-module "ecs_alb_service_task_2" {
+/*module "ecs_alb_service_task_2" {
   source                            = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task.git?ref=tags/0.21.0"
   //source = "../terraform-aws-ecs-alb-service-task"
   name                              = var.name
@@ -387,7 +373,7 @@ module "ecs_alb_service_task_2" {
   tags                              = var.tags
   volumes                           = var.volumes
   ecs_load_balancers                = local.load_balancers_2
-}
+}*/
 
 
 # TODO: Multi codepipeline
@@ -404,20 +390,20 @@ module "ecs_codepipeline" {
   region                = var.region
   github_oauth_token    = local.github_token
   github_webhooks_token = var.github_webhooks_token
-//  github_webhook_events = var.github_webhook_events
-  repo_owner            = var.github_repo_owner
-  repo_name             = var.github_repo_name
-  branch                = var.github_branch_name
+  //  github_webhook_events = var.github_webhook_events
+  repo_owner = var.github_repo_owner
+  repo_name  = var.github_repo_name
+  branch     = var.github_branch_name
   //badge_enabled         = var.badge_enabled
-  build_image           = var.codepipeline_build_image
-  build_timeout         = var.build_timeout
-  buildspec             = var.codepipeline_buildspec
+  build_image   = var.codepipeline_build_image
+  build_timeout = var.build_timeout
+  buildspec     = var.codepipeline_buildspec
   //image_repo_name       = module.ecr.repository_name
-  image_repo_name = local.repository_name
-  service_name          = module.ecs_alb_service_task.service_name
-  ecs_cluster_name      = aws_ecs_cluster.default.name
-  privileged_mode       = true
-  poll_source_changes   = var.poll_source_changes
+  image_repo_name     = local.repository_name
+  service_name        = module.ecs_alb_service_task.service_name
+  ecs_cluster_name    = aws_ecs_cluster.default.name
+  privileged_mode     = true
+  poll_source_changes = var.poll_source_changes
 
   webhook_enabled             = var.webhook_enabled
   webhook_target_action       = var.webhook_target_action
@@ -452,7 +438,7 @@ module "ecs_cloudwatch_autoscaling" {
   scale_up_cooldown     = var.autoscaling_scale_up_cooldown
 }
 
-module "ecs_cloudwatch_autoscaling_2" {
+/*module "ecs_cloudwatch_autoscaling_2" {
   enabled               = var.autoscaling_enabled
   source                = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.2.0"
   name                  = var.name
@@ -467,17 +453,17 @@ module "ecs_cloudwatch_autoscaling_2" {
   scale_down_cooldown   = var.autoscaling_scale_down_cooldown
   scale_up_adjustment   = var.autoscaling_scale_up_adjustment
   scale_up_cooldown     = var.autoscaling_scale_up_cooldown
-}
+}*/
 
 locals {
   cpu_utilization_high_alarm_actions    = var.autoscaling_enabled && var.autoscaling_dimension == "cpu" ? module.ecs_cloudwatch_autoscaling.scale_up_policy_arn : ""
   cpu_utilization_low_alarm_actions     = var.autoscaling_enabled && var.autoscaling_dimension == "cpu" ? module.ecs_cloudwatch_autoscaling.scale_down_policy_arn : ""
   memory_utilization_high_alarm_actions = var.autoscaling_enabled && var.autoscaling_dimension == "memory" ? module.ecs_cloudwatch_autoscaling.scale_up_policy_arn : ""
   memory_utilization_low_alarm_actions  = var.autoscaling_enabled && var.autoscaling_dimension == "memory" ? module.ecs_cloudwatch_autoscaling.scale_down_policy_arn : ""
-  cpu_utilization_high_alarm_actions_2    = var.autoscaling_enabled && var.autoscaling_dimension == "cpu" ? module.ecs_cloudwatch_autoscaling_2.scale_up_policy_arn : ""
+  /*cpu_utilization_high_alarm_actions_2    = var.autoscaling_enabled && var.autoscaling_dimension == "cpu" ? module.ecs_cloudwatch_autoscaling_2.scale_up_policy_arn : ""
   cpu_utilization_low_alarm_actions_2     = var.autoscaling_enabled && var.autoscaling_dimension == "cpu" ? module.ecs_cloudwatch_autoscaling_2.scale_down_policy_arn : ""
   memory_utilization_high_alarm_actions_2 = var.autoscaling_enabled && var.autoscaling_dimension == "memory" ? module.ecs_cloudwatch_autoscaling_2.scale_up_policy_arn : ""
-  memory_utilization_low_alarm_actions_2  = var.autoscaling_enabled && var.autoscaling_dimension == "memory" ? module.ecs_cloudwatch_autoscaling_2.scale_down_policy_arn : ""
+  memory_utilization_low_alarm_actions_2  = var.autoscaling_enabled && var.autoscaling_dimension == "memory" ? module.ecs_cloudwatch_autoscaling_2.scale_down_policy_arn : ""*/
 }
 
 module "ecs_cloudwatch_sns_alarms" {
@@ -546,6 +532,7 @@ module "ecs_cloudwatch_sns_alarms" {
   memory_utilization_low_ok_actions = var.ecs_alarms_memory_utilization_low_ok_actions
 }
 
+/*
 module "ecs_cloudwatch_sns_alarms_2" {
   source  = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.5.0"
   enabled = var.ecs_alarms_enabled
@@ -611,6 +598,7 @@ module "ecs_cloudwatch_sns_alarms_2" {
 
   memory_utilization_low_ok_actions = var.ecs_alarms_memory_utilization_low_ok_actions
 }
+*/
 
 module "alb_target_group_cloudwatch_sns_alarms" {
   source                         = "git::https://github.com/cloudposse/terraform-aws-alb-target-group-cloudwatch-sns-alarms.git?ref=tags/0.8.0"
@@ -653,12 +641,12 @@ module "alb_target_group_cloudwatch_sns_alarms" {
 # Create user
 
 module "drone-io" {
-  source                         = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io"
-  enabled                        = var.drone-io_enabled
-  name                           = var.name
-  namespace                      = var.namespace
-  stage                          = var.stage
-  attributes                     = compact(concat(var.attributes, ["drone"]))
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io"
+  enabled    = var.drone-io_enabled
+  name       = var.name
+  namespace  = var.namespace
+  stage      = var.stage
+  attributes = compact(concat(var.attributes, ["drone"]))
 }
 
 
