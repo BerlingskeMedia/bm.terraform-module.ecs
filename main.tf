@@ -69,6 +69,7 @@ module "alb" {
   http2_enabled                           = true
   deletion_protection_enabled             = false
   tags                                    = var.tags
+  health_check_path                       = var.alb_ingress_healthcheck_path
 }
 
 
