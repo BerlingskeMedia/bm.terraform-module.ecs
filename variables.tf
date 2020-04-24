@@ -798,3 +798,10 @@ variable "custom_container_definition_2" {
   //type = list(object())
   default = []
 }
+
+variable "ignore_changes_task_definition" {
+  type = bool
+  default = true
+  description = "Whether to ignore changes in container definition and task definition in the ECS service"
+
+}

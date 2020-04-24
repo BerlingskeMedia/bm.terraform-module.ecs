@@ -355,6 +355,7 @@ module "ecs_alb_service_task" {
   tags               = var.tags
   volumes            = var.volumes
   ecs_load_balancers = local.load_balancers
+  ignore_changes_task_definition = var.ignore_changes_task_definition
 }
 
 /*module "ecs_alb_service_task_2" {
