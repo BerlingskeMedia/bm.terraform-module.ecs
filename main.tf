@@ -198,7 +198,7 @@ module "container_definition" {
   //source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.22.0"
   //source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git"
   //source = "../bm.terraform-module.container_definition"
-  source         = "git::https://github.com/BerlingskeMedia/bm.terraform-module.container_definition?ref=mx_tools"
+  source         = "git@github.com:BerlingskeMedia/bm.terraform-module.container_definition?ref=mx_tools"
   containers_map = module.ecr.name_to_url
   container_name = module.label.id
   //container_image              = local.container_images
@@ -257,14 +257,14 @@ locals {
 
 # gives ability to override every container_definition attribute
 module "primary_container_definition" {
-  source = "git::https://github.com/BerlingskeMedia/bm.terraform-module.container_definition_override?ref=mx_tools"
+  source = "git@github.com:BerlingskeMedia/bm.terraform-module.container_definition_override.git?ref=mx_tools"
   //source = "../bm.terraform-module.container_definition_override"
   container_definition = var.disable_primary_container_definition ? var.custom_container_definition_1 : []
   environment          = concat(var.environment, local.rds_envs)
 }
 
 module "secondary_container_definition" {
-  source               = "../bm.terraform-module.container_definition_override"
+  source = "git@github.com:BerlingskeMedia/bm.terraform-module.container_definition_override.git?ref=mx_tools"
   container_definition = var.disable_secondary_container_definition ? var.custom_container_definition_2 : []
   environment          = var.environment
 }
