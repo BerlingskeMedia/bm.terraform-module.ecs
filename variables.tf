@@ -5,8 +5,8 @@ variable "region" {
 }
 
 variable "enabled" {
-  type = bool
-  default = true
+  type        = bool
+  default     = true
   description = "Defines whether create resources for this module and it's submodules"
 }
 
@@ -90,38 +90,38 @@ variable "rds_port" {
 }
 
 variable "rds_admin" {
-  type = string
+  type        = string
   description = "RDS root username"
-  default =  ""
+  default     = ""
 }
 variable "rds_db_engine" {
-  type = string
-  default = "aurora-mysql"
+  type        = string
+  default     = "aurora-mysql"
   description = "The name of the database engine to be used for this DB cluster. Valid values: `aurora`, `aurora-mysql`, `aurora-postgresql`"
 }
 
 variable "rds_db_cluster_family" {
-  type = string
-  default = "aurora-mysql5.7"
+  type        = string
+  default     = "aurora-mysql5.7"
   description = "The family of the DB cluster parameter group"
 }
 
 variable "rds_instaces_count" {
-  type = string
+  type        = string
   description = "How many instances should run in cluster"
-  default = "1"
+  default     = "1"
 }
 
 variable "rds_instance_type" {
-  type = string
+  type        = string
   description = "Instance type"
-  default = "db.t3.small"
+  default     = "db.t3.small"
 }
 
 variable "rds_dbname" {
-  type = string
+  type        = string
   description = "RDS database name"
-  default = "dbname"
+  default     = "dbname"
 }
 
 
@@ -374,9 +374,9 @@ variable "log_driver" {
 }
 
 variable "log_retention_in_days" {
-  type = string
+  type        = string
   description = "Log retention measured in days"
-  default = "14"
+  default     = "14"
 }
 
 variable "ecs_alarms_enabled" {
@@ -798,27 +798,27 @@ variable "ecs_alarms_cpu_utilization_low_ok_actions" {
 
 
 variable "drone-io_enabled" {
-  type = bool
+  type        = bool
   description = "Determines if should use Drone.io"
-  default =  false
+  default     = false
 }
 
 variable "ecr_namespaces" {
-  type = list(string)
+  type        = list(string)
   description = "If provided, will create namespaces for ECR"
-  default = []
+  default     = []
 }
 
 variable "ecr_enabled" {
-  type = bool
+  type        = bool
   description = "Determine if ECR should be created (codepipeline_enabled=true also will result creating ECR)"
-  default = false
+  default     = false
 }
 
 variable "disable_primary_container_definition" {
-  type = bool
+  type        = bool
   description = "If set true - will prevent using auto generated container definition. In this case you have to provide custom configuration with 'custom_container_definition"
-  default = false
+  default     = false
 }
 
 variable "custom_container_definition_1" {
@@ -828,9 +828,9 @@ variable "custom_container_definition_1" {
 }
 
 variable "disable_secondary_container_definition" {
-  type = bool
+  type        = bool
   description = "If set true - will prevent using auto generated container definition. In this case you have to provide custom configuration with 'custom_container_definition"
-  default = false
+  default     = false
 }
 
 variable "custom_container_definition_2" {
@@ -840,7 +840,7 @@ variable "custom_container_definition_2" {
 }
 
 variable "ecs_ports" {
-  type = list(string)
+  type        = list(string)
   description = "Ports on which SG will operate"
-  default = []
+  default     = []
 }
