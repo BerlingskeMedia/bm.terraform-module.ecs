@@ -34,8 +34,20 @@ variable "availability_zones" {
 
 variable "application_cidr" {
   type        = string
-  description = "CIDR block within required subnets will be created"
+  description = "CIDR block within required subnets will be created. Setting this value will cause ignoring parameters 'private_subnets' and 'public_subnets' and will create new subnets within given CIDR"
+  default = ""
   #no default. requied range
+}
+
+variable "private_subnets" {
+  type = list(string)
+  default = []
+  description = "List of private subnet's ID. Will be ignored if parameter application_cidr==true"
+}
+variable "public_subnets" {
+  type = list(string)
+  default = []
+  description = "List of public subnet's ID. Will be ignored if parameter application_cidr==true"
 }
 
 variable "namespace" {
