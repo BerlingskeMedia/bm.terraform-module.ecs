@@ -1,7 +1,7 @@
 locals {
   availability_zones = length(var.availability_zones) > 0 ? var.availability_zones : ["${var.region}a", "${var.region}b"]
   github_token       = var.ssm_github_oauth_token != "" ? data.aws_ssm_parameter.github_oauth_token[0].value : ""
-  network_create = var.application_cidr != ""
+  network_create     = var.application_cidr != ""
 }
 
 
@@ -23,7 +23,7 @@ module "label" {
 module "network" {
   source = "git@github.com:BerlingskeMedia/bm.terraform-module.network?ref=production"
   //source = "../bm.terraform-module.network"
-  enabled = local.network_create
+  enabled            = local.network_create
   namespace          = var.namespace
   stage              = var.stage
   name               = var.name
@@ -38,7 +38,7 @@ module "network" {
 
 locals {
   private_subnet_ids = local.network_create ? module.network.private_subnets : var.private_subnets
-  public_subnet_ids = local.network_create ? module.network.public_subnets : var.public_subnets
+  public_subnet_ids  = local.network_create ? module.network.public_subnets : var.public_subnets
 }
 
 # Main cluster's Security Groups
@@ -63,7 +63,6 @@ module "alb" {
   delimiter                               = var.delimiter
   vpc_id                                  = module.network.vpc_id
   security_group_ids                      = [module.security.alb_sg_id]
-  //subnet_ids                              = module.network.public_subnets
   subnet_ids                              = local.public_subnet_ids
   internal                                = false
   http_enabled                            = true
@@ -90,9 +89,9 @@ module "rds" {
   attributes = compact(concat(var.attributes, ["rds"]))
   rds_port   = var.rds_port
   //security_groups = [module.security.rds_sg_id]
-  stage             = var.stage
+  stage = var.stage
   //subnets           = module.network.private_subnets
-  subnets = local.private_subnet_ids
+  subnets           = local.private_subnet_ids
   vpc_id            = module.network.vpc_id
   tags              = var.tags
   db_engine         = var.rds_db_engine
@@ -275,7 +274,7 @@ module "primary_container_definition" {
 }
 
 module "secondary_container_definition" {
-  source = "git@github.com:BerlingskeMedia/bm.terraform-module.container_definition_override.git?ref=mx_tools"
+  source               = "git@github.com:BerlingskeMedia/bm.terraform-module.container_definition_override.git?ref=mx_tools"
   container_definition = var.disable_secondary_container_definition ? var.custom_container_definition_2 : []
   environment          = var.environment
 }
@@ -720,10 +719,10 @@ resource "aws_ecs_service" "ignore_changes_task_definition_app" {
   dynamic "network_configuration" {
     for_each = ["true"] //var.network_mode == "awsvpc" ? ["true"] : []
     content {
-      security_groups  = compact(concat(var.ecs_security_group_ids, aws_security_group.ecs_service.*.id, [aws_security_group.ecs_sg_internal.id, aws_security_group.ecs_sg_mxtools.id])) //compact(concat(var.security_group_ids, aws_security_group.ecs_service.*.id))
+      security_groups = compact(concat(var.ecs_security_group_ids, aws_security_group.ecs_service.*.id, [aws_security_group.ecs_sg_internal.id, aws_security_group.ecs_sg_mxtools.id])) //compact(concat(var.security_group_ids, aws_security_group.ecs_service.*.id))
       //subnets          = module.network.private_subnets                                                                                                                                  //var.subnet_ids\
-      subnets = local.private_subnet_ids
-      assign_public_ip = false                                                                                                                                                           //var.assign_public_ip
+      subnets          = local.private_subnet_ids
+      assign_public_ip = false //var.assign_public_ip
     }
   }
 
@@ -805,10 +804,10 @@ resource "aws_ecs_service" "ignore_changes_task_definition_nginx" {
   dynamic "network_configuration" {
     for_each = ["true"] //var.network_mode == "awsvpc" ? ["true"] : []
     content {
-      security_groups  = compact(concat(var.ecs_security_group_ids, aws_security_group.ecs_service.*.id, [aws_security_group.ecs_sg_internal.id, aws_security_group.ecs_sg_nginx.id])) //compact(concat(var.security_group_ids, aws_security_group.ecs_service.*.id))
+      security_groups = compact(concat(var.ecs_security_group_ids, aws_security_group.ecs_service.*.id, [aws_security_group.ecs_sg_internal.id, aws_security_group.ecs_sg_nginx.id])) //compact(concat(var.security_group_ids, aws_security_group.ecs_service.*.id))
       //subnets          = module.network.private_subnets                                                                                                                                //var.subnet_ids
-      subnets = local.private_subnet_ids
-      assign_public_ip = false                                                                                                                                                         //var.assign_public_ip
+      subnets          = local.private_subnet_ids
+      assign_public_ip = false //var.assign_public_ip
     }
   }
 
