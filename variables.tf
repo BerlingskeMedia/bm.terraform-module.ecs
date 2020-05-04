@@ -28,8 +28,19 @@ variable "availability_zones" {
 
 variable "application_cidr" {
   type        = string
-  description = "CIDR block within required subnets will be created"
-  #no default. requied range
+  description = "CIDR block within required subnets will be created. Setting this value will cause ignoring parameters 'private_subnets' and 'public_subnets' and will create new subnets within given CIDR"
+  default     = ""
+}
+
+variable "private_subnets" {
+  type        = list(string)
+  default     = []
+  description = "List of private subnet's ID. Will be ignored if parameter application_cidr==true"
+}
+variable "public_subnets" {
+  type        = list(string)
+  default     = []
+  description = "List of public subnet's ID. Will be ignored if parameter application_cidr==true"
 }
 
 variable "namespace" {
@@ -800,8 +811,8 @@ variable "custom_container_definition_2" {
 }
 
 variable "ignore_changes_task_definition" {
-  type = bool
-  default = true
+  type        = bool
+  default     = true
   description = "Whether to ignore changes in container definition and task definition in the ECS service"
 
 }
