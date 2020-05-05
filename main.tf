@@ -36,14 +36,6 @@ locals {
   public_subnet_ids  = local.network_create ? module.network.public_subnets : var.public_subnets
 }
 
-module "secrets" {
-  source    = "git@github.com:BerlingskeMedia/bm.terraform-module.secrets"
-  namespace = var.namespace
-  stage     = var.stage
-  name      = var.name
-  tags      = var.tags
-}
-
 # Main cluster's Security Groups
 module "security" {
   source    = "git@github.com:BerlingskeMedia/bm.terraform-module.security"
