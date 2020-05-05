@@ -83,19 +83,23 @@ module "alb" {
 
 
 module "rds" {
-  source  = "git@github.com:BerlingskeMedia/bm.terraform-module.rds-cluster"
-  enabled = var.run_rds
+  source  = "git@github.com:BerlingskeMedia/bm.terraform-module.rds-cluster?ref=production"
+  enabled = var.enabled && var.run_rds
 
-  master_password = module.secrets.rsd_master_password
-  name            = "${var.name}-rds"
-  namespace       = var.namespace
-  rds_port        = var.rds_port
-  security_groups = [module.security.rds_sg_id]
-  stage           = var.stage
-  //subnets         = module.network.private_subnets
+  name              = var.name
+  namespace         = var.namespace
+  attributes        = compact(concat(var.attributes, ["rds"]))
+  rds_port          = var.rds_port
+  stage             = var.stage
   subnets           = local.private_subnet_ids
-  vpc_id          = module.network.vpc_id
-  tags            = var.tags
+  vpc_id            = module.network.vpc_id
+  tags              = var.tags
+  db_engine         = var.rds_db_engine
+  db_cluster_family = var.rds_db_cluster_family
+  db_cluster_size   = var.rds_instaces_count
+  db_instance_type  = var.rds_instance_type
+  db_root_user      = var.rds_admin
+  dbname            = var.rds_dbname
 }
 
 resource "aws_ecs_cluster" "default" {
@@ -319,6 +323,8 @@ module "ecs_alb_service_task" {
 # TODO: Multi codepipeline
 locals {
   repository_name = length(module.ecr.repository_name) > 0 ? element(module.ecr.repository_name, 0) : ""
+  ssm_arns        = concat(module.rds.ssm_arns)
+  kms_arns        = concat(module.rds.kms_arns)
 }
 module "ecs_codepipeline" {
   enabled               = var.codepipeline_enabled
