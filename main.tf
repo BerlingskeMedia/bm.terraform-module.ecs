@@ -90,7 +90,7 @@ locals {
   }] : []
 
 }
-# Create user
+# Create user for drone.io
 
 module "drone-io" {
   source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io"
@@ -100,6 +100,17 @@ module "drone-io" {
   stage      = var.stage
   attributes = compact(concat(var.attributes, ["drone"]))
 }
+
+# output drone's keys
+data "aws_ssm_parameter" "access_key" {
+  count = var.drone-io_enabled ? 1 : 0
+  name = module.drone-io.access_key_path
+}
+data "aws_ssm_parameter" "secret_key" {
+  count = var.drone-io_enabled ? 1 : 0
+  name = module.drone-io.secret_key_path
+}
+
 
 locals {
   repository_name = length(module.ecr.repository_name) > 0 ? element(module.ecr.repository_name, 0) : ""

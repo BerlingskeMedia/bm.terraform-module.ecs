@@ -34,3 +34,10 @@ output "iam_policy_document_json" {
 output "aws_cloudwatch_log_group_name" {
   value = aws_cloudwatch_log_group.app.name
 }
+
+output "access_key" {
+  value = join("", data.aws_ssm_parameter.access_key.*.value)
+}
+output "secret_key" {
+  value = join("", data.aws_ssm_parameter.secret_key.*.value)
+}
