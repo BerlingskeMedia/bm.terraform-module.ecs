@@ -93,7 +93,7 @@ locals {
 # Create user for drone.io
 
 module "drone-io" {
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io"
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.1.1"
   enabled    = var.drone-io_enabled
   name       = var.name
   namespace  = var.namespace
@@ -103,12 +103,14 @@ module "drone-io" {
 
 # output drone's keys
 data "aws_ssm_parameter" "access_key" {
-  count = var.drone-io_enabled ? 1 : 0
-  name = module.drone-io.access_key_path
+  depends_on = [module.drone-io]
+  count      = var.drone-io_enabled ? 1 : 0
+  name       = module.drone-io.access_key_path
 }
 data "aws_ssm_parameter" "secret_key" {
-  count = var.drone-io_enabled ? 1 : 0
-  name = module.drone-io.secret_key_path
+  depends_on = [module.drone-io]
+  count      = var.drone-io_enabled ? 1 : 0
+  name       = module.drone-io.secret_key_path
 }
 
 
