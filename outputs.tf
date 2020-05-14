@@ -41,3 +41,7 @@ output "access_key" {
 output "secret_key" {
   value = join("", data.aws_ssm_parameter.secret_key.*.value)
 }
+
+output "ecr_urls" {
+  value = module.ecr.name_to_url
+}
