@@ -45,3 +45,11 @@ output "secret_key" {
 output "ecr_urls" {
   value = module.ecr.name_to_url
 }
+
+output "rds_kms_arn" {
+  value = var.run_rds ? module.rds.kms_arn : ""
+}
+
+output "rds_kms_key_id" {
+  value = var.run_rds ? module.rds.kms_key_id : ""
+}

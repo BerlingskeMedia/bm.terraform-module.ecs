@@ -25,7 +25,7 @@ module "security" {
 }
 
 module "rds" {
-  source  = "git@github.com:BerlingskeMedia/bm.terraform-module.rds-cluster?ref=production"
+  source  = "git@github.com:BerlingskeMedia/bm.terraform-module.rds-cluster?ref=tags/0.1.1"
   enabled = var.enabled && var.run_rds
 
   name              = var.name
