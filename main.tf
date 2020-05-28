@@ -81,12 +81,11 @@ resource "aws_iam_role" "ecs_ec2_role" {
 resource "aws_iam_instance_profile" "ecs_ec2_instance_profile" {
   count = var.launch_type == "EC2" ? 1 : 0
   name  = "${module.label.id}-ec2-instance-profile"
-  role  = aws_iam_role.ecs_ec2_role.name
+  role  = join("",aws_iam_role.ecs_ec2_role.*.name)
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_ec2_role_attachement" {
-  # count         = var.launch_type == "EC2" ? 1 : 0
-  role          = aws_iam_role.ecs_ec2_role.name
+  role          = join("",aws_iam_role.ecs_ec2_role.*.name)
   for_each      = var.launch_type == "EC2" ? toset(local.ecs_ec2_role_policies_list) : toset([])
   policy_arn    = each.value
 }
@@ -107,7 +106,7 @@ data "aws_ami" "vm_ami" {
 resource "aws_security_group" "ecs_ec2_security_group" {
   count     = var.launch_type == "EC2" ? 1 : 0
   name      = "${module.label.id}-ec2-instances-security-group"
-  vpc_id    = local.vpc_id
+  vpc_id    = var.vpc_id
 
   ingress {
     protocol  = -1
