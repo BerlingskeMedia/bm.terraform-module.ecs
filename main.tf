@@ -72,20 +72,20 @@ data "aws_iam_policy_document" "ec2_role_document" {
 }
 
 resource "aws_iam_role" "ecs_ec2_role" {
-  count               = "${var.launch_type == "EC2" 1 : 0}"
+  count               = var.launch_type == "EC2" ? 1 : 0
   name                = "${module.label.id}-ec2-role"
   assume_role_policy  = data.aws_iam_policy_document.ec2_role_document.json
   tags                = module.label.tags
 }
 
 resource "aws_iam_instance_profile" "ecs_ec2_instance_profile" {
-  count = "${var.launch_type == "EC2" 1 : 0}"
+  count = var.launch_type == "EC2" ? 1 : 0
   name  = "${module.label.id}-ec2-instance-profile"
   role  = aws_iam_role.ecs_ec2_role.name
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_ec2_role_attachement" {
-  count         = "${var.launch_type == "EC2" 1 : 0}"
+  count         = var.launch_type == "EC2" ? 1 : 0
   role          = aws_iam_role.ecs_ec2_role.name
   for_each      = toset(local.ecs_ec2_role_policies_list)
   policy_arn    = each.value
@@ -105,7 +105,7 @@ data "aws_ami" "vm_ami" {
 }
 
 resource "aws_security_group" "ecs_ec2_security_group" {
-  count     = "${var.launch_type == "EC2" 1 : 0}"
+  count     = var.launch_type == "EC2" ? 1 : 0
   name      = "${module.label.id}-ec2-instances-security-group"
   vpc_id    = local.vpc_id
 
@@ -126,7 +126,7 @@ resource "aws_security_group" "ecs_ec2_security_group" {
 }
 
 resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
-  count                         = "${var.launch_type == "EC2" 1 : 0}"
+  count                         = var.launch_type == "EC2" ? 1 : 0
   name                          = "${module.label.id}-launch-configuration"
   key_name                      = local.aws_key_pair
   image_id                      = data.aws_ami.vm_ami.id
@@ -146,7 +146,7 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
 }
 
 resource "aws_autoscaling_group" "ecs_ec2_launch_configuration" {
-  count                 = "${var.launch_type == "EC2" 1 : 0}"
+  count                 = var.launch_type == "EC2" ? 1 : 0
   name                  = "${module.label.id}-ec2-autoscalling-group"
   vpc_zone_identifier   = var.private_subnets
   desired_capacity      = var.launch_configuration_desired_capacity
