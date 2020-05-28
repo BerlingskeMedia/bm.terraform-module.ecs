@@ -130,7 +130,7 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
   key_name                      = local.aws_key_pair
   image_id                      = data.aws_ami.vm_ami.id
   instance_type                 = var.instance_type
-  iam_instance_profile          = aws_iam_instance_profile.ecs_ec2_instance_profile.arn
+  iam_instance_profile          = join("",aws_iam_instance_profile.ecs_ec2_instance_profile.*.arn)
   user_data                     = templatefile(
     "${path.module}/cloud-config.yml",
     {
@@ -138,7 +138,7 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
     }
   )
   associate_public_ip_address   = true
-  security_groups               = [aws_security_group.ecs_ec2_security_group.id]
+  security_groups               = [join("",aws_security_group.ecs_ec2_security_group.*.id)]
   root_block_device {
     volume_size = "30"
   }
@@ -151,7 +151,7 @@ resource "aws_autoscaling_group" "ecs_ec2_launch_configuration" {
   desired_capacity      = var.launch_configuration_desired_capacity
   max_size              = var.launch_configuration_max_size
   min_size              = var.launch_configuration_min_size
-  launch_configuration  = aws_launch_configuration.ecs_ec2_launch_configuration.id
+  launch_configuration  = join("",aws_launch_configuration.ecs_ec2_launch_configuration.*.id)
   tags                  = module.label.tags
 }
 
