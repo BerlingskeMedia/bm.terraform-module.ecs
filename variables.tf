@@ -168,13 +168,13 @@ variable "launch_configuration_desired_capacity" {
   description = "Launch configuration desired capacity for ecs ec2 cluster"
 }
 
-variable "launch_configuration_desired_capacity" {
+variable "launch_configuration_max_size" {
   type        = string
   default     = 3
   description = "Launch configuration desired capacity for ecs ec2 cluster"
 }
 
-variable "launch_configuration_desired_capacity" {
+variable "launch_configuration_min_size" {
   type        = string
   default     = 3
   description = "Launch configuration desired capacity for ecs ec2 cluster"
