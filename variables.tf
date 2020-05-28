@@ -149,6 +149,12 @@ variable "ecs_ports" {
   default     = []
 }
 
+variable "launch_type" {
+  type        = string
+  description = "ECS default cluster laynch type"
+  default     = "FARGATE"
+}
+
 # ECS EC2 cluster section
 variable "instance_type" {
   type        = string
@@ -156,11 +162,20 @@ variable "instance_type" {
   default     = "t3.medium"
 }
 
-variable "launch_configuration_capacity" {
-  type        = map
-  default     = {
-    desired_capacity      = 3,
-    max_size              = 3,
-    min_size              = 1,
-  }
+variable "launch_configuration_desired_capacity" {
+  type        = string
+  default     = 3
+  description = "Launch configuration desired capacity for ecs ec2 cluster"
+}
+
+variable "launch_configuration_desired_capacity" {
+  type        = string
+  default     = 3
+  description = "Launch configuration desired capacity for ecs ec2 cluster"
+}
+
+variable "launch_configuration_desired_capacity" {
+  type        = string
+  default     = 3
+  description = "Launch configuration desired capacity for ecs ec2 cluster"
 }
