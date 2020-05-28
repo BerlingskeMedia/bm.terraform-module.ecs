@@ -44,9 +44,116 @@ module "rds" {
   dbname            = var.rds_dbname
 }
 
+# ECS cluster basic configuration
 resource "aws_ecs_cluster" "default" {
   name = module.label.id
   tags = module.label.tags
+}
+
+# ECS cluster configuration when "EC2" launch type is set
+locals {
+  ecs_ec2_role_policies_list = [
+    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess",
+    "arn:aws:iam::aws:policy/AmazonECS_FullAccess",
+    "arn:aws:iam::aws:policy/AWSApplicationDiscoveryServiceFullAccess",
+    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role",
+    "arn:aws:iam::aws:policy/AmazonRoute53FullAccess"
+  ]
+}
+
+data "aws_iam_policy_document" "ec2_role_document" {
+  statement {
+    actions         = ["sts:AssumeRole"]
+    principals {
+      type = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "ecs_ec2_role" {
+  count               = "${var.launch_type == "EC2" 1 : 0}"
+  name                = "${module.label.id}-ec2-role"
+  assume_role_policy  = data.aws_iam_policy_document.ec2_role_document.json
+  tags                = module.label.tags
+}
+
+resource "aws_iam_instance_profile" "ecs_ec2_instance_profile" {
+  count = "${var.launch_type == "EC2" 1 : 0}"
+  name  = "${module.label.id}-ec2-instance-profile"
+  role  = aws_iam_role.ecs_ec2_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_ec2_role_attachement" {
+  count         = "${var.launch_type == "EC2" 1 : 0}"
+  role          = aws_iam_role.ecs_ec2_role.name
+  for_each      = toset(local.ecs_ec2_role_policies_list)
+  policy_arn    = each.value
+}
+
+data "aws_ami" "vm_ami" {
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-ecs-hvm-2.0*"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  owners = ["591542846629"] # Amazon
+}
+
+resource "aws_security_group" "ecs_ec2_security_group" {
+  count     = "${var.launch_type == "EC2" 1 : 0}"
+  name      = "${module.label.id}-ec2-instances-security-group"
+  vpc_id    = local.vpc_id
+
+  ingress {
+    protocol  = -1
+    self      = true
+    from_port = 0
+    to_port   = 0
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags      = module.label.tags
+}
+
+resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
+  count                         = "${var.launch_type == "EC2" 1 : 0}"
+  name                          = "${module.label.id}-launch-configuration"
+  key_name                      = local.aws_key_pair
+  image_id                      = data.aws_ami.vm_ami.id
+  instance_type                 = var.instance_type
+  iam_instance_profile          = aws_iam_instance_profile.ecs_ec2_instance_profile.arn
+  user_data                     = templatefile(
+    "${path.module}/cloud-config.yml",
+    {
+      ecs_cluster_name = "${aws_ecs_cluster.default.name}"
+    }
+  )
+  associate_public_ip_address   = true
+  security_groups               = [aws_security_group.ecs_ec2_security_group.id]
+  root_block_device {
+    volume_size = "30"
+  }
+}
+
+resource "aws_autoscaling_group" "ecs_ec2_launch_configuration" {
+  count                 = "${var.launch_type == "EC2" 1 : 0}"
+  name                  = "${module.label.id}-ec2-autoscalling-group"
+  vpc_zone_identifier   = var.private_subnets
+  desired_capacity      = var.launch_configuration_desired_capacity
+  max_size              = var.launch_configuration_max_size
+  min_size              = var.launch_configuration_min_size
+  launch_configuration  = aws_launch_configuration.ecs_ec2_launch_configuration.id
+  tags                  = module.label.tags
 }
 
 module "ecr" {

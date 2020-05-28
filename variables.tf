@@ -25,7 +25,6 @@ variable "nat_id" {
   description = "NAT Gateway ID"
 }
 
-
 variable "private_subnets" {
   type        = list(string)
   default     = []
@@ -148,4 +147,20 @@ variable "ecs_ports" {
   type        = list(string)
   description = "Ports on which SG will operate"
   default     = []
+}
+
+# ECS EC2 cluster section
+variable "instance_type" {
+  type        = string
+  description = "Instances type for ECS EC2 cluster"
+  default     = "t3.medium"
+}
+
+variable "launch_configuration_capacity" {
+  type        = map
+  default     = {
+    desired_capacity      = 3,
+    max_size              = 3,
+    min_size              = 1,
+  }
 }
