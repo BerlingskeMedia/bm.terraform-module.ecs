@@ -162,6 +162,12 @@ variable "instance_type" {
   default     = "t3.medium"
 }
 
+variable "aws_key_pair" {
+  type        = string
+  description = "AWS instances key pair"
+  default     = null
+}
+
 variable "launch_configuration_desired_capacity" {
   type        = string
   default     = 3
