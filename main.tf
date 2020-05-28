@@ -125,7 +125,7 @@ resource "aws_security_group" "ecs_ec2_security_group" {
 }
 
 resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
-  count                         = var.launch_type == "EC2" && var.aws_key_pair ? 1 : 0
+  count                         = var.launch_type == "EC2" && var.aws_key_pair != "" ? 1 : 0
   name                          = "${module.label.id}-launch-configuration"
   key_name                      = var.aws_key_pair
   image_id                      = data.aws_ami.vm_ami.id

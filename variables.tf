@@ -165,7 +165,7 @@ variable "instance_type" {
 variable "aws_key_pair" {
   type        = string
   description = "AWS instances key pair"
-  default     = null
+  default     = ""
 }
 
 variable "launch_configuration_desired_capacity" {
