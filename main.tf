@@ -85,9 +85,9 @@ resource "aws_iam_instance_profile" "ecs_ec2_instance_profile" {
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_ec2_role_attachement" {
-  count         = var.launch_type == "EC2" ? 1 : 0
+  # count         = var.launch_type == "EC2" ? 1 : 0
   role          = aws_iam_role.ecs_ec2_role.name
-  for_each      = toset(local.ecs_ec2_role_policies_list)
+  for_each      = var.launch_type == "EC2" ? toset(local.ecs_ec2_role_policies_list) : toset([])
   policy_arn    = each.value
 }
 
