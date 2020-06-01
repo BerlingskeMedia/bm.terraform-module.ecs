@@ -1,4 +1,8 @@
 ---
+# 0.1.6
+## Main changes
+    - Add option for creating ECS EC2 clusters
+
 # 0.1.5
 ## Main changes
     - rds module in v0.1.2 (kms bugfix)

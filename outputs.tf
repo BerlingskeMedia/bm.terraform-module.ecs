@@ -53,3 +53,11 @@ output "rds_kms_arn" {
 output "rds_kms_key_id" {
   value = var.run_rds ? module.rds.kms_key_id : ""
 }
+
+output "ecs_ec2_role_arn" {
+  value = var.launch_type == "EC2" ? aws_iam_role.ecs_ec2_role.arn : ""
+}
+
+output "ecs_ec2_instance_profile_arn" {
+  value = var.launch_type == "EC2" ? aws_iam_instance_profile.ecs_ec2_instance_profile.arn : ""
+}

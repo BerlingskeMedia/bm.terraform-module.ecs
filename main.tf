@@ -100,7 +100,7 @@ data "aws_ami" "vm_ami" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-  owners = ["591542846629"] # Amazon
+  owners = ["amazon"] # We want to use only Amazon optimized ecs image
 }
 
 resource "aws_security_group" "ecs_ec2_security_group" {
@@ -137,7 +137,7 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
       ecs_cluster_name = "${aws_ecs_cluster.default.name}"
     }
   )
-  associate_public_ip_address   = true
+  associate_public_ip_address   = false
   security_groups               = [join("",aws_security_group.ecs_ec2_security_group.*.id)]
   root_block_device {
     volume_size = "30"
