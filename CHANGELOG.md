@@ -1,4 +1,8 @@
 ---
+# 0.1.5
+## Main changes
+    - rds module in v0.1.2 (kms bugfix)
+
 # 0.1.4
 ## Main changes
     - use bm.terraform-module.rds-cluster version 0.1.1
