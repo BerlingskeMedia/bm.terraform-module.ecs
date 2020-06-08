@@ -126,7 +126,7 @@ resource "aws_security_group" "ecs_ec2_security_group" {
 
 resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
   count                         = var.launch_type == "EC2" && var.aws_key_pair != "" ? 1 : 0
-  name                          = "${module.label.id}-launch-configuration"
+  name_prefix                   = "${module.label.id}-launch-configuration-"
   key_name                      = var.aws_key_pair
   image_id                      = data.aws_ami.vm_ami.id
   instance_type                 = var.instance_type
@@ -146,7 +146,7 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
 
 resource "aws_autoscaling_group" "ecs_ec2_launch_configuration" {
   count                 = var.launch_type == "EC2" ? 1 : 0
-  name                  = "${module.label.id}-ec2-autoscalling-group"
+  name_prefix           = "${module.label.id}-ec2-autoscalling-group-"
   vpc_zone_identifier   = var.private_subnets
   desired_capacity      = var.launch_configuration_desired_capacity
   max_size              = var.launch_configuration_max_size
