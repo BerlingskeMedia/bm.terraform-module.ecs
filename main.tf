@@ -100,6 +100,10 @@ data "aws_ami" "vm_ami" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
   owners = ["amazon"] # We want to use only Amazon optimized ecs image
 }
 
