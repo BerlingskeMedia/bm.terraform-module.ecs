@@ -133,7 +133,6 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
   name_prefix                   = "${module.label.id}-launch-configuration-"
   key_name                      = var.aws_key_pair
   image_id                      = data.aws_ami.vm_ami.id
-  #image_id                      = "ami-0a74b180a0c97ecd1"
   instance_type                 = var.instance_type
   iam_instance_profile          = join("",aws_iam_instance_profile.ecs_ec2_instance_profile.*.arn)
   user_data                     = templatefile(
@@ -155,7 +154,6 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
 
 resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
   count                 = var.launch_type == "EC2" ? 1 : 0
-  #name_prefix           = "${module.label.id}-ec2-autoscalling-group-"
   name                  = "${module.label.id}-ec2-autoscalling-group"
   vpc_zone_identifier   = var.private_subnets
   desired_capacity      = var.launch_configuration_desired_capacity
