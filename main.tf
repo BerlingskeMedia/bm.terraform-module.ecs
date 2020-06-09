@@ -156,6 +156,7 @@ resource "aws_autoscaling_group" "ecs_ec2_launch_configuration" {
   max_size              = var.launch_configuration_max_size
   min_size              = var.launch_configuration_min_size
   launch_configuration  = join("",aws_launch_configuration.ecs_ec2_launch_configuration.*.id)
+  termination_policies  = ["OldestLaunchConfiguration","OldestInstance"]
   
   dynamic "tag" {
     for_each = module.label.tags
