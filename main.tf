@@ -132,8 +132,8 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
   count                         = var.launch_type == "EC2" && var.aws_key_pair != "" ? 1 : 0
   name_prefix                   = "${module.label.id}-launch-configuration-"
   key_name                      = var.aws_key_pair
-  #image_id                      = data.aws_ami.vm_ami.id
-  image_id                      = "ami-0a74b180a0c97ecd1"
+  image_id                      = data.aws_ami.vm_ami.id
+  #image_id                      = "ami-0a74b180a0c97ecd1"
   instance_type                 = var.instance_type
   iam_instance_profile          = join("",aws_iam_instance_profile.ecs_ec2_instance_profile.*.arn)
   user_data                     = templatefile(
