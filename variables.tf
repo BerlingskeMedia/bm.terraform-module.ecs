@@ -168,19 +168,19 @@ variable "aws_key_pair" {
   default     = ""
 }
 
-variable "launch_configuration_desired_capacity" {
+variable "asg_instances_desired_capacity" {
   type        = string
   default     = 3
   description = "Launch configuration desired capacity for ecs ec2 cluster"
 }
 
-variable "launch_configuration_max_size" {
+variable "asg_instances_max_size" {
   type        = string
   default     = 3
   description = "Launch configuration desired capacity for ecs ec2 cluster"
 }
 
-variable "launch_configuration_min_size" {
+variable "asg_instances_min_size" {
   type        = string
   default     = 3
   description = "Launch configuration desired capacity for ecs ec2 cluster"
@@ -190,4 +190,10 @@ variable "max_instance_lifetime" {
   type        = string
   default     = 604800 # 1 week in seconds
   description = "Time of life for instances in Autoscalling group"
+}
+
+variable "asg_termination_policies" {
+  type        = list
+  default     = ["OldestLaunchConfiguration","OldestInstance"]
+  description = "Default policies for vm termination in ASG"
 }

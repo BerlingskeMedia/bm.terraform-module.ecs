@@ -156,12 +156,12 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
   count                 = var.launch_type == "EC2" ? 1 : 0
   name                  = "${module.label.id}-ec2-autoscalling-group"
   vpc_zone_identifier   = var.private_subnets
-  desired_capacity      = var.launch_configuration_desired_capacity
-  max_size              = var.launch_configuration_max_size
-  min_size              = var.launch_configuration_min_size
+  desired_capacity      = var.asg_instances_desired_capacity
+  max_size              = var.asg_instances_max_size
+  min_size              = var.asg_instances_min_size
   launch_configuration  = join("",aws_launch_configuration.ecs_ec2_launch_configuration.*.id)
-  termination_policies  = ["OldestLaunchConfiguration","OldestInstance"]
-  max_instance_lifetime = var.max_instance_lifetime
+  termination_policies  = var.asg_termination_policies
+  max_instance_lifetime = var.asg_max_instance_lifetime
   
   dynamic "tag" {
     for_each = module.label.tags
