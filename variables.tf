@@ -186,7 +186,7 @@ variable "asg_instances_min_size" {
   description = "Launch configuration desired capacity for ecs ec2 cluster"
 }
 
-variable "max_instance_lifetime" {
+variable "asg_max_instance_lifetime" {
   type        = string
   default     = 604800 # 1 week in seconds
   description = "Time of life for instances in Autoscalling group"
