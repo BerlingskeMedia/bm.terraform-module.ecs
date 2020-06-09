@@ -185,3 +185,9 @@ variable "launch_configuration_min_size" {
   default     = 3
   description = "Launch configuration desired capacity for ecs ec2 cluster"
 }
+
+variable "max_instance_lifetime" {
+  type        = string
+  default     = 604800 # 1 week in seconds
+  description = "Time of life for instances in Autoscalling group"
+}

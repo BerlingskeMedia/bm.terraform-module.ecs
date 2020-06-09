@@ -148,7 +148,7 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
   }
 }
 
-resource "aws_autoscaling_group" "ecs_ec2_launch_configuration" {
+resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
   count                 = var.launch_type == "EC2" ? 1 : 0
   name_prefix           = "${module.label.id}-ec2-autoscalling-group-"
   vpc_zone_identifier   = var.private_subnets
@@ -157,6 +157,7 @@ resource "aws_autoscaling_group" "ecs_ec2_launch_configuration" {
   min_size              = var.launch_configuration_min_size
   launch_configuration  = join("",aws_launch_configuration.ecs_ec2_launch_configuration.*.id)
   termination_policies  = ["OldestLaunchConfiguration","OldestInstance"]
+  max_instance_lifetime = var.max_instance_lifetime
   
   dynamic "tag" {
     for_each = module.label.tags
