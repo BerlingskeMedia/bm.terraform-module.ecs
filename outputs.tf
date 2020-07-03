@@ -61,3 +61,11 @@ output "ecs_ec2_role_arn" {
 output "ecs_ec2_instance_profile_arn" {
   value = var.launch_type == "EC2" ? aws_iam_instance_profile.ecs_ec2_instance_profile[0].arn : ""
 }
+
+output "ecs_ec2_asg" {
+  value = var.launch_type == "EC2" ? aws_autoscaling_group.ecs_ec2_autoscalling_group[0].arn : ""
+}
+
+output "ecs_ec2_launch_configuration" {
+  value = var.launch_type == "EC2" ? aws_launch_configuration.ecs_ec2_launch_configuration[0].arn : ""
+}
