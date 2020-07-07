@@ -75,7 +75,7 @@ module "alb" {
 
 
 module "rds" {
-  source  = "git@github.com:BerlingskeMedia/bm.terraform-module.rds-cluster?ref=production"
+  source  = "git@github.com:BerlingskeMedia/bm.terraform-module.aurora-rds-cluster?ref=production"
   enabled = var.enabled && var.run_rds
 
   name              = var.name
