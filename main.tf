@@ -94,7 +94,7 @@ data "aws_ami" "vm_ami" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["amzn2-ami-ecs-hvm-2.0*"]
+    values = [var.instance_ami_name_regex]
   }
   filter {
     name   = "virtualization-type"

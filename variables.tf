@@ -156,6 +156,12 @@ variable "launch_type" {
 }
 
 # ECS EC2 cluster section
+variable "instance_ami_name_regex" {
+  type        = string
+  description = "Instance ami name regex"
+  default     = "amzn2-ami-ecs-hvm-2.0*"
+}
+
 variable "instance_type" {
   type        = string
   description = "Instances type for ECS EC2 cluster"
