@@ -25,7 +25,6 @@ variable "nat_id" {
   description = "NAT Gateway ID"
 }
 
-
 variable "private_subnets" {
   type        = list(string)
   default     = []
@@ -148,4 +147,59 @@ variable "ecs_ports" {
   type        = list(string)
   description = "Ports on which SG will operate"
   default     = []
+}
+
+variable "launch_type" {
+  type        = string
+  description = "ECS default cluster laynch type"
+  default     = "FARGATE"
+}
+
+# ECS EC2 cluster section
+variable "instance_ami_name_regex" {
+  type        = string
+  description = "Instance ami name regex"
+  default     = "amzn2-ami-ecs-hvm-2.0*"
+}
+
+variable "instance_type" {
+  type        = string
+  description = "Instances type for ECS EC2 cluster"
+  default     = "t3a.medium"
+}
+
+variable "aws_key_pair" {
+  type        = string
+  description = "AWS instances key pair"
+  default     = ""
+}
+
+variable "asg_instances_desired_capacity" {
+  type        = string
+  default     = 3
+  description = "Launch configuration desired capacity for ecs ec2 cluster"
+}
+
+variable "asg_instances_max_size" {
+  type        = string
+  default     = 3
+  description = "Launch configuration desired capacity for ecs ec2 cluster"
+}
+
+variable "asg_instances_min_size" {
+  type        = string
+  default     = 3
+  description = "Launch configuration desired capacity for ecs ec2 cluster"
+}
+
+variable "asg_max_instance_lifetime" {
+  type        = string
+  default     = 604800 # 1 week in seconds
+  description = "Time of life for instances in Autoscalling group"
+}
+
+variable "asg_termination_policies" {
+  type        = list
+  default     = ["OldestLaunchConfiguration","OldestInstance"]
+  description = "Default policies for vm termination in ASG"
 }
