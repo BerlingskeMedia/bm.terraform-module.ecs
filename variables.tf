@@ -159,7 +159,7 @@ variable "launch_type" {
 variable "instance_type" {
   type        = string
   description = "Instances type for ECS EC2 cluster"
-  default     = "t3.medium"
+  default     = "t3a.medium"
 }
 
 variable "aws_key_pair" {
