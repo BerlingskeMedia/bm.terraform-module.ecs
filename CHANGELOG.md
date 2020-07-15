@@ -1,4 +1,8 @@
 ---
+# 0.1.7
+## Main changes
+    - Remove all code related to rds - use separated module if you need database
+
 # 0.1.6
 ## Main changes
     - Add option for creating ECS EC2 clusters

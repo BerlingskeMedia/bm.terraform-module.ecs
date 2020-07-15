@@ -155,7 +155,7 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
 }
 
 module "ecr" {
-  source      = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr"
+  source      = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=tags/0.1.0"
   enabled     = var.enabled && var.ecr_enabled
   name        = var.name
   namespace   = var.namespace

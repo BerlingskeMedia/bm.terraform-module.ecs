@@ -26,6 +26,10 @@ output "secret_key" {
   value = join("", data.aws_ssm_parameter.secret_key.*.value)
 }
 
+output "ecr_urls" {
+  value = module.ecr.name_to_url
+}
+
 output "ecs_ec2_role_arn" {
   value = var.launch_type == "EC2" ? aws_iam_role.ecs_ec2_role[0].arn : ""
 }
