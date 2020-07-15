@@ -69,55 +69,6 @@ variable "tags" {
   #no default
 }
 
-#### RDS section
-variable "run_rds" {
-  type        = bool
-  description = "Should run RDS cluster?"
-  default     = false
-}
-variable "rds_port" {
-  type        = string
-  description = "RDS port"
-  default     = "3306"
-  #sane default
-}
-
-variable "rds_admin" {
-  type        = string
-  description = "RDS root username"
-  default     = ""
-}
-variable "rds_db_engine" {
-  type        = string
-  default     = "aurora-mysql"
-  description = "The name of the database engine to be used for this DB cluster. Valid values: `aurora`, `aurora-mysql`, `aurora-postgresql`"
-}
-
-variable "rds_db_cluster_family" {
-  type        = string
-  default     = "aurora-mysql5.7"
-  description = "The family of the DB cluster parameter group"
-}
-
-variable "rds_instaces_count" {
-  type        = string
-  description = "How many instances should run in cluster"
-  default     = "1"
-}
-
-variable "rds_instance_type" {
-  type        = string
-  description = "Instance type"
-  default     = "db.t3.small"
-}
-
-variable "rds_dbname" {
-  type        = string
-  description = "RDS database name"
-  default     = "dbname"
-}
-
-
 #### ECS section
 
 variable "log_retention_in_days" {

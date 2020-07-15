@@ -24,26 +24,6 @@ module "security" {
   alb_enabled = true
 }
 
-module "rds" {
-  source  = "git@github.com:BerlingskeMedia/bm.terraform-module.rds-cluster?ref=tags/0.1.2"
-  enabled = var.enabled && var.run_rds
-
-  name              = var.name
-  namespace         = var.namespace
-  attributes        = compact(concat(var.attributes, ["rds"]))
-  rds_port          = var.rds_port
-  stage             = var.stage
-  subnets           = var.private_subnets
-  vpc_id            = var.vpc_id
-  tags              = var.tags
-  db_engine         = var.rds_db_engine
-  db_cluster_family = var.rds_db_cluster_family
-  db_cluster_size   = var.rds_instaces_count
-  db_instance_type  = var.rds_instance_type
-  db_root_user      = var.rds_admin
-  dbname            = var.rds_dbname
-}
-
 # ECS cluster basic configuration
 resource "aws_ecs_cluster" "default" {
   name = module.label.id
@@ -175,14 +155,13 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
 }
 
 module "ecr" {
-  source = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr"
-  //source = "../bm.terraform-module.ecr"
-  enabled    = var.enabled && var.ecr_enabled
-  name       = var.name
-  namespace  = var.namespace
-  stage      = var.stage
-  attributes = compact(concat(var.attributes, ["ecr"]))
-  namespaces = var.ecr_namespaces
+  source      = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=tags/0.1.0"
+  enabled     = var.enabled && var.ecr_enabled
+  name        = var.name
+  namespace   = var.namespace
+  stage       = var.stage
+  attributes  = compact(concat(var.attributes, ["ecr"]))
+  namespaces  = var.ecr_namespaces
 }
 
 resource "aws_security_group" "ecs_sg_internal" {
@@ -206,23 +185,7 @@ resource "aws_security_group" "ecs_sg_internal" {
   
   tags = merge(var.tags, { "Name" = "${module.label.id}-ecs-internal" })
 }
-locals {
-  // if RDS enabled - provide credentials
-  rds_envs = var.run_rds ? [{
-    name  = "MYSQL_DATABASE"
-    value = module.rds.db_name
-    }, {
-    name  = "MYSQL_USER"
-    value = module.rds.root_username
-    }, {
-    name  = "MYSQL_HOST"
-    value = join("", module.rds.endpoind_ssm_arn)
-    }, {
-    name  = "MYSQL_PASSWORD"
-    value = join("", module.rds.password_ssm_arn)
-  }] : []
 
-}
 # Create user for drone.io
 
 module "drone-io" {
@@ -249,8 +212,6 @@ data "aws_ssm_parameter" "secret_key" {
 
 locals {
   repository_name = length(module.ecr.repository_name) > 0 ? element(module.ecr.repository_name, 0) : ""
-  ssm_arns        = concat(module.rds.ssm_arns)
-  kms_arns        = concat(module.rds.kms_arns)
 }
 
 data "aws_iam_policy_document" "ecs_exec" {
@@ -282,44 +243,6 @@ data "aws_iam_policy_document" "ecs_exec" {
       "servicediscovery:List*",
       "servicediscovery:DiscoverInstances"
     ]
-  }
-  # If RDS enabled - access to RDS
-  dynamic "statement" {
-    for_each = var.run_rds ? ["true"] : []
-    content {
-      effect    = "Allow"
-      resources = module.rds.dbuser_arns
-
-      actions = [
-        "rds-db:connect"
-      ]
-    }
-  }
-  # If any SSM parameters created in this manifest - allow access to them
-  dynamic "statement" {
-    for_each = length(local.ssm_arns) > 0 ? ["true"] : []
-    content {
-      effect    = "Allow"
-      resources = local.ssm_arns
-
-      actions = [
-        "ssm:GetParameters"
-      ]
-    }
-  }
-  # If any KMS created in this manifest - allow access to them
-  dynamic "statement" {
-    for_each = length(local.kms_arns) > 0 ? ["true"] : []
-    content {
-      effect    = "Allow"
-      resources = local.kms_arns
-
-      actions = [
-        "kms:DescribeKey",
-        "kms:GenerateDataKey",
-        "kms:Decrypt"
-      ]
-    }
   }
 }
 
