@@ -25,10 +25,16 @@ variable "nat_id" {
   description = "NAT Gateway ID"
 }
 
+variable "public_subnets" {
+  type        = list(string)
+  default     = []
+  description = "List of public subnet's ID"
+}
+
 variable "private_subnets" {
   type        = list(string)
   default     = []
-  description = "List of private subnet's ID" //. Will be ignored if parameter application_cidr==true"
+  description = "List of private subnet's ID"
 }
 
 variable "namespace" {
@@ -153,4 +159,24 @@ variable "asg_termination_policies" {
   type        = list
   default     = ["OldestLaunchConfiguration","OldestInstance"]
   description = "Default policies for vm termination in ASG"
+}
+
+# ALB variables
+
+variable "alb_main_domain" {
+  type        = string
+  description = "Domain name for all services and acm certificate"
+  default     = "berlingskemedia-testing.net"
+}
+
+variable "alb_internal_create" {
+  type        = bool
+  description = "Determine if module will create internal ALB"
+  default     = false
+}
+
+variable "alb_external_create" {
+  type        = bool
+  description = "Determine if module will create external ALB"
+  default     = false
 }

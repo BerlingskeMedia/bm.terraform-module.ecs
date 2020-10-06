@@ -252,7 +252,81 @@ resource "aws_cloudwatch_log_group" "app" {
   retention_in_days = var.log_retention_in_days
 }
 
+# ACM
 
+data "aws_route53_zone" "zone" {
+  name         = "${var.alb_main_domain}."
+  private_zone = false
+}
 
+resource "aws_acm_certificate" "alb_cert" {
+  count                     = (var.alb_internal_create || var.alb_external_create) && var.alb_domain != "" ? 1 : 0
+  domain_name               = "${var.name}.${var.namespace}.${var.alb_main_domain}"
+  subject_alternative_names = ["*.${var.name}.${var.namespace}.${var.alb_main_domain}"]
+  validation_method         = "DNS"
+}
 
+resource "aws_route53_record" "alb_cert_validation" {
+  count   = (var.alb_internal_create || var.alb_external_create) && var.alb_domain != "" ? 1 : 0
+  name    = aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_name
+  type    = aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_type
+  zone_id = data.aws_route53_zone.zone.zone_id
+  records = [aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_value]
+  ttl     = 60
+}
 
+resource "aws_acm_certificate_validation" "alb_cert" {
+  count                   = (var.alb_internal_create || var.alb_external_create) && var.alb_domain != "" ? 1 : 0
+  certificate_arn         = aws_acm_certificate.alb_cert.0.arn
+  validation_record_fqdns = [aws_route53_record.alb_cert_validation.0.fqdn]
+}
+
+# ALB
+
+module "alb_default_internal" {
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
+  namespace                               = var.namespace
+  name                                    = var.name
+  stage                                   = var.stage
+  attributes                              = var.attributes
+  vpc_id                                  = var.vpc_id
+  security_group_ids                      = [module.security.alb_sg_id]
+  subnet_ids                              = var.private_subnets
+  internal                                = true
+  http_enabled                            = true
+  http_redirect                           = true
+  https_enabled                           = true
+  certificate_arn                         = aws_acm_certificate.alb_cert.arn
+  access_logs_enabled                     = false
+  alb_access_logs_s3_bucket_force_destroy = true
+  access_logs_region                      = var.region
+  cross_zone_load_balancing_enabled       = true
+  http2_enabled                           = true
+  deletion_protection_enabled             = false
+  tags                                    = module.label.tags
+  health_check_path                       = "/"
+}
+
+module "alb_default_external" {
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
+  namespace                               = var.namespace
+  name                                    = var.name
+  stage                                   = var.stage
+  attributes                              = var.attributes
+  vpc_id                                  = var.vpc_id
+  security_group_ids                      = [module.security.alb_sg_id]
+  subnet_ids                              = var.public_subnets
+  internal                                = false
+  http_enabled                            = true
+  http_redirect                           = true
+  https_enabled                           = true
+  certificate_arn                         = aws_acm_certificate.alb_cert.arn
+  access_logs_enabled                     = false
+  alb_access_logs_s3_bucket_force_destroy = true
+  access_logs_region                      = local.region
+  cross_zone_load_balancing_enabled       = true
+  http2_enabled                           = true
+  deletion_protection_enabled             = false
+  tags                                    = module.label.tags
+  health_check_path                       = "/"
+}
