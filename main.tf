@@ -260,7 +260,7 @@ data "aws_route53_zone" "zone" {
 }
 
 resource "aws_acm_certificate" "alb_cert" {
-  count                     = (var.alb_internal_create || var.alb_external_create) && var.alb_domain != "" ? 1 : 0
+  count                     = (var.alb_internal_create || var.alb_external_create) && var.alb_main_domain != "" ? 1 : 0
   domain_name               = "${var.name}.${var.namespace}.${var.alb_main_domain}"
   subject_alternative_names = ["*.${var.name}.${var.namespace}.${var.alb_main_domain}"]
   validation_method         = "DNS"

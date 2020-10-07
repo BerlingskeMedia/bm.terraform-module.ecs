@@ -165,7 +165,7 @@ variable "asg_termination_policies" {
 
 variable "alb_main_domain" {
   type        = string
-  description = "Domain name for all services and acm certificate"
+  description = "Main domain name for all services and acm certificate"
   default     = "berlingskemedia-testing.net"
 }
 
