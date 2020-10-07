@@ -267,7 +267,7 @@ resource "aws_acm_certificate" "alb_cert" {
 }
 
 resource "aws_route53_record" "alb_cert_validation" {
-  count   = (var.alb_internal_create || var.alb_external_create) && var.alb_domain != "" ? 1 : 0
+  count   = (var.alb_internal_create || var.alb_external_create) && var.alb_main_domain != "" ? 1 : 0
   name    = aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_name
   type    = aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_type
   zone_id = data.aws_route53_zone.zone.zone_id
@@ -276,7 +276,7 @@ resource "aws_route53_record" "alb_cert_validation" {
 }
 
 resource "aws_acm_certificate_validation" "alb_cert" {
-  count                   = (var.alb_internal_create || var.alb_external_create) && var.alb_domain != "" ? 1 : 0
+  count                   = (var.alb_internal_create || var.alb_external_create) && var.alb_main_domain != "" ? 1 : 0
   certificate_arn         = aws_acm_certificate.alb_cert.0.arn
   validation_record_fqdns = [aws_route53_record.alb_cert_validation.0.fqdn]
 }
