@@ -286,7 +286,7 @@ resource "aws_acm_certificate_validation" "alb_cert" {
 module "alb_default_internal" {
   source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
   namespace                               = var.namespace
-  name                                    = var.name
+  name                                    = "${var.name}-i"
   stage                                   = var.stage
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
@@ -310,7 +310,7 @@ module "alb_default_internal" {
 module "alb_default_external" {
   source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
   namespace                               = var.namespace
-  name                                    = var.name
+  name                                    = "${var.name}-e"
   stage                                   = var.stage
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
