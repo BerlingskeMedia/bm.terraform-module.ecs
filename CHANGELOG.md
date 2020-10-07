@@ -1,4 +1,9 @@
 ---
+# 0.2.0
+## Main changes
+    - Add external and internal ALB by default
+    - Add wildcard certificate for every project
+
 # 0.1.7
 ## Main changes
     - Remove all code related to rds - use separated module if you need database
