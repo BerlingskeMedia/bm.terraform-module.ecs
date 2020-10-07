@@ -296,7 +296,7 @@ module "alb_default_internal" {
   http_enabled                            = true
   http_redirect                           = true
   https_enabled                           = true
-  certificate_arn                         = aws_acm_certificate.alb_cert.arn
+  certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
   access_logs_region                      = var.region
@@ -320,7 +320,7 @@ module "alb_default_external" {
   http_enabled                            = true
   http_redirect                           = true
   https_enabled                           = true
-  certificate_arn                         = aws_acm_certificate.alb_cert.arn
+  certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
   access_logs_region                      = var.region
