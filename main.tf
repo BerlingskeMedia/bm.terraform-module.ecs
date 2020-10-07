@@ -323,7 +323,7 @@ module "alb_default_external" {
   certificate_arn                         = aws_acm_certificate.alb_cert.arn
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
-  access_logs_region                      = local.region
+  access_logs_region                      = var.region
   cross_zone_load_balancing_enabled       = true
   http2_enabled                           = true
   deletion_protection_enabled             = false
