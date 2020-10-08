@@ -283,9 +283,12 @@ resource "aws_acm_certificate_validation" "alb_cert" {
 
 # ALB
 
+# ALBs and ALBs target groups names
 locals {
-  external_alb_name = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, 22)}-e"
-  internal_alb_name = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, 22)}-i"
+  internal_alb_name             = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, 22)}-i"
+  internal_alb_default_tg_name  = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, 19)}-idtg"
+  external_alb_name             = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, 22)}-e"
+  external_alb_default_tg_name  = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, 19)}-edtg"
 }
 
 module "alb_default_internal" {
@@ -298,6 +301,7 @@ module "alb_default_internal" {
   security_group_ids                      = [module.security.alb_sg_id]
   subnet_ids                              = var.private_subnets
   internal                                = true
+  target_group_name                       = local.internal_alb_default_tg_name
   http_enabled                            = var.alb_internal_http_enable && var.alb_internal_create ? true : false
   http_redirect                           = var.alb_internal_http_redirect && var.alb_internal_create ? true : false
   https_enabled                           = var.alb_internal_https_enable && var.alb_internal_create ? true : false
@@ -323,6 +327,7 @@ module "alb_default_external" {
   security_group_ids                      = [module.security.alb_sg_id]
   subnet_ids                              = var.public_subnets
   internal                                = false
+  target_group_name                       = local.external_alb_default_tg_name
   http_enabled                            = var.alb_external_http_enable && var.alb_external_create ? true : false
   http_redirect                           = var.alb_external_http_redirect && var.alb_external_create ? true : false
   https_enabled                           = var.alb_external_https_enable && var.alb_external_create ? true : false
