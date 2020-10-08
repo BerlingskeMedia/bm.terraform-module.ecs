@@ -169,14 +169,68 @@ variable "alb_main_domain" {
   default     = "berlingskemedia-testing.net"
 }
 
+variable "alb_https_policy" {
+  type        = string
+  default     = "ELBSecurityPolicy-TLS-1-2-2017-01"
+  description = "Set ALB https listener TLS policy"
+}
+
 variable "alb_internal_create" {
   type        = bool
   description = "Determine if module will create internal ALB"
   default     = false
 }
 
+variable "alb_internal_http_enable" {
+  type        = bool
+  default     = true
+  description = "Determine if you want to enable http listener"
+}
+
+variable "alb_internal_http_redirect" {
+  type        = bool
+  default     = true
+  description = "Determine if you want to enable http to https redirects"
+}
+
+variable "alb_internal_https_enable" {
+  type        = bool
+  default     = true
+  description = "Determine if you want to enable https listener"
+}
+
+variable "alb_internal_http2_enable" {
+  type        = bool
+  default     = true
+  description = "Determine if you want to enable http2 listener"
+}
+
 variable "alb_external_create" {
   type        = bool
   description = "Determine if module will create external ALB"
   default     = false
+}
+
+variable "alb_external_http_enable" {
+  type        = bool
+  default     = true
+  description = "Determine if you want to enable http listener"
+}
+
+variable "alb_external_http_redirect" {
+  type        = bool
+  default     = true
+  description = "Determine if you want to enable http to https redirects"
+}
+
+variable "alb_external_https_enable" {
+  type        = bool
+  default     = true
+  description = "Determine if you want to enable https listener"
+}
+
+variable "alb_external_http2_enable" {
+  type        = bool
+  default     = true
+  description = "Determine if you want to enable http2 listener"
 }

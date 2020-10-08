@@ -283,25 +283,31 @@ resource "aws_acm_certificate_validation" "alb_cert" {
 
 # ALB
 
+locals {
+  external_alb_name = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, 22)}-e"
+  internal_alb_name = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, 22)}-i"
+}
+
 module "alb_default_internal" {
   source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
   namespace                               = var.namespace
-  name                                    = "${var.name}-i"
+  name                                    = local.internal_alb_name
   stage                                   = var.stage
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
   security_group_ids                      = [module.security.alb_sg_id]
   subnet_ids                              = var.private_subnets
   internal                                = true
-  http_enabled                            = true
-  http_redirect                           = true
-  https_enabled                           = true
+  http_enabled                            = var.alb_internal_http_enable && var.alb_internal_create ? true : false
+  http_redirect                           = var.alb_internal_http_redirect && var.alb_internal_create ? true : false
+  https_enabled                           = var.alb_internal_https_enable && var.alb_internal_create ? true : false
+  https_ssl_policy                        = var.alb_internal_https_enable && var.alb_internal_create ? var.alb_https_policy : null
   certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
   access_logs_region                      = var.region
   cross_zone_load_balancing_enabled       = true
-  http2_enabled                           = true
+  http2_enabled                           = var.alb_internal_http2_enable && var.alb_internal_create ? true : false
   deletion_protection_enabled             = false
   tags                                    = module.label.tags
   health_check_path                       = "/"
@@ -310,22 +316,23 @@ module "alb_default_internal" {
 module "alb_default_external" {
   source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
   namespace                               = var.namespace
-  name                                    = "${var.name}-e"
+  name                                    = local.external_alb_name
   stage                                   = var.stage
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
   security_group_ids                      = [module.security.alb_sg_id]
   subnet_ids                              = var.public_subnets
   internal                                = false
-  http_enabled                            = true
-  http_redirect                           = true
-  https_enabled                           = true
+  http_enabled                            = var.alb_external_http_enable && var.alb_external_create ? true : false
+  http_redirect                           = var.alb_external_http_redirect && var.alb_external_create ? true : false
+  https_enabled                           = var.alb_external_https_enable && var.alb_external_create ? true : false
+  https_ssl_policy                        = var.alb_external_https_enable && var.alb_external_create ? var.alb_https_policy : null
   certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
   access_logs_region                      = var.region
   cross_zone_load_balancing_enabled       = true
-  http2_enabled                           = true
+  http2_enabled                           = var.alb_external_http2_enable && var.alb_external_create ? true : false
   deletion_protection_enabled             = false
   tags                                    = module.label.tags
   health_check_path                       = "/"
