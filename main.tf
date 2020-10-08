@@ -260,14 +260,14 @@ data "aws_route53_zone" "zone" {
 }
 
 resource "aws_acm_certificate" "alb_cert" {
-  count                     = (var.alb_internal_create || var.alb_external_create) && var.alb_main_domain != "" ? 1 : 0
+  count                     = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? 1 : 0
   domain_name               = "${var.name}.${var.namespace}.${var.alb_main_domain}"
   subject_alternative_names = ["*.${var.name}.${var.namespace}.${var.alb_main_domain}"]
   validation_method         = "DNS"
 }
 
 resource "aws_route53_record" "alb_cert_validation" {
-  count   = (var.alb_internal_create || var.alb_external_create) && var.alb_main_domain != "" ? 1 : 0
+  count   = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? 1 : 0
   name    = aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_name
   type    = aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_type
   zone_id = data.aws_route53_zone.zone.zone_id
@@ -276,7 +276,7 @@ resource "aws_route53_record" "alb_cert_validation" {
 }
 
 resource "aws_acm_certificate_validation" "alb_cert" {
-  count                   = (var.alb_internal_create || var.alb_external_create) && var.alb_main_domain != "" ? 1 : 0
+  count                   = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? 1 : 0
   certificate_arn         = aws_acm_certificate.alb_cert.0.arn
   validation_record_fqdns = [aws_route53_record.alb_cert_validation.0.fqdn]
 }
@@ -307,16 +307,16 @@ module "alb_default_internal" {
   subnet_ids                              = var.private_subnets
   internal                                = true
   target_group_name                       = local.internal_alb_default_tg_name
-  http_enabled                            = var.alb_internal_http_enable && var.alb_internal_create ? true : false
-  http_redirect                           = var.alb_internal_http_redirect && var.alb_internal_create ? true : false
-  https_enabled                           = var.alb_internal_https_enable && var.alb_internal_create ? true : false
-  https_ssl_policy                        = var.alb_internal_https_enable && var.alb_internal_create ? var.alb_https_policy : null
+  http_enabled                            = var.alb_internal_http_enable && var.alb_internal_enabled ? true : false
+  http_redirect                           = var.alb_internal_http_redirect && var.alb_internal_enabled ? true : false
+  https_enabled                           = var.alb_internal_https_enable && var.alb_internal_enabled ? true : false
+  https_ssl_policy                        = var.alb_internal_https_enable && var.alb_internal_enabled ? var.alb_https_policy : null
   certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
   access_logs_region                      = var.region
   cross_zone_load_balancing_enabled       = true
-  http2_enabled                           = var.alb_internal_http2_enable && var.alb_internal_create ? true : false
+  http2_enabled                           = var.alb_internal_http2_enable && var.alb_internal_enabled ? true : false
   deletion_protection_enabled             = false
   tags                                    = module.label.tags
   health_check_path                       = "/"
@@ -335,16 +335,16 @@ module "alb_default_external" {
   subnet_ids                              = var.public_subnets
   internal                                = false
   target_group_name                       = local.external_alb_default_tg_name
-  http_enabled                            = var.alb_external_http_enable && var.alb_external_create ? true : false
-  http_redirect                           = var.alb_external_http_redirect && var.alb_external_create ? true : false
-  https_enabled                           = var.alb_external_https_enable && var.alb_external_create ? true : false
-  https_ssl_policy                        = var.alb_external_https_enable && var.alb_external_create ? var.alb_https_policy : null
+  http_enabled                            = var.alb_external_http_enable && var.alb_external_enabled ? true : false
+  http_redirect                           = var.alb_external_http_redirect && var.alb_external_enabled ? true : false
+  https_enabled                           = var.alb_external_https_enable && var.alb_external_enabled ? true : false
+  https_ssl_policy                        = var.alb_external_https_enable && var.alb_external_enabled ? var.alb_https_policy : null
   certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
   access_logs_region                      = var.region
   cross_zone_load_balancing_enabled       = true
-  http2_enabled                           = var.alb_external_http2_enable && var.alb_external_create ? true : false
+  http2_enabled                           = var.alb_external_http2_enable && var.alb_external_enabled ? true : false
   deletion_protection_enabled             = false
   tags                                    = module.label.tags
   health_check_path                       = "/"
