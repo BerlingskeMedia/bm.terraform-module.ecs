@@ -20,10 +20,10 @@ output "aws_cloudwatch_log_group_name" {
 }
 
 output "access_key" {
-  value = join("", data.aws_ssm_parameter.access_key.*.value)
+  value = module.drone-io.access_key
 }
 output "secret_key" {
-  value = join("", data.aws_ssm_parameter.secret_key.*.value)
+  value = module.drone-io.secret_key
 }
 
 output "ecr_urls" {
