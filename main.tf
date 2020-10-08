@@ -283,19 +283,21 @@ resource "aws_acm_certificate_validation" "alb_cert" {
 
 # ALB
 
-# ALBs and ALBs target groups names
+# ALB short names and ALBs target groups names
 locals {
-  internal_alb_name             = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, min(length(var.name), 18))}-i"
-  internal_alb_default_tg_name  = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, min(length(var.name), 18))}-idtg"
-  external_alb_name             = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, min(length(var.name), 18))}-e"
-  external_alb_default_tg_name  = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, min(length(var.name), 18))}-edtg"
+  alb_namespace_short           = substr(var.namespace, 0, 3)
+  alb_stage_short               = substr(var.stage, 0, 0)
+  alb_internal_name_short       = "${substr(var.name, 0, min(length(var.name), 18))}-i"
+  alb_external_name_short       = "${substr(var.name, 0, min(length(var.name), 18))}-e"
+  internal_alb_default_tg_name  = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_internal_name_short}dtg"
+  external_alb_default_tg_name  = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_external_name_short}dtg"
 }
 
 module "alb_default_internal" {
   source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
-  namespace                               = var.namespace
-  name                                    = local.internal_alb_name
-  stage                                   = var.stage
+  namespace                               = local.alb_namespace_short
+  name                                    = local.alb_internal_name_short
+  stage                                   = local.alb_stage_short
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
   security_group_ids                      = [module.security.alb_sg_id]
@@ -319,9 +321,9 @@ module "alb_default_internal" {
 
 module "alb_default_external" {
   source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
-  namespace                               = var.namespace
-  name                                    = local.external_alb_name
-  stage                                   = var.stage
+  namespace                               = local.alb_namespace_short
+  name                                    = local.alb_internal_name_short
+  stage                                   = local.alb_stage_short
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
   security_group_ids                      = [module.security.alb_sg_id]
