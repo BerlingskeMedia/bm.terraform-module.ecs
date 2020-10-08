@@ -308,7 +308,7 @@ module "alb_default_internal" {
   internal                                = true
   target_group_name                       = local.internal_alb_default_tg_name
   http_enabled                            = var.alb_internal_http_enable && var.alb_internal_enabled ? true : false
-  http_redirect                           = var.alb_internal_http_redirect && var.alb_internal_enabled ? true : false
+  http_redirect                           = var.alb_internal_http_redirect && var.alb_internal_http_enable && var.alb_internal_enabled ? true : false
   https_enabled                           = var.alb_internal_https_enable && var.alb_internal_enabled ? true : false
   https_ssl_policy                        = var.alb_internal_https_enable && var.alb_internal_enabled ? var.alb_https_policy : null
   certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
@@ -336,7 +336,7 @@ module "alb_default_external" {
   internal                                = false
   target_group_name                       = local.external_alb_default_tg_name
   http_enabled                            = var.alb_external_http_enable && var.alb_external_enabled ? true : false
-  http_redirect                           = var.alb_external_http_redirect && var.alb_external_enabled ? true : false
+  http_redirect                           = var.alb_external_http_redirect && var.alb_external_http_enable && var.alb_external_enabled ? true : false
   https_enabled                           = var.alb_external_https_enable && var.alb_external_enabled ? true : false
   https_ssl_policy                        = var.alb_external_https_enable && var.alb_external_enabled ? var.alb_https_policy : null
   certificate_arn                         = aws_acm_certificate.alb_cert[0].arn

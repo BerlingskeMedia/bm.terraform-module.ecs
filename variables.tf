@@ -183,13 +183,13 @@ variable "alb_internal_enabled" {
 
 variable "alb_internal_http_enable" {
   type        = bool
-  default     = true
+  default     = false
   description = "Determine if you want to enable http listener"
 }
 
 variable "alb_internal_http_redirect" {
   type        = bool
-  default     = true
+  default     = false
   description = "Determine if you want to enable http to https redirects"
 }
 
@@ -213,13 +213,13 @@ variable "alb_external_enabled" {
 
 variable "alb_external_http_enable" {
   type        = bool
-  default     = true
+  default     = false
   description = "Determine if you want to enable http listener"
 }
 
 variable "alb_external_http_redirect" {
   type        = bool
-  default     = true
+  default     = false
   description = "Determine if you want to enable http to https redirects"
 }
 
