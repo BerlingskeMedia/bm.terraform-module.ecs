@@ -322,7 +322,7 @@ module "alb_default_internal" {
 module "alb_default_external" {
   source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
   namespace                               = local.alb_namespace_short
-  name                                    = local.alb_internal_name_short
+  name                                    = local.alb_external_name_short
   stage                                   = local.alb_stage_short
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
