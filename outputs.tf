@@ -45,3 +45,33 @@ output "ecs_ec2_asg" {
 output "ecs_ec2_launch_configuration" {
   value = var.launch_type == "EC2" ? aws_launch_configuration.ecs_ec2_launch_configuration[0].arn : ""
 }
+
+#ALB
+
+output "alb_acm_certificate_arn" {
+  value = var.alb_internal_enabled || var.alb_external_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
+}
+
+output "alb_internal_dns_endpoint" {
+  value = var.alb_internal_enabled ? module.alb_default_internal.alb_dns_name : ""
+}
+
+output "alb_internal_https_listener_arn" {
+  value = var.alb_internal_enabled ? module.alb_default_internal.https_listener_arn : ""
+}
+
+output "alb_internal_security_group_id" {
+  value = var.alb_internal_enabled ? module.alb_default_internal.security_group_id : ""
+}
+
+output "alb_external_dns_endpoint" {
+  value = var.alb_external_enabled ? module.alb_default_external.alb_dns_name : ""
+}
+
+output "alb_external_https_listener_arn" {
+  value = var.alb_external_enabled ? module.alb_default_external.https_listener_arn : ""
+}
+
+output "alb_external_security_group_id" {
+  value = var.alb_external_enabled ? module.alb_default_external.security_group_id : ""
+}

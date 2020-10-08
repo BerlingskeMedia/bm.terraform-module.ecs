@@ -1,5 +1,5 @@
 ---
-# 0.2.0
+# 1.0.0
 ## Main changes
     - Add external and internal ALB by default
     - Add wildcard certificate for every project
