@@ -285,10 +285,10 @@ resource "aws_acm_certificate_validation" "alb_cert" {
 
 # ALBs and ALBs target groups names
 locals {
-  internal_alb_name             = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, 18)}-i"
-  internal_alb_default_tg_name  = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, 18)}-idtg"
-  external_alb_name             = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, 18)}-e"
-  external_alb_default_tg_name  = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, 18)}-edtg"
+  internal_alb_name             = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, min(length(var.name), 18))}-i"
+  internal_alb_default_tg_name  = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, min(length(var.name), 18))}-idtg"
+  external_alb_name             = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, min(length(var.name), 18))}-e"
+  external_alb_default_tg_name  = "${substr(var.namespace, 0, 3)}-${substr(var.stage, 0, 0)}-${substr(var.name, 0, min(length(var.name), 18))}-edtg"
 }
 
 module "alb_default_internal" {
