@@ -300,7 +300,10 @@ module "alb_default_internal" {
   stage                                   = local.alb_stage_short
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
-  security_group_ids                      = [module.security.alb_sg_id]
+  security_group_ids                      = [
+    aws_security_group.ecs_sg_internal.id,
+    module.security.alb_sg_id
+  ]
   subnet_ids                              = var.private_subnets
   internal                                = true
   target_group_name                       = local.internal_alb_default_tg_name
@@ -326,7 +329,9 @@ module "alb_default_external" {
   stage                                   = local.alb_stage_short
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
-  security_group_ids                      = [module.security.alb_sg_id]
+  security_group_ids                      = [
+    module.security.alb_sg_id
+  ]
   subnet_ids                              = var.public_subnets
   internal                                = false
   target_group_name                       = local.external_alb_default_tg_name
