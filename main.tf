@@ -285,8 +285,8 @@ resource "aws_acm_certificate_validation" "alb_cert" {
 
 # ALB short names and ALBs target groups names
 locals {
-  alb_namespace_short           = substr(var.namespace, 0, 3)
-  alb_stage_short               = substr(var.stage, 0, 0)
+  alb_namespace_short           = substr(var.namespace, 0, 4)
+  alb_stage_short               = substr(var.stage, 0, 1)
   alb_internal_name_short       = "${substr(var.name, 0, min(length(var.name), 18))}-i"
   alb_external_name_short       = "${substr(var.name, 0, min(length(var.name), 18))}-e"
   internal_alb_default_tg_name  = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_internal_name_short}dtg"
