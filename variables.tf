@@ -175,7 +175,7 @@ variable "alb_https_policy" {
   description = "Set ALB https listener TLS policy"
 }
 
-variable "alb_internal_create" {
+variable "alb_internal_enabled" {
   type        = bool
   description = "Determine if module will create internal ALB"
   default     = false
@@ -205,7 +205,7 @@ variable "alb_internal_http2_enable" {
   description = "Determine if you want to enable http2 listener"
 }
 
-variable "alb_external_create" {
+variable "alb_external_enabled" {
   type        = bool
   description = "Determine if module will create external ALB"
   default     = false
