@@ -83,3 +83,25 @@ output "alb_external_security_group_id" {
 output "alb_external_zone_id" {
   value = var.alb_external_enabled ? module.alb_default_external.alb_zone_id : ""
 }
+
+# KMS outputs
+
+output "ecs_kms_key_alias_arn" {
+  value = module.kms_key.alias_arn
+}
+
+output "ecs_kms_key_alias_name" {
+  value = module.kms_key.alias_name
+}
+
+output "ecs_kms_key_arn" {
+  value = amodule.kms_key.key_arn
+}
+
+output "ecs_kms_key_name" {
+  value = module.kms_key.key_id
+}
+
+output "ecs_kms_key_access_policy_arn" {
+  value = aws_iam_policy.ecs_kms_key_access_policy.arn
+}

@@ -315,3 +315,35 @@ module "alb_default_external" {
   tags                                    = module.label.tags
   health_check_path                       = "/"
 }
+
+# KMS key for all services
+
+module "kms_key" {
+  source                  = "git::https://github.com/cloudposse/terraform-aws-kms-key.git?ref=tags/0.7.0"
+  namespace               = var.namespace
+  stage                   = var.stage
+  name                    = var.name
+  tags                    = var.tags
+  description             = "KMS key for all ${module.label.id} projects"
+  deletion_window_in_days = 10
+  enable_key_rotation     = true
+}
+
+data "aws_iam_policy_document" "ecs_kms_key_policy_document" {
+  statement {
+    effect = "Allow"
+    resources = [
+      module.kms_key.key_arn
+    ]
+    actions = [
+      "kms:GenerateDataKey",
+      "kms:DescribeKey",
+      "kms:Decrypt"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "ecs_kms_key_access_policy" {
+  name   = "${module.label.id}-kms_access_policy"
+  policy = data.aws_iam_policy_document.ecs_kms_key_policy_document.json
+}
