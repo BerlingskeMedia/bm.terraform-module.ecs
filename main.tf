@@ -329,7 +329,7 @@ module "kms_key" {
   enable_key_rotation     = true
 }
 
-data "aws_iam_policy_document" "ecs_kms_key_policy_document" {
+data "aws_iam_policy_document" "kms_key_policy_document" {
   statement {
     effect = "Allow"
     resources = [
@@ -343,7 +343,7 @@ data "aws_iam_policy_document" "ecs_kms_key_policy_document" {
   }
 }
 
-resource "aws_iam_policy" "ecs_kms_key_access_policy" {
+resource "aws_iam_policy" "kms_key_access_policy" {
   name   = "${module.label.id}-kms_access_policy"
-  policy = data.aws_iam_policy_document.ecs_kms_key_policy_document.json
+  policy = data.aws_iam_policy_document.kms_key_policy_document.json
 }
