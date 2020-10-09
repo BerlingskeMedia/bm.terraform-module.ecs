@@ -44,6 +44,10 @@ output "ecs_ec2_launch_configuration" {
 
 #ALB
 
+output "domain_name" {
+  value = "${var.name}.${var.namespace}.${var.alb_main_domain}"
+}
+
 output "domain_zone_id" {
   value = data.aws_route53_zone.zone.zone_id
 }
