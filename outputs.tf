@@ -7,10 +7,6 @@ output "service_internal_security_group" {
   description = "Security group used inside services"
 }
 
-output "alb_sg" {
-  value = module.security.alb_sg_id
-}
-
 output "iam_policy_document_json" {
   value = join("", data.aws_iam_policy_document.ecs_exec.*.json)
 }
