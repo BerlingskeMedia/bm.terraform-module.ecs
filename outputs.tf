@@ -52,8 +52,8 @@ output "alb_acm_certificate_arn" {
   value = var.alb_internal_enabled || var.alb_external_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
 }
 
-output "alb_common_security_group_id" {
-  value = var.alb_internal_enabled || var.alb_external_enabled ? module.security.alb_sg_id : ""
+output "alb_internal_security_group_id" {
+  value = var.alb_internal_enabled ? module.alb_default_internal.security_group_id : ""
 }
 
 output "alb_internal_dns_endpoint" {
@@ -70,4 +70,8 @@ output "alb_external_dns_endpoint" {
 
 output "alb_external_https_listener_arn" {
   value = var.alb_external_enabled ? module.alb_default_external.https_listener_arn : ""
+}
+
+output "alb_external_security_group_id" {
+  value = var.alb_external_enabled ? module.alb_default_external.security_group_id : ""
 }
