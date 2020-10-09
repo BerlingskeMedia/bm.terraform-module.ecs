@@ -8,22 +8,6 @@ module "label" {
   tags       = var.tags
 }
 
-# Main cluster's Security Groups
-module "security" {
-  source = "git@github.com:BerlingskeMedia/bm.terraform-module.security?ref=production"
-  //source      = "../bm.terraform-module.security"
-  label       = module.label.id
-  namespace   = var.namespace
-  stage       = var.stage
-  tags        = var.tags
-  vpc_id      = var.vpc_id
-  name        = var.name
-  ecs_ports   = var.ecs_ports
-  enabled     = var.enabled
-  ecs_enabled = true
-  alb_enabled = true
-}
-
 # ECS cluster basic configuration
 resource "aws_ecs_cluster" "default" {
   name = module.label.id
@@ -287,10 +271,7 @@ module "alb_default_internal" {
   stage                                   = local.alb_stage_short
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
-  security_group_ids                      = [
-    aws_security_group.ecs_sg_internal.id,
-    module.security.alb_sg_id
-  ]
+  security_group_ids                      = []
   subnet_ids                              = var.private_subnets
   internal                                = true
   target_group_name                       = local.internal_alb_default_tg_name
@@ -316,9 +297,7 @@ module "alb_default_external" {
   stage                                   = local.alb_stage_short
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
-  security_group_ids                      = [
-    module.security.alb_sg_id
-  ]
+  security_group_ids                      = []
   subnet_ids                              = var.public_subnets
   internal                                = false
   target_group_name                       = local.external_alb_default_tg_name
