@@ -360,7 +360,7 @@ locals {
     "region"                          = var.region
     "delimiter"                       = var.delimiter
     #Network variables
-    "vpd_id"                          = var.vpd_id
+    "vpd_id"                          = var.vpc_id
     #ECS Cluster variables
     "ecs_cluster_arn"                 = aws_ecs_cluster.default.arn
     "launch_type"                     = var.launch_type
