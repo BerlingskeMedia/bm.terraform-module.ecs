@@ -109,3 +109,8 @@ output "kms_key_name" {
 output "kms_key_access_policy_arn" {
   value = aws_iam_policy.kms_key_access_policy.arn
 }
+
+# ECS Module map output
+output "ecs_module_output_map" {
+  value = local.ecs_module_output_map
+}
