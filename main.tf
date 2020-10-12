@@ -350,7 +350,7 @@ resource "aws_iam_policy" "kms_key_access_policy" {
 
 locals {
   # Map passed to ecs-service module to simplify manifests
-  ecs_module_output_map = {
+  output_map = {
     #General variables
     "name"                            = var.name
     "stage"                           = var.stage
@@ -374,14 +374,6 @@ locals {
     "domain_name"                     = "${var.name}.${var.namespace}.${var.alb_main_domain}"
     "domain_zone_id"                  = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? data.aws_route53_zone.zone.zone_id : ""
     "alb_acm_certificate_arn"         = var.alb_internal_enabled || var.alb_external_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
-    "alb_internal_dns_endpoint"       = var.alb_internal_enabled ? module.alb_default_internal.alb_dns_name : ""
-    "alb_internal_https_listener_arn" = var.alb_internal_enabled ? module.alb_default_internal.https_listener_arn : ""
-    "alb_internal_zone_id"            = var.alb_internal_enabled ? module.alb_default_internal.alb_zone_id : ""
-    "alb_internal_security_group_id"  = var.alb_internal_enabled ? module.alb_default_internal.security_group_id : ""
-    "alb_external_dns_endpoint"       = var.alb_external_enabled ? module.alb_default_external.alb_dns_name : ""
-    "alb_external_https_listener_arn" = var.alb_external_enabled ? module.alb_default_external.https_listener_arn : ""
-    "alb_external_zone_id"            = var.alb_external_enabled ? module.alb_default_external.alb_zone_id : ""
-    "alb_external_security_group_id"  = var.alb_external_enabled ? module.alb_default_external.security_group_id : ""
     # KMS outputs
     "kms_key_alias_arn"               = module.kms_key.alias_arn
     "kms_key_alias_name"              = module.kms_key.alias_name

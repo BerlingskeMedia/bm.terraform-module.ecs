@@ -111,6 +111,6 @@ output "kms_key_access_policy_arn" {
 }
 
 # ECS Module map output
-output "ecs_module_output_map" {
-  value = local.ecs_module_output_map
+output "output_map" {
+  value = local.output_map
 }
