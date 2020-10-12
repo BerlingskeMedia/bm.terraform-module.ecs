@@ -97,7 +97,7 @@ variable "ecr_namespaces" {
 variable "ecr_enabled" {
   type        = bool
   description = "Determine if ECR should be created (codepipeline_enabled=true also will result creating ECR)"
-  default     = false
+  default     = true
 }
 
 variable "ecs_ports" {
