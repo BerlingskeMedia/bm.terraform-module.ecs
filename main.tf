@@ -355,9 +355,8 @@ locals {
     "name"                            = var.name
     "stage"                           = var.stage
     "namespace"                       = var.namespace
-    # commenting tags attributes because of variable map(string) type in ecs-module
-    #"attributes"                      = var.attributes
-    #"tags"                            = var.tags
+    "attributes"                      = var.attributes
+    "tags"                            = var.tags
     "region"                          = var.region
     "delimiter"                       = var.delimiter
     #ECS Cluster variables
