@@ -356,6 +356,8 @@ locals {
     "stage"                           = var.stage
     "namespace"                       = var.namespace
     "tags"                            = var.tags
+    "region"                          = var.region
+    "attributes"                      = var.attributes
     #ECS Cluster variables
     "ecs_cluster_arn"                 = aws_ecs_cluster.default.arn
     "aws_cloudwatch_log_group_name"   = aws_cloudwatch_log_group.app.name
