@@ -361,7 +361,7 @@ locals {
     "aws_cloudwatch_log_group_name"   = aws_cloudwatch_log_group.app.name
     "deploy_iam_access_key"           = var.drone-io_enabled ? module.drone-io.access_key : ""
     "deploy_iam_secret_key"           = var.drone-io_enabled ? module.drone-io.secret_key : ""
-    "ecr_urls"                        = var.ecr_enabled ? module.ecr.name_to_url : ""
+    #"ecr_urls"                        = var.ecr_enabled ? module.ecr.name_to_url : ""
     # ALB variables
     "domain_name"                     = "${var.name}.${var.namespace}.${var.alb_main_domain}"
     "domain_zone_id"                  = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? data.aws_route53_zone.zone.zone_id : ""
