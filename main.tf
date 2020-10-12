@@ -355,10 +355,10 @@ locals {
     "name"                            = var.name
     "stage"                           = var.stage
     "namespace"                       = var.namespace
-    # commenting tags because of variable map(string) type in ecs-module
+    # commenting tags attributes because of variable map(string) type in ecs-module
+    #"attributes"                      = var.attributes
     #"tags"                            = var.tags
     "region"                          = var.region
-    "attributes"                      = var.attributes
     "delimiter"                       = var.delimiter
     #ECS Cluster variables
     "ecs_cluster_arn"                 = aws_ecs_cluster.default.arn
