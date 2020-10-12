@@ -358,7 +358,7 @@ locals {
     "tags"                            = var.tags
     "region"                          = var.region
     "attributes"                      = var.attributes
-    "delimeter"                       = var.delimeter
+    "delimiter"                       = var.delimiter
     #ECS Cluster variables
     "ecs_cluster_arn"                 = aws_ecs_cluster.default.arn
     "aws_cloudwatch_log_group_name"   = aws_cloudwatch_log_group.app.name
