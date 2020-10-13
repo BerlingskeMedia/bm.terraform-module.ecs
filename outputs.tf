@@ -110,7 +110,15 @@ output "kms_key_access_policy_arn" {
   value = aws_iam_policy.kms_key_access_policy.arn
 }
 
-# ECS Module map output
+# ECS Module map outputs
+output "internal_alb_output_map" {
+  value = local.output_map
+}
+
+output "external_alb_output_map" {
+  value = local.output_map
+}
+
 output "output_map" {
   value = local.output_map
 }
