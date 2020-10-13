@@ -112,11 +112,11 @@ output "kms_key_access_policy_arn" {
 
 # ECS Module map outputs
 output "internal_alb_output_map" {
-  value = local.output_map
+  value = local.internal_alb_output_map
 }
 
 output "external_alb_output_map" {
-  value = local.output_map
+  value = local.external_alb_output_map
 }
 
 output "output_map" {
