@@ -351,17 +351,17 @@ resource "aws_iam_policy" "kms_key_access_policy" {
 locals {
   # External ALB output map
   external_alb_output_map = {
-    "alb_external_dns_endpoint"       = var.alb_external_enabled ? module.alb_default_external.alb_dns_name : ""
-    "alb_external_https_listener_arn" = var.alb_external_enabled ? module.alb_default_external.https_listener_arn : ""
-    "alb_external_zone_id"            = var.alb_external_enabled ? module.alb_default_external.alb_zone_id : ""
-    "alb_external_security_group_id"  = var.alb_external_enabled ? module.alb_default_external.security_group_id : ""
+    "dns_endpoint"              = var.alb_external_enabled ? module.alb_default_external.alb_dns_name : ""
+    "https_listener_arn"        = var.alb_external_enabled ? module.alb_default_external.https_listener_arn : ""
+    "zone_id"                   = var.alb_external_enabled ? module.alb_default_external.alb_zone_id : ""
+    "allowed_security_group_id" = var.alb_external_enabled ? module.alb_default_external.security_group_id : ""
   }
   # Internal ALB output map
   internal_alb_output_map = {
-    "alb_internal_dns_endpoint"       = var.alb_internal_enabled ? module.alb_default_internal.alb_dns_name : ""
-    "alb_internal_https_listener_arn" = var.alb_internal_enabled ? module.alb_default_internal.https_listener_arn : ""
-    "alb_internal_zone_id"            = var.alb_internal_enabled ? module.alb_default_internal.alb_zone_id : ""
-    "alb_internal_security_group_id"  = var.alb_internal_enabled ? module.alb_default_internal.security_group_id : ""
+    "dns_endpoint"              = var.alb_internal_enabled ? module.alb_default_internal.alb_dns_name : ""
+    "https_listener_arn"        = var.alb_internal_enabled ? module.alb_default_internal.https_listener_arn : ""
+    "zone_id"                   = var.alb_internal_enabled ? module.alb_default_internal.alb_zone_id : ""
+    "allowed_security_group_id" = var.alb_internal_enabled ? module.alb_default_internal.security_group_id : ""
   }
   # Map passed to ecs-service module to simplify manifests
   output_map = {
