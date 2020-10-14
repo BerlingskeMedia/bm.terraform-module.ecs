@@ -386,7 +386,7 @@ locals {
     # ALB variables
     "domain_name"                     = "${var.name}.${var.namespace}.${var.alb_main_domain}"
     "domain_zone_id"                  = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? data.aws_route53_zone.zone.zone_id : ""
-    "alb_acm_certificate_arn"         = var.alb_internal_enabled || var.alb_external_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
+    "alb_acm_certificate_arn"         = (var.alb_internal_enabled || var.alb_external_enabled) && length(aws_acm_certificate.alb_cert) > 0  ? aws_acm_certificate.alb_cert[0].arn : ""
     # KMS outputs
     "kms_key_alias_arn"               = module.kms_key.alias_arn
     "kms_key_alias_name"              = module.kms_key.alias_name
