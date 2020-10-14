@@ -10,33 +10,6 @@ variable "enabled" {
   description = "Defines whether create resources for this module and it's submodules"
 }
 
-variable "vpc_id" {
-  type        = string
-  description = "ID of vpc for this infrastructure"
-}
-
-variable "igw_id" {
-  type        = string
-  description = "Internet Gateway ID"
-}
-
-variable "nat_id" {
-  type        = string
-  description = "NAT Gateway ID"
-}
-
-variable "public_subnets" {
-  type        = list(string)
-  default     = []
-  description = "List of public subnet's ID"
-}
-
-variable "private_subnets" {
-  type        = list(string)
-  default     = []
-  description = "List of private subnet's ID"
-}
-
 variable "namespace" {
   type        = string
   description = "Namespace (e.g. `eg` or `cp`)"
@@ -75,6 +48,35 @@ variable "tags" {
   #no default
 }
 
+#### Network Variables
+
+variable "vpc_id" {
+  type        = string
+  description = "ID of vpc for this infrastructure"
+}
+
+variable "igw_id" {
+  type        = string
+  description = "Internet Gateway ID"
+}
+
+variable "nat_id" {
+  type        = string
+  description = "NAT Gateway ID"
+}
+
+variable "public_subnets" {
+  type        = list(string)
+  default     = []
+  description = "List of public subnet's ID"
+}
+
+variable "private_subnets" {
+  type        = list(string)
+  default     = []
+  description = "List of private subnet's ID"
+}
+
 #### ECS section
 
 variable "log_retention_in_days" {
@@ -88,21 +90,15 @@ variable "drone-io_enabled" {
   default     = false
 }
 
-variable "ecr_namespaces" {
-  type        = list(string)
-  description = "If provided, will create namespaces for ECR"
-  default     = []
-}
-
 variable "ecr_enabled" {
   type        = bool
   description = "Determine if ECR should be created (codepipeline_enabled=true also will result creating ECR)"
   default     = true
 }
 
-variable "ecs_ports" {
+variable "ecr_namespaces" {
   type        = list(string)
-  description = "Ports on which SG will operate"
+  description = "If provided, will create namespaces for ECR"
   default     = []
 }
 
@@ -156,7 +152,7 @@ variable "asg_max_instance_lifetime" {
 }
 
 variable "asg_termination_policies" {
-  type        = list
+  type        = list(string)
   default     = ["OldestLaunchConfiguration","OldestInstance"]
   description = "Default policies for vm termination in ASG"
 }

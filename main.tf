@@ -375,6 +375,7 @@ locals {
     "delimiter"                       = var.delimiter
     #Network variables
     "vpc_id"                          = var.vpc_id
+    "service_internal_security_group" = aws_security_group.ecs_sg_internal.id
     #ECS Cluster variables
     "ecs_cluster_arn"                 = aws_ecs_cluster.default.arn
     "launch_type"                     = var.launch_type
