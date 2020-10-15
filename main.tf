@@ -27,31 +27,31 @@ locals {
 
 data "aws_iam_policy_document" "ec2_role_document" {
   statement {
-    actions         = ["sts:AssumeRole"]
+    actions = ["sts:AssumeRole"]
     principals {
-      type = "Service"
+      type        = "Service"
       identifiers = ["ec2.amazonaws.com"]
     }
   }
 }
 
 resource "aws_iam_role" "ecs_ec2_role" {
-  count               = var.launch_type == "EC2" ? 1 : 0
-  name                = "${module.label.id}-ec2-role"
-  assume_role_policy  = data.aws_iam_policy_document.ec2_role_document.json
-  tags                = module.label.tags
+  count              = var.launch_type == "EC2" ? 1 : 0
+  name               = "${module.label.id}-ec2-role"
+  assume_role_policy = data.aws_iam_policy_document.ec2_role_document.json
+  tags               = module.label.tags
 }
 
 resource "aws_iam_instance_profile" "ecs_ec2_instance_profile" {
   count = var.launch_type == "EC2" ? 1 : 0
   name  = "${module.label.id}-ec2-instance-profile"
-  role  = join("",aws_iam_role.ecs_ec2_role.*.name)
+  role  = join("", aws_iam_role.ecs_ec2_role.*.name)
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_ec2_role_attachement" {
-  role          = join("",aws_iam_role.ecs_ec2_role.*.name)
-  for_each      = var.launch_type == "EC2" ? toset(local.ecs_ec2_role_policies_list) : toset([])
-  policy_arn    = each.value
+  role       = join("", aws_iam_role.ecs_ec2_role.*.name)
+  for_each   = var.launch_type == "EC2" ? toset(local.ecs_ec2_role_policies_list) : toset([])
+  policy_arn = each.value
 }
 
 data "aws_ami" "vm_ami" {
@@ -72,9 +72,9 @@ data "aws_ami" "vm_ami" {
 }
 
 resource "aws_security_group" "ecs_ec2_security_group" {
-  count     = var.launch_type == "EC2" ? 1 : 0
-  name      = "${module.label.id}-ec2-instances-security-group"
-  vpc_id    = var.vpc_id
+  count  = var.launch_type == "EC2" ? 1 : 0
+  name   = "${module.label.id}-ec2-instances-security-group"
+  vpc_id = var.vpc_id
 
   ingress {
     protocol  = -1
@@ -89,28 +89,28 @@ resource "aws_security_group" "ecs_ec2_security_group" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags      = module.label.tags
+  tags = module.label.tags
 }
 
 resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
-  count                         = var.launch_type == "EC2" && var.aws_key_pair != "" ? 1 : 0
-  name_prefix                   = "${module.label.id}-launch-configuration-"
-  key_name                      = var.aws_key_pair
-  image_id                      = data.aws_ami.vm_ami.id
-  instance_type                 = var.instance_type
-  iam_instance_profile          = join("",aws_iam_instance_profile.ecs_ec2_instance_profile.*.arn)
-  user_data                     = templatefile(
+  count                = var.launch_type == "EC2" && var.aws_key_pair != "" ? 1 : 0
+  name_prefix          = "${module.label.id}-launch-configuration-"
+  key_name             = var.aws_key_pair
+  image_id             = data.aws_ami.vm_ami.id
+  instance_type        = var.instance_type
+  iam_instance_profile = join("", aws_iam_instance_profile.ecs_ec2_instance_profile.*.arn)
+  user_data = templatefile(
     "${path.module}/cloud-config.yml",
     {
       ecs_cluster_name = "${aws_ecs_cluster.default.name}"
     }
   )
-  associate_public_ip_address   = false
-  security_groups               = [join("",aws_security_group.ecs_ec2_security_group.*.id)]
+  associate_public_ip_address = false
+  security_groups             = [join("", aws_security_group.ecs_ec2_security_group.*.id)]
   root_block_device {
     volume_size = "30"
   }
-  
+
   lifecycle {
     create_before_destroy = true
   }
@@ -123,10 +123,10 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
   desired_capacity      = var.asg_instances_desired_capacity
   max_size              = var.asg_instances_max_size
   min_size              = var.asg_instances_min_size
-  launch_configuration  = join("",aws_launch_configuration.ecs_ec2_launch_configuration.*.id)
+  launch_configuration  = join("", aws_launch_configuration.ecs_ec2_launch_configuration.*.id)
   termination_policies  = var.asg_termination_policies
   max_instance_lifetime = var.asg_max_instance_lifetime
-  
+
   dynamic "tag" {
     for_each = module.label.tags
 
@@ -139,13 +139,13 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
 }
 
 module "ecr" {
-  source      = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=tags/0.1.0"
-  enabled     = var.enabled && var.ecr_enabled
-  name        = var.name
-  namespace   = var.namespace
-  stage       = var.stage
-  attributes  = compact(concat(var.attributes, ["ecr"]))
-  namespaces  = var.ecr_namespaces
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=tags/0.1.0"
+  enabled    = var.enabled && var.ecr_enabled
+  name       = var.name
+  namespace  = var.namespace
+  stage      = var.stage
+  attributes = compact(concat(var.attributes, ["ecr"]))
+  namespaces = var.ecr_namespaces
 }
 
 resource "aws_security_group" "ecs_sg_internal" {
@@ -166,7 +166,7 @@ resource "aws_security_group" "ecs_sg_internal" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
+
   tags = merge(var.tags, { "Name" = "${module.label.id}-ecs-internal" })
 }
 
@@ -256,12 +256,12 @@ resource "aws_acm_certificate_validation" "alb_cert" {
 
 # ALB short names and ALBs target groups names
 locals {
-  alb_namespace_short           = substr(var.namespace, 0, 4)
-  alb_stage_short               = substr(var.stage, 0, 1)
-  alb_internal_name_short       = "${substr(var.name, 0, min(length(var.name), 18))}-i"
-  alb_external_name_short       = "${substr(var.name, 0, min(length(var.name), 18))}-e"
-  internal_alb_default_tg_name  = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_internal_name_short}dtg"
-  external_alb_default_tg_name  = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_external_name_short}dtg"
+  alb_namespace_short          = substr(var.namespace, 0, 4)
+  alb_stage_short              = substr(var.stage, 0, 1)
+  alb_internal_name_short      = "${substr(var.name, 0, min(length(var.name), 18))}-i"
+  alb_external_name_short      = "${substr(var.name, 0, min(length(var.name), 18))}-e"
+  internal_alb_default_tg_name = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_internal_name_short}dtg"
+  external_alb_default_tg_name = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_external_name_short}dtg"
 }
 
 module "alb_default_internal" {
@@ -373,35 +373,35 @@ locals {
   # Map passed to ecs-service module to simplify manifests
   output_map = {
     #General variables
-    "name"                            = var.name
-    "stage"                           = var.stage
-    "namespace"                       = var.namespace
-    "attributes"                      = var.attributes
-    "tags"                            = var.tags
-    "region"                          = var.region
-    "delimiter"                       = var.delimiter
+    "name"       = var.name
+    "stage"      = var.stage
+    "namespace"  = var.namespace
+    "attributes" = var.attributes
+    "tags"       = var.tags
+    "region"     = var.region
+    "delimiter"  = var.delimiter
     #Network variables
     "vpc_id"                          = var.vpc_id
     "service_internal_security_group" = aws_security_group.ecs_sg_internal.id
     #ECS Cluster variables
-    "ecs_cluster_arn"                 = aws_ecs_cluster.default.arn
-    "launch_type"                     = var.launch_type
-    "aws_logs_region"                 = var.region
-    "aws_cloudwatch_log_group_name"   = aws_cloudwatch_log_group.app.name
-    "deploy_iam_access_key"           = var.drone-io_enabled ? module.drone-io.access_key : ""
-    "deploy_iam_secret_key"           = var.drone-io_enabled ? module.drone-io.secret_key : ""
+    "ecs_cluster_arn"               = aws_ecs_cluster.default.arn
+    "launch_type"                   = var.launch_type
+    "aws_logs_region"               = var.region
+    "aws_cloudwatch_log_group_name" = aws_cloudwatch_log_group.app.name
+    "deploy_iam_access_key"         = var.drone-io_enabled ? module.drone-io.access_key : ""
+    "deploy_iam_secret_key"         = var.drone-io_enabled ? module.drone-io.secret_key : ""
     #"ecr_urls"                        = var.ecr_enabled ? module.ecr.name_to_url : ""
     # ALB variables
-    "domain_name"                     = "${var.name}.${var.namespace}.${var.alb_main_domain}"
-    "domain_zone_id"                  = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? data.aws_route53_zone.zone.zone_id : ""
-    "alb_acm_certificate_arn"         = (var.alb_internal_enabled || var.alb_external_enabled) && length(aws_acm_certificate.alb_cert) > 0  ? aws_acm_certificate.alb_cert[0].arn : ""
+    "domain_name"             = "${var.name}.${var.namespace}.${var.alb_main_domain}"
+    "domain_zone_id"          = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? data.aws_route53_zone.zone.zone_id : ""
+    "alb_acm_certificate_arn" = (var.alb_internal_enabled || var.alb_external_enabled) && length(aws_acm_certificate.alb_cert) > 0 ? aws_acm_certificate.alb_cert[0].arn : ""
     # KMS outputs
-    "kms_key_alias_arn"               = module.kms_key.alias_arn
-    "kms_key_alias_name"              = module.kms_key.alias_name
-    "kms_key_arn"                     = module.kms_key.key_arn
-    "kms_key_name"                    = module.kms_key.key_id
-    "kms_key_access_policy_arn"       = aws_iam_policy.kms_key_access_policy.arn
+    "kms_key_alias_arn"              = module.kms_key.alias_arn
+    "kms_key_alias_name"             = module.kms_key.alias_name
+    "kms_key_arn"                    = module.kms_key.key_arn
+    "kms_key_name"                   = module.kms_key.key_id
+    "kms_key_access_policy_arn"      = aws_iam_policy.kms_key_access_policy.arn
     "service_discovery_namespace_id" = aws_service_discovery_private_dns_namespace.default.id
-    "service_discovery_namespace" = aws_service_discovery_private_dns_namespace.default.name
+    "service_discovery_name"         = aws_service_discovery_private_dns_namespace.default.name
   }
 }
