@@ -8,22 +8,6 @@ module "label" {
   tags       = var.tags
 }
 
-# Main cluster's Security Groups
-module "security" {
-  source = "git@github.com:BerlingskeMedia/bm.terraform-module.security?ref=production"
-  //source      = "../bm.terraform-module.security"
-  label       = module.label.id
-  namespace   = var.namespace
-  stage       = var.stage
-  tags        = var.tags
-  vpc_id      = var.vpc_id
-  name        = var.name
-  ecs_ports   = var.ecs_ports
-  enabled     = var.enabled
-  ecs_enabled = true
-  alb_enabled = true
-}
-
 # ECS cluster basic configuration
 resource "aws_ecs_cluster" "default" {
   name = module.label.id
@@ -189,26 +173,13 @@ resource "aws_security_group" "ecs_sg_internal" {
 # Create user for drone.io
 
 module "drone-io" {
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.1.1"
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.2.0"
   enabled    = var.drone-io_enabled
   name       = var.name
   namespace  = var.namespace
   stage      = var.stage
   attributes = compact(concat(var.attributes, ["drone"]))
 }
-
-# output drone's keys
-data "aws_ssm_parameter" "access_key" {
-  depends_on = [module.drone-io]
-  count      = var.drone-io_enabled ? 1 : 0
-  name       = module.drone-io.access_key_path
-}
-data "aws_ssm_parameter" "secret_key" {
-  depends_on = [module.drone-io]
-  count      = var.drone-io_enabled ? 1 : 0
-  name       = module.drone-io.secret_key_path
-}
-
 
 locals {
   repository_name = length(module.ecr.repository_name) > 0 ? element(module.ecr.repository_name, 0) : ""
@@ -252,7 +223,176 @@ resource "aws_cloudwatch_log_group" "app" {
   retention_in_days = var.log_retention_in_days
 }
 
+# ACM
 
+data "aws_route53_zone" "zone" {
+  name         = "${var.alb_main_domain}."
+  private_zone = false
+}
 
+resource "aws_acm_certificate" "alb_cert" {
+  count                     = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? 1 : 0
+  domain_name               = "${var.name}.${var.namespace}.${var.alb_main_domain}"
+  subject_alternative_names = ["*.${var.name}.${var.namespace}.${var.alb_main_domain}"]
+  validation_method         = "DNS"
+}
 
+resource "aws_route53_record" "alb_cert_validation" {
+  count   = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? 1 : 0
+  name    = aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_name
+  type    = aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_type
+  zone_id = data.aws_route53_zone.zone.zone_id
+  records = [aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_value]
+  ttl     = 60
+}
 
+resource "aws_acm_certificate_validation" "alb_cert" {
+  count                   = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? 1 : 0
+  certificate_arn         = aws_acm_certificate.alb_cert.0.arn
+  validation_record_fqdns = [aws_route53_record.alb_cert_validation.0.fqdn]
+}
+
+# ALB
+
+# ALB short names and ALBs target groups names
+locals {
+  alb_namespace_short           = substr(var.namespace, 0, 4)
+  alb_stage_short               = substr(var.stage, 0, 1)
+  alb_internal_name_short       = "${substr(var.name, 0, min(length(var.name), 18))}-i"
+  alb_external_name_short       = "${substr(var.name, 0, min(length(var.name), 18))}-e"
+  internal_alb_default_tg_name  = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_internal_name_short}dtg"
+  external_alb_default_tg_name  = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_external_name_short}dtg"
+}
+
+module "alb_default_internal" {
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
+  namespace                               = local.alb_namespace_short
+  name                                    = local.alb_internal_name_short
+  stage                                   = local.alb_stage_short
+  attributes                              = var.attributes
+  vpc_id                                  = var.vpc_id
+  security_group_ids                      = []
+  subnet_ids                              = var.private_subnets
+  internal                                = true
+  target_group_name                       = local.internal_alb_default_tg_name
+  http_enabled                            = var.alb_internal_http_enable && var.alb_internal_enabled ? true : false
+  http_redirect                           = var.alb_internal_http_redirect && var.alb_internal_http_enable && var.alb_internal_enabled ? true : false
+  https_enabled                           = var.alb_internal_https_enable && var.alb_internal_enabled ? true : false
+  https_ssl_policy                        = var.alb_internal_https_enable && var.alb_internal_enabled ? var.alb_https_policy : null
+  certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
+  access_logs_enabled                     = false
+  alb_access_logs_s3_bucket_force_destroy = true
+  access_logs_region                      = var.region
+  cross_zone_load_balancing_enabled       = true
+  http2_enabled                           = var.alb_internal_http2_enable && var.alb_internal_enabled ? true : false
+  deletion_protection_enabled             = false
+  tags                                    = module.label.tags
+  health_check_path                       = "/"
+}
+
+module "alb_default_external" {
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
+  namespace                               = local.alb_namespace_short
+  name                                    = local.alb_external_name_short
+  stage                                   = local.alb_stage_short
+  attributes                              = var.attributes
+  vpc_id                                  = var.vpc_id
+  security_group_ids                      = []
+  subnet_ids                              = var.public_subnets
+  internal                                = false
+  target_group_name                       = local.external_alb_default_tg_name
+  http_enabled                            = var.alb_external_http_enable && var.alb_external_enabled ? true : false
+  http_redirect                           = var.alb_external_http_redirect && var.alb_external_http_enable && var.alb_external_enabled ? true : false
+  https_enabled                           = var.alb_external_https_enable && var.alb_external_enabled ? true : false
+  https_ssl_policy                        = var.alb_external_https_enable && var.alb_external_enabled ? var.alb_https_policy : null
+  certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
+  access_logs_enabled                     = false
+  alb_access_logs_s3_bucket_force_destroy = true
+  access_logs_region                      = var.region
+  cross_zone_load_balancing_enabled       = true
+  http2_enabled                           = var.alb_external_http2_enable && var.alb_external_enabled ? true : false
+  deletion_protection_enabled             = false
+  tags                                    = module.label.tags
+  health_check_path                       = "/"
+}
+
+# KMS key for all services
+
+module "kms_key" {
+  source                  = "git::https://github.com/cloudposse/terraform-aws-kms-key.git?ref=tags/0.7.0"
+  namespace               = var.namespace
+  stage                   = var.stage
+  name                    = var.name
+  tags                    = var.tags
+  description             = "KMS key for all ${module.label.id} projects"
+  deletion_window_in_days = 10
+  enable_key_rotation     = true
+}
+
+data "aws_iam_policy_document" "kms_key_policy_document" {
+  statement {
+    effect = "Allow"
+    resources = [
+      module.kms_key.key_arn
+    ]
+    actions = [
+      "kms:GenerateDataKey",
+      "kms:DescribeKey",
+      "kms:Decrypt"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "kms_key_access_policy" {
+  name   = "${module.label.id}-kms_access_policy"
+  policy = data.aws_iam_policy_document.kms_key_policy_document.json
+}
+
+locals {
+  # External ALB output map
+  external_alb_output_map = {
+    "listener_arn"              = var.alb_external_enabled ? module.alb_default_external.https_listener_arn : ""
+    "dns_name"                  = var.alb_external_enabled ? module.alb_default_external.alb_dns_name : ""
+    "dns_zone_id"               = var.alb_external_enabled ? module.alb_default_external.alb_zone_id : ""
+    "allowed_security_group_id" = var.alb_external_enabled ? module.alb_default_external.security_group_id : ""
+  }
+  # Internal ALB output map
+  internal_alb_output_map = {
+    "listener_arn"              = var.alb_internal_enabled ? module.alb_default_internal.https_listener_arn : ""
+    "dns_name"                  = var.alb_internal_enabled ? module.alb_default_internal.alb_dns_name : ""
+    "dns_zone_id"               = var.alb_internal_enabled ? module.alb_default_internal.alb_zone_id : ""
+    "allowed_security_group_id" = var.alb_internal_enabled ? module.alb_default_internal.security_group_id : ""
+  }
+  # Map passed to ecs-service module to simplify manifests
+  output_map = {
+    #General variables
+    "name"                            = var.name
+    "stage"                           = var.stage
+    "namespace"                       = var.namespace
+    "attributes"                      = var.attributes
+    "tags"                            = var.tags
+    "region"                          = var.region
+    "delimiter"                       = var.delimiter
+    #Network variables
+    "vpc_id"                          = var.vpc_id
+    "service_internal_security_group" = aws_security_group.ecs_sg_internal.id
+    #ECS Cluster variables
+    "ecs_cluster_arn"                 = aws_ecs_cluster.default.arn
+    "launch_type"                     = var.launch_type
+    "aws_logs_region"                 = var.region
+    "aws_cloudwatch_log_group_name"   = aws_cloudwatch_log_group.app.name
+    "deploy_iam_access_key"           = var.drone-io_enabled ? module.drone-io.access_key : ""
+    "deploy_iam_secret_key"           = var.drone-io_enabled ? module.drone-io.secret_key : ""
+    #"ecr_urls"                        = var.ecr_enabled ? module.ecr.name_to_url : ""
+    # ALB variables
+    "domain_name"                     = "${var.name}.${var.namespace}.${var.alb_main_domain}"
+    "domain_zone_id"                  = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? data.aws_route53_zone.zone.zone_id : ""
+    "alb_acm_certificate_arn"         = (var.alb_internal_enabled || var.alb_external_enabled) && length(aws_acm_certificate.alb_cert) > 0  ? aws_acm_certificate.alb_cert[0].arn : ""
+    # KMS outputs
+    "kms_key_alias_arn"               = module.kms_key.alias_arn
+    "kms_key_alias_name"              = module.kms_key.alias_name
+    "kms_key_arn"                     = module.kms_key.key_arn
+    "kms_key_name"                    = module.kms_key.key_id
+    "kms_key_access_policy_arn"       = aws_iam_policy.kms_key_access_policy.arn
+  }
+}
