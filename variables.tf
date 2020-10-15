@@ -230,3 +230,9 @@ variable "alb_external_http2_enable" {
   default     = true
   description = "Determine if you want to enable http2 listener"
 }
+
+variable "service_discovery_enabled" {
+  type = bool
+  default = false
+  description = "Determine, wheter servicediscovery should be enabled for this service."
+}
