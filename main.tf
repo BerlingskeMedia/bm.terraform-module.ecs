@@ -350,6 +350,7 @@ resource "aws_iam_policy" "kms_key_access_policy" {
 
 # create service discovery
 resource "aws_service_discovery_private_dns_namespace" "default" {
+  count = var.service_discovery_enabled ? 1 : 0
   name        = "${module.label.id}.local"
   description = "Service discovery for ${module.label.id}"
   vpc         = var.vpc_id
@@ -401,7 +402,7 @@ locals {
     "kms_key_arn"                    = module.kms_key.key_arn
     "kms_key_name"                   = module.kms_key.key_id
     "kms_key_access_policy_arn"      = aws_iam_policy.kms_key_access_policy.arn
-    "service_discovery_namespace_id" = aws_service_discovery_private_dns_namespace.default.id
-    "service_discovery_name"         = aws_service_discovery_private_dns_namespace.default.name
+    "service_discovery_namespace_id" = join("", aws_service_discovery_private_dns_namespace.default.*.id)
+    "service_discovery_name"         = join("", aws_service_discovery_private_dns_namespace.default.*.name)
   }
 }
