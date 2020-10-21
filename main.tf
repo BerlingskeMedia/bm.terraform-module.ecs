@@ -350,7 +350,7 @@ resource "aws_iam_policy" "kms_key_access_policy" {
 
 # create service discovery
 resource "aws_service_discovery_private_dns_namespace" "default" {
-  count = var.service_discovery_enabled ? 1 : 0
+  count       = var.service_discovery_enabled ? 1 : 0
   name        = "${module.label.id}.local"
   description = "Service discovery for ${module.label.id}"
   vpc         = var.vpc_id
