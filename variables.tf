@@ -153,7 +153,7 @@ variable "asg_max_instance_lifetime" {
 
 variable "asg_termination_policies" {
   type        = list(string)
-  default     = ["OldestLaunchConfiguration","OldestInstance"]
+  default     = ["OldestLaunchConfiguration", "OldestInstance"]
   description = "Default policies for vm termination in ASG"
 }
 
@@ -229,4 +229,10 @@ variable "alb_external_http2_enable" {
   type        = bool
   default     = true
   description = "Determine if you want to enable http2 listener"
+}
+
+variable "service_discovery_enabled" {
+  type        = bool
+  default     = false
+  description = "Determine, wheter servicediscovery should be enabled for this service."
 }

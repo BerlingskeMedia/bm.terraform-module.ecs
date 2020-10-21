@@ -1,4 +1,8 @@
 ---
+# 1.1.0
+## Main changes
+    - Add service discovery support
+
 # 1.0.0
 ## Main changes
     - Add external and internal ALB by default
