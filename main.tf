@@ -381,7 +381,7 @@ resource "aws_lambda_function" "cwl_stream_lambda" {
 
   environment {
     variables = {
-      es_endpoint       = var.es_endpoint
+      es_endpoint       = var.cwl_lambda_es_endpoint
       ecs_cluster_name  = module.label.id
     }
   }
