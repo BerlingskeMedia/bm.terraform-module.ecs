@@ -371,7 +371,7 @@ resource "aws_lambda_function" "cwl_stream_lambda" {
   function_name     = "${module.label.id}-LogsToElasticsearch"
   role              = var.cwl_lambda_iam_role_arn
   handler           = "exports.handler"
-  source_code_hash  = base64sha256(file(data.archive_file.lambda_code[0].output_path))
+  source_code_hash  = filebase64sha256(data.archive_file.lambda_code[0].output_path)
   runtime           = "nodejs10.x"
 
   vpc_config {
