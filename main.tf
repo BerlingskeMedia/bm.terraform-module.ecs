@@ -421,6 +421,7 @@ locals {
     "launch_type"                   = var.launch_type
     "aws_logs_region"               = var.region
     "aws_cloudwatch_log_group_name" = aws_cloudwatch_log_group.app.name
+    "aws_cloudwatch_log_group_arn"  = aws_cloudwatch_log_group.app.arn
     "deploy_iam_access_key"         = var.drone-io_enabled ? module.drone-io.access_key : ""
     "deploy_iam_secret_key"         = var.drone-io_enabled ? module.drone-io.secret_key : ""
     #"ecr_urls"                        = var.ecr_enabled ? module.ecr.name_to_url : ""

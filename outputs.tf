@@ -16,6 +16,10 @@ output "aws_cloudwatch_log_group_name" {
   value = aws_cloudwatch_log_group.app.name
 }
 
+output "aws_cloudwatch_log_group_arn" {
+  value = aws_cloudwatch_log_group.app.arn
+}
+
 output "access_key" {
   value       = module.drone-io.access_key
   description = "Access key used for pushing new ECR images"
