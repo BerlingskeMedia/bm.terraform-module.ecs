@@ -361,8 +361,8 @@ resource "aws_service_discovery_private_dns_namespace" "default" {
 data "archive_file" "lambda_code" {
   count       = var.cwl_lambda_enabled ? 1 : 0
   type        = "zip"
-  source_file = "${path.module}/cwl2es_lambda_code/index.js"
-  output_path = "${path.module}/cwl2es_lambda_code/cwl2eslambda.zip"
+  source_file = "${path.module}/additional_config_files/cwl2es_lambda_code/index.js"
+  output_path = "${path.module}/additional_config_files/cwl2es_lambda_code/cwl2eslambda.zip"
 }
 
 resource "aws_lambda_function" "cwl_stream_lambda" {
