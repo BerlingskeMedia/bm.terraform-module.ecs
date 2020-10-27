@@ -391,7 +391,7 @@ resource "aws_lambda_permission" "cwl2es_cloudwatch_allow" {
   count         = var.cwl2es_lambda_enabled ? 1 : 0
   statement_id  = "cloudwatch_allow"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.cwl2es_function[0].name
+  function_name = "${module.label.id}-LogsToElasticsearch"
   principal     = var.cwl2es_lambda_cwl_endpoint
   source_arn    = aws_cloudwatch_log_group.app.arn
 }
