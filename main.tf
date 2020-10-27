@@ -438,6 +438,6 @@ locals {
     "service_discovery_namespace_id" = join("", aws_service_discovery_private_dns_namespace.default.*.id)
     "service_discovery_name"         = join("", aws_service_discovery_private_dns_namespace.default.*.name)
     # Cloudwatch to Elasticsearch lambda outputs
-    "cwl2es_lambda_arn"              = var.cwl_lambda_enabled ? aws_lambda_function.cwl_stream_lambda[0].arn : ""
+    "cwl2es_lambda_name"             = var.cwl_lambda_enabled ? "${module.label.id}-LogsToElasticsearch" : ""
   }
 }

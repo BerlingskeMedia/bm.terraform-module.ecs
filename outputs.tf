@@ -147,9 +147,9 @@ output "service_discovery_name" {
 
 # Cloudwatch Lambda outputs
 
-output "cwl2es_lambda_arn" {
+output "cwl2es_lambda_name" {
   value       = var.cwl_lambda_enabled ? aws_lambda_function.cwl_stream_lambda[0].arn : ""
-  description = "Cloudwatch to Elasticsearch Lambda ARN"
+  description = "Cloudwatch to Elasticsearch Lambda Name"
 }
 
 # ECS Module map outputs

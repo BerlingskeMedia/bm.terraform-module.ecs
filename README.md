@@ -172,9 +172,9 @@ module "ecs" {
 
 ### Cloudwatch Lambda outputs
 
-| Variable          | Description |
-| -----------------:|:-----------:|
-| cwl2es_lambda_arn | Cloudwatch to Elasticsearch Lambda ARN |
+| Variable           | Description |
+| ------------------:|:-----------:|
+| cwl2es_lambda_name | Cloudwatch to Elasticsearch Lambda Name |
 
 ### ECS module output maps
 
