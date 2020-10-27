@@ -100,7 +100,7 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
   instance_type        = var.instance_type
   iam_instance_profile = join("", aws_iam_instance_profile.ecs_ec2_instance_profile.*.arn)
   user_data = templatefile(
-    "${path.module}/cloud-config.yml",
+    "${path.module}/additional_config_files/cloud-config.yml",
     {
       ecs_cluster_name = "${aws_ecs_cluster.default.name}"
     }
@@ -356,6 +356,38 @@ resource "aws_service_discovery_private_dns_namespace" "default" {
   vpc         = var.vpc_id
 }
 
+# Create cloudwatch lambda
+
+data "archive_file" "lambda_code" {
+  count       = var.cwl_lambda_enabled ? 1 : 0
+  type        = "zip"
+  source_file = "${path.module}/cwl2es_lambda_code/index.js"
+  output_path = "${path.module}/cwl2es_lambda_code/cwl2eslambda.zip"
+}
+
+resource "aws_lambda_function" "cwl_stream_lambda" {
+  count             = var.cwl_lambda_enabled ? 1 : 0
+  filename          = data.archive_file.lambda_code[0].output_path
+  function_name     = "${module.label.id}-LogsToElasticsearch"
+  role              = var.cwl_lambda_iam_role_arn
+  handler           = "exports.handler"
+  source_code_hash  = base64sha256(file(data.archive_file.lambda_code[0].output_path))
+  runtime           = "nodejs10.x"
+
+  vpc_config {
+    subnet_ids          = var.private_subnets
+    security_group_ids  = [var.cwl_lambda_security_group]
+  }
+
+  environment {
+    variables = {
+      es_endpoint       = var.es_endpoint
+      ecs_cluster_name  = module.label.id
+    }
+  }
+}
+
+
 locals {
   # External ALB output map
   external_alb_output_map = {
@@ -402,7 +434,10 @@ locals {
     "kms_key_arn"                    = module.kms_key.key_arn
     "kms_key_name"                   = module.kms_key.key_id
     "kms_key_access_policy_arn"      = aws_iam_policy.kms_key_access_policy.arn
+    # Service discovery outputs
     "service_discovery_namespace_id" = join("", aws_service_discovery_private_dns_namespace.default.*.id)
     "service_discovery_name"         = join("", aws_service_discovery_private_dns_namespace.default.*.name)
+    # Cloudwatch to Elasticsearch lambda outputs
+    "cwl2es_lambda_arn"              = var.cwl_lambda_enabled ? aws_lambda_function.cwl_stream_lambda[0].arn : ""
   }
 }

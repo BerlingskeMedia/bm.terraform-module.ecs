@@ -105,7 +105,19 @@ module "ecs" {
 | alb_external_https_enable  | `bool`   | **no**   | `true`                              | Determine if you want to enable https listener |
 | alb_external_http2_enable  | `bool`   | **no**   | `true`                              | Determine if you want to enable http2 listener |
 
-### ECS module output maps
+### Service Discovery settings
+| Variable                       | Type   | Required | Default Value | Description |
+| ------------------------------ |:------:|:--------:|:-------------:|:-----------:|
+| service_discovery_enabled      | `bool` | **no**   | `false`       | Determine, wheter servicediscovery should be enabled for this service. |
+
+### Cloudwatch Lambda variables
+| Variable                  | Type     | Required                                   | Default Value                  | Description |
+| ------------------------- |:--------:|:------------------------------------------:|:------------------------------:|:-----------:|
+| cwl_lambda_enabled        | `bool`   | **no**                                     | `false`                        | Set this variable to true if there is need to create cloudwatch to elasticsearch lambda |
+| cwl_lambda_es_endpoint    | `string` | **only if `cwl_lambda_enabled` is `true`** | `empty`                        | Elasticsearch endpoint url |
+| cwl_lambda_iam_role_arn   | `string` | **only if `cwl_lambda_enabled` is `true`** | `empty`                        | Cloudwatch Lambda execution role arn |
+| cwl_lambda_security_group | `string` | **only if `cwl_lambda_enabled` is `true`** | `empty`                        | Cloudwatch Lambda security group |
+
 
 ## Outputs
 
@@ -150,6 +162,19 @@ module "ecs" {
 | kms_key_arn               | Common KMS key arn for all services in the cluster |
 | kms_key_name              | Common KMS key ID for all services in the cluster |
 | kms_key_access_policy_arn | Common KMS IAM access policy arn |
+
+### Service discovery outputs
+
+| Variable                       | Description |
+| ------------------------------:|:-----------:|
+| service_discovery_namespace_id | Service discovery namespace ID |
+| service_discovery_name         | Service discovery namespace name |
+
+### Cloudwatch Lambda outputs
+
+| Variable          | Description |
+| -----------------:|:-----------:|
+| cwl2es_lambda_arn | Cloudwatch to Elasticsearch Lambda ARN |
 
 ### ECS module output maps
 

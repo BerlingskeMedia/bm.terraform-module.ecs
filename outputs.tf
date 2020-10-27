@@ -133,6 +133,25 @@ output "kms_key_access_policy_arn" {
   description = "Common KMS IAM access policy arn"
 }
 
+# Service discovery outputs
+
+output "service_discovery_namespace_id" {
+  value       = join("", aws_service_discovery_private_dns_namespace.default.*.id)
+  description = "Service discovery namespace ID"
+}
+
+output "service_discovery_name" {
+  value       = join("", aws_service_discovery_private_dns_namespace.default.*.name)
+  description = "Service discovery namespace name"
+}
+
+# Cloudwatch Lambda outputs
+
+output "cwl2es_lambda_arn" {
+  value       = var.cwl_lambda_enabled ? aws_lambda_function.cwl_stream_lambda[0].arn : ""
+  description = "Cloudwatch to Elasticsearch Lambda ARN"
+}
+
 # ECS Module map outputs
 output "internal_alb_output_map" {
   value       = local.internal_alb_output_map
