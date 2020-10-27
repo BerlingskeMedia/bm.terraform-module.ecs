@@ -16,10 +16,6 @@ output "aws_cloudwatch_log_group_name" {
   value = aws_cloudwatch_log_group.app.name
 }
 
-output "aws_cloudwatch_log_group_arn" {
-  value = aws_cloudwatch_log_group.app.arn
-}
-
 output "access_key" {
   value       = module.drone-io.access_key
   description = "Access key used for pushing new ECR images"
@@ -152,7 +148,7 @@ output "service_discovery_name" {
 # Cloudwatch Lambda outputs
 
 output "cwl2es_lambda_name" {
-  value       = var.cwl_lambda_enabled ? aws_lambda_function.cwl_stream_lambda[0].arn : ""
+  value       = var.cwl2es_lambda_enabled ? aws_lambda_function.cwl2es_function[0].arn : ""
   description = "Cloudwatch to Elasticsearch Lambda Name"
 }
 

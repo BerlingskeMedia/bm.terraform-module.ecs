@@ -241,23 +241,29 @@ variable "service_discovery_enabled" {
 
 # Cloudwatch Lambda variables
 
-variable "cwl_lambda_enabled" {
+variable "cwl2es_lambda_enabled" {
   type        = bool
   default     = false
   description = "Set this variable to true if there is need to create cloudwatch to elasticsearch lambda"
 }
 
-variable "cwl_lambda_es_endpoint" {
+variable "cwl2es_lambda_es_endpoint" {
   type        = string
   description = "Elasticsearch endpoint url"
 }
 
-variable "cwl_lambda_iam_role_arn" {
+variable "cwl2es_lambda_iam_role_arn" {
   type        = string
   description = "Cloudwatch Lambda execution role arn"
 }
 
-variable "cwl_lambda_security_group" {
+variable "cwl2es_lambda_security_group" {
   type        = string
   description = "Cloudwatch Lambda security group"
+}
+
+variable "cwl2es_lambda_cwl_endpoint" {
+  type        = string
+  default     = "logs.eu-west-1.amazonaws.com"
+  description = "Cloudwatch endpoint url"
 }
