@@ -148,7 +148,7 @@ output "service_discovery_name" {
 # Cloudwatch Lambda outputs
 
 output "cwl2es_lambda_name" {
-  value       = var.cwl2es_lambda_enabled ? aws_lambda_function.cwl2es_function[0].arn : ""
+  value       = var.cwl2es_lambda_enabled ? "${module.label.id}-LogsToElasticsearch" : ""
   description = "Cloudwatch to Elasticsearch Lambda Name"
 }
 
