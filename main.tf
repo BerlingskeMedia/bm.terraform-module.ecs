@@ -385,6 +385,8 @@ resource "aws_lambda_function" "cwl2es_function" {
       ecs_cluster_name  = module.label.id
     }
   }
+
+  tags              = module.label.tags
 }
 
 resource "aws_lambda_permission" "cwl2es_cloudwatch_allow" {
