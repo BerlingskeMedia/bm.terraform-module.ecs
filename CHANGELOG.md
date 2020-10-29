@@ -1,4 +1,8 @@
 ---
+# 1.2.0
+## Main changes
+    - Add Cloudwatch to Elasticsearch Lambda support
+
 # 1.1.0
 ## Main changes
     - Add service discovery support
