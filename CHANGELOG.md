@@ -2,6 +2,7 @@
 # 1.3.0
 # Main Changes
     - Terraform v0.13.x support
+    - Non obligatory cwl2es_lambda_* parameters are now defaulted
 
 # 1.2.0
 ## Main changes

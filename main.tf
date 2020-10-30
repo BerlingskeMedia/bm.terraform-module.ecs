@@ -366,27 +366,27 @@ data "archive_file" "cwl2es_code" {
 }
 
 resource "aws_lambda_function" "cwl2es_function" {
-  count             = var.cwl2es_lambda_enabled ? 1 : 0
-  filename          = data.archive_file.cwl2es_code[0].output_path
-  function_name     = "${module.label.id}-LogsToElasticsearch"
-  role              = var.cwl2es_lambda_iam_role_arn
-  handler           = "index.handler"
-  source_code_hash  = filebase64sha256(data.archive_file.cwl2es_code[0].output_path)
-  runtime           = "nodejs10.x"
+  count            = var.cwl2es_lambda_enabled ? 1 : 0
+  filename         = data.archive_file.cwl2es_code[0].output_path
+  function_name    = "${module.label.id}-LogsToElasticsearch"
+  role             = var.cwl2es_lambda_iam_role_arn
+  handler          = "index.handler"
+  source_code_hash = filebase64sha256(data.archive_file.cwl2es_code[0].output_path)
+  runtime          = "nodejs10.x"
 
   vpc_config {
-    subnet_ids          = var.private_subnets
-    security_group_ids  = [var.cwl2es_lambda_security_group]
+    subnet_ids         = var.private_subnets
+    security_group_ids = [var.cwl2es_lambda_security_group]
   }
 
   environment {
     variables = {
-      es_endpoint       = var.cwl2es_lambda_es_endpoint
-      ecs_cluster_name  = module.label.id
+      es_endpoint      = var.cwl2es_lambda_es_endpoint
+      ecs_cluster_name = module.label.id
     }
   }
 
-  tags              = module.label.tags
+  tags = module.label.tags
 }
 
 resource "aws_lambda_permission" "cwl2es_cloudwatch_allow" {
@@ -440,15 +440,15 @@ locals {
     "domain_zone_id"          = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? data.aws_route53_zone.zone.zone_id : ""
     "alb_acm_certificate_arn" = (var.alb_internal_enabled || var.alb_external_enabled) && length(aws_acm_certificate.alb_cert) > 0 ? aws_acm_certificate.alb_cert[0].arn : ""
     # KMS outputs
-    "kms_key_alias_arn"              = module.kms_key.alias_arn
-    "kms_key_alias_name"             = module.kms_key.alias_name
-    "kms_key_arn"                    = module.kms_key.key_arn
-    "kms_key_name"                   = module.kms_key.key_id
-    "kms_key_access_policy_arn"      = aws_iam_policy.kms_key_access_policy.arn
+    "kms_key_alias_arn"         = module.kms_key.alias_arn
+    "kms_key_alias_name"        = module.kms_key.alias_name
+    "kms_key_arn"               = module.kms_key.key_arn
+    "kms_key_name"              = module.kms_key.key_id
+    "kms_key_access_policy_arn" = aws_iam_policy.kms_key_access_policy.arn
     # Service discovery outputs
     "service_discovery_namespace_id" = join("", aws_service_discovery_private_dns_namespace.default.*.id)
     "service_discovery_name"         = join("", aws_service_discovery_private_dns_namespace.default.*.name)
     # Cloudwatch to Elasticsearch lambda outputs
-    "cwl2es_lambda_name"             = var.cwl2es_lambda_enabled ? "${module.label.id}-LogsToElasticsearch" : ""
+    "cwl2es_lambda_name" = var.cwl2es_lambda_enabled ? "${module.label.id}-LogsToElasticsearch" : ""
   }
 }
