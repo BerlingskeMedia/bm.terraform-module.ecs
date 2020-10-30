@@ -123,7 +123,7 @@ output "kms_key_arn" {
   description = "Common KMS key arn for all services in the cluster"
 }
 
-output "kms_key_name" {
+output "kms_key_id" {
   value       = module.kms_key.key_id
   description = "Common KMS key ID for all services in the cluster"
 }

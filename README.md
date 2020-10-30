@@ -161,7 +161,7 @@ module "ecs" {
 | kms_key_alias_arn         | Common KMS key alias arn for all services in the cluster |
 | kms_key_alias_name        | Common KMS key alias name for all services in the cluster |
 | kms_key_arn               | Common KMS key arn for all services in the cluster |
-| kms_key_name              | Common KMS key ID for all services in the cluster |
+| kms_key_id                | Common KMS key ID for all services in the cluster |
 | kms_key_access_policy_arn | Common KMS IAM access policy arn |
 
 ### Service discovery outputs
