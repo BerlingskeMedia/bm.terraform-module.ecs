@@ -1,9 +1,4 @@
 ---
-# 1.2.1
-## Main changes
-    - Fix defaults for `cwl2es_lambda_*` variables
-    - Fix kms_key_id variable name
-
 # 1.2.0
 ## Main changes
     - Add Cloudwatch to Elasticsearch Lambda support
