@@ -3,6 +3,10 @@
 # Main Changes
     - Terraform v0.13.x support
 
+# 1.2.0
+## Main changes
+    - Add Cloudwatch to Elasticsearch Lambda support
+
 # 1.1.0
 ## Main changes
     - Add service discovery support
