@@ -1,5 +1,5 @@
 module "label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.16.0"
+  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.2"
   namespace  = var.namespace
   name       = var.name
   stage      = var.stage
@@ -10,8 +10,7 @@ module "label" {
 
 # Main cluster's Security Groups
 module "security" {
-  source = "git@github.com:BerlingskeMedia/bm.terraform-module.security?ref=production"
-  //source      = "../bm.terraform-module.security"
+  source      = "git@github.com:BerlingskeMedia/bm.terraform-module.security?ref=production"
   label       = module.label.id
   namespace   = var.namespace
   stage       = var.stage
@@ -43,31 +42,31 @@ locals {
 
 data "aws_iam_policy_document" "ec2_role_document" {
   statement {
-    actions         = ["sts:AssumeRole"]
+    actions = ["sts:AssumeRole"]
     principals {
-      type = "Service"
+      type        = "Service"
       identifiers = ["ec2.amazonaws.com"]
     }
   }
 }
 
 resource "aws_iam_role" "ecs_ec2_role" {
-  count               = var.launch_type == "EC2" ? 1 : 0
-  name                = "${module.label.id}-ec2-role"
-  assume_role_policy  = data.aws_iam_policy_document.ec2_role_document.json
-  tags                = module.label.tags
+  count              = var.launch_type == "EC2" ? 1 : 0
+  name               = "${module.label.id}-ec2-role"
+  assume_role_policy = data.aws_iam_policy_document.ec2_role_document.json
+  tags               = module.label.tags
 }
 
 resource "aws_iam_instance_profile" "ecs_ec2_instance_profile" {
   count = var.launch_type == "EC2" ? 1 : 0
   name  = "${module.label.id}-ec2-instance-profile"
-  role  = join("",aws_iam_role.ecs_ec2_role.*.name)
+  role  = join("", aws_iam_role.ecs_ec2_role.*.name)
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_ec2_role_attachement" {
-  role          = join("",aws_iam_role.ecs_ec2_role.*.name)
-  for_each      = var.launch_type == "EC2" ? toset(local.ecs_ec2_role_policies_list) : toset([])
-  policy_arn    = each.value
+  role       = join("", aws_iam_role.ecs_ec2_role.*.name)
+  for_each   = var.launch_type == "EC2" ? toset(local.ecs_ec2_role_policies_list) : toset([])
+  policy_arn = each.value
 }
 
 data "aws_ami" "vm_ami" {
@@ -88,9 +87,9 @@ data "aws_ami" "vm_ami" {
 }
 
 resource "aws_security_group" "ecs_ec2_security_group" {
-  count     = var.launch_type == "EC2" ? 1 : 0
-  name      = "${module.label.id}-ec2-instances-security-group"
-  vpc_id    = var.vpc_id
+  count  = var.launch_type == "EC2" ? 1 : 0
+  name   = "${module.label.id}-ec2-instances-security-group"
+  vpc_id = var.vpc_id
 
   ingress {
     protocol  = -1
@@ -105,28 +104,28 @@ resource "aws_security_group" "ecs_ec2_security_group" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags      = module.label.tags
+  tags = module.label.tags
 }
 
 resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
-  count                         = var.launch_type == "EC2" && var.aws_key_pair != "" ? 1 : 0
-  name_prefix                   = "${module.label.id}-launch-configuration-"
-  key_name                      = var.aws_key_pair
-  image_id                      = data.aws_ami.vm_ami.id
-  instance_type                 = var.instance_type
-  iam_instance_profile          = join("",aws_iam_instance_profile.ecs_ec2_instance_profile.*.arn)
-  user_data                     = templatefile(
+  count                = var.launch_type == "EC2" && var.aws_key_pair != "" ? 1 : 0
+  name_prefix          = "${module.label.id}-launch-configuration-"
+  key_name             = var.aws_key_pair
+  image_id             = data.aws_ami.vm_ami.id
+  instance_type        = var.instance_type
+  iam_instance_profile = join("", aws_iam_instance_profile.ecs_ec2_instance_profile.*.arn)
+  user_data = templatefile(
     "${path.module}/cloud-config.yml",
     {
       ecs_cluster_name = "${aws_ecs_cluster.default.name}"
     }
   )
-  associate_public_ip_address   = false
-  security_groups               = [join("",aws_security_group.ecs_ec2_security_group.*.id)]
+  associate_public_ip_address = false
+  security_groups             = [join("", aws_security_group.ecs_ec2_security_group.*.id)]
   root_block_device {
     volume_size = "30"
   }
-  
+
   lifecycle {
     create_before_destroy = true
   }
@@ -139,10 +138,10 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
   desired_capacity      = var.asg_instances_desired_capacity
   max_size              = var.asg_instances_max_size
   min_size              = var.asg_instances_min_size
-  launch_configuration  = join("",aws_launch_configuration.ecs_ec2_launch_configuration.*.id)
+  launch_configuration  = join("", aws_launch_configuration.ecs_ec2_launch_configuration.*.id)
   termination_policies  = var.asg_termination_policies
   max_instance_lifetime = var.asg_max_instance_lifetime
-  
+
   dynamic "tag" {
     for_each = module.label.tags
 
@@ -155,13 +154,13 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
 }
 
 module "ecr" {
-  source      = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=tags/0.1.0"
-  enabled     = var.enabled && var.ecr_enabled
-  name        = var.name
-  namespace   = var.namespace
-  stage       = var.stage
-  attributes  = compact(concat(var.attributes, ["ecr"]))
-  namespaces  = var.ecr_namespaces
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=tags/0.2.0"
+  enabled    = var.enabled && var.ecr_enabled
+  name       = var.name
+  namespace  = var.namespace
+  stage      = var.stage
+  attributes = compact(concat(var.attributes, ["ecr"]))
+  namespaces = var.ecr_namespaces
 }
 
 resource "aws_security_group" "ecs_sg_internal" {
@@ -182,14 +181,14 @@ resource "aws_security_group" "ecs_sg_internal" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
+
   tags = merge(var.tags, { "Name" = "${module.label.id}-ecs-internal" })
 }
 
 # Create user for drone.io
 
 module "drone-io" {
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.1.1"
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.3.0"
   enabled    = var.drone-io_enabled
   name       = var.name
   namespace  = var.namespace

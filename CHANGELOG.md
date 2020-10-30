@@ -1,4 +1,8 @@
 ---
+# 0.2.0
+# Main Changes
+    - Terraform v0.13.x support
+
 # 0.1.7
 ## Main changes
     - Remove all code related to rds - use separated module if you need database
