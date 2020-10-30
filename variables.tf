@@ -151,6 +151,6 @@ variable "asg_max_instance_lifetime" {
 
 variable "asg_termination_policies" {
   type        = list
-  default     = ["OldestLaunchConfiguration","OldestInstance"]
+  default     = ["OldestLaunchConfiguration", "OldestInstance"]
   description = "Default policies for vm termination in ASG"
 }
