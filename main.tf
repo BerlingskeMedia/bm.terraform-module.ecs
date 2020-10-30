@@ -443,7 +443,7 @@ locals {
     "kms_key_alias_arn"              = module.kms_key.alias_arn
     "kms_key_alias_name"             = module.kms_key.alias_name
     "kms_key_arn"                    = module.kms_key.key_arn
-    "kms_key_name"                   = module.kms_key.key_id
+    "kms_key_id"                     = module.kms_key.key_id
     "kms_key_access_policy_arn"      = aws_iam_policy.kms_key_access_policy.arn
     # Service discovery outputs
     "service_discovery_namespace_id" = join("", aws_service_discovery_private_dns_namespace.default.*.id)
