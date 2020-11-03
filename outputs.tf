@@ -123,7 +123,7 @@ output "kms_key_arn" {
   description = "Common KMS key arn for all services in the cluster"
 }
 
-output "kms_key_name" {
+output "kms_key_id" {
   value       = module.kms_key.key_id
   description = "Common KMS key ID for all services in the cluster"
 }
@@ -143,13 +143,6 @@ output "service_discovery_namespace_id" {
 output "service_discovery_name" {
   value       = join("", aws_service_discovery_private_dns_namespace.default.*.name)
   description = "Service discovery namespace name"
-}
-
-# Cloudwatch Lambda outputs
-
-output "cwl2es_lambda_name" {
-  value       = var.cwl2es_lambda_enabled ? "${module.label.id}-LogsToElasticsearch" : ""
-  description = "Cloudwatch to Elasticsearch Lambda Name"
 }
 
 # ECS Module map outputs
