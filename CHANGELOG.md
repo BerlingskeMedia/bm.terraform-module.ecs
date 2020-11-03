@@ -1,7 +1,9 @@
 ---
 # 1.2.1
 ## Main changes
-    - Fix defaults for `cwl2es_lambda_*` variables
+    - Change variables names from`cwl2es_lambda_*` to `cwl2es_*`
+    - Fix defaults for `cwl2es_*` variables
+    - Add `cwl2es_subnets` variables if Lambda VPC is different than the project VPC
     - Fix kms_key_id variable name
 
 # 1.2.0

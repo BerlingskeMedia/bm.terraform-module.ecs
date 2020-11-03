@@ -111,13 +111,14 @@ module "ecs" {
 | service_discovery_enabled      | `bool` | **no**   | `false`       | Determine, wheter servicediscovery should be enabled for this service. |
 
 ### Cloudwatch Lambda variables
-| Variable                     | Type     | Required                                      | Default Value                  | Description |
-| ---------------------------- |:--------:|:---------------------------------------------:|:------------------------------:|:-----------:|
-| cwl2es_lambda_enabled        | `bool`   | **no**                                        | `false`                        | Set this variable to true if there is need to create cloudwatch to elasticsearch lambda |
-| cwl2es_lambda_es_endpoint    | `string` | **only if `cwl2es_lambda_enabled` is `true`** | `empty`                        | Elasticsearch endpoint url |
-| cwl2es_lambda_iam_role_arn   | `string` | **only if `cwl2es_lambda_enabled` is `true`** | `empty`                        | Cloudwatch Lambda execution role arn |
-| cwl2es_lambda_security_group | `string` | **only if `cwl2es_lambda_enabled` is `true`** | `empty`                        | Cloudwatch Lambda security group |
-| cwl2es_lambda_cwl_endpoint   | `string` | **no**                                        | `logs.eu-west-1.amazonaws.com` | Cloudwatch endpoint url |
+| Variable              | Type           | Required                               | Default Value                  | Description |
+| --------------------- |:--------------:|:--------------------------------------:|:------------------------------:|:-----------:|
+| cwl2es_enabled        | `bool`         | **no**                                 | `false`                        | Set this variable to true if there is need to create cloudwatch to elasticsearch lambda |
+| cwl2es_es_endpoint    | `string`       | **only if `cwl2es_enabled` is `true`** | `empty`                        | Elasticsearch endpoint url |
+| cwl2es_iam_role_arn   | `string`       | **only if `cwl2es_enabled` is `true`** | `empty`                        | Cloudwatch Lambda execution role arn |
+| cwl2es_security_group | `string`       | **only if `cwl2es_enabled` is `true`** | `empty`                        | Cloudwatch Lambda security group |
+| cwl2es_subnets        | `list(string)` | **only if `cwl2es_enabled` is `true`** | `[]`                           | Cloudwatch Lambda subnets id list - use it when lambda is in different VPC than ecs cluster |
+| cwl2es_cwl_endpoint   | `string`       | **no**                                 | `logs.eu-west-1.amazonaws.com` | Cloudwatch endpoint url |
 
 
 ## Outputs
@@ -175,7 +176,7 @@ module "ecs" {
 
 | Variable           | Description |
 | ------------------:|:-----------:|
-| cwl2es_lambda_name | Cloudwatch to Elasticsearch Lambda Name |
+| cwl2es_name        | Cloudwatch to Elasticsearch Lambda Name |
 
 ### ECS module output maps
 
