@@ -398,6 +398,13 @@ resource "aws_lambda_permission" "cwl2es_cloudwatch_allow" {
   source_arn    = aws_cloudwatch_log_group.app.arn
 }
 
+resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_to_es" {
+  count           = var.cwl2es_enabled ? 1 : 0
+  name            = "cloudwatch_logs_to_elasticsearch"
+  log_group_name  = aws_cloudwatch_log_group.app.name
+  filter_pattern  = ""
+  destination_arn = aws_lambda_function.cwl2es_function[0].arn
+}
 
 locals {
   # External ALB output map
@@ -448,7 +455,5 @@ locals {
     # Service discovery outputs
     "service_discovery_namespace_id" = join("", aws_service_discovery_private_dns_namespace.default.*.id)
     "service_discovery_name"         = join("", aws_service_discovery_private_dns_namespace.default.*.name)
-    # Cloudwatch to Elasticsearch lambda outputs
-    "cwl2es_name"             = var.cwl2es_enabled ? "${module.label.id}-LogsToElasticsearch" : ""
   }
 }

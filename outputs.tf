@@ -145,13 +145,6 @@ output "service_discovery_name" {
   description = "Service discovery namespace name"
 }
 
-# Cloudwatch Lambda outputs
-
-output "cwl2es_name" {
-  value       = var.cwl2es_enabled ? "${module.label.id}-LogsToElasticsearch" : ""
-  description = "Cloudwatch to Elasticsearch Lambda Name"
-}
-
 # ECS Module map outputs
 output "internal_alb_output_map" {
   value       = local.internal_alb_output_map

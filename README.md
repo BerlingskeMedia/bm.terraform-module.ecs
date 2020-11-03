@@ -172,12 +172,6 @@ module "ecs" {
 | service_discovery_namespace_id | Service discovery namespace ID |
 | service_discovery_name         | Service discovery namespace name |
 
-### Cloudwatch Lambda outputs
-
-| Variable           | Description |
-| ------------------:|:-----------:|
-| cwl2es_name        | Cloudwatch to Elasticsearch Lambda Name |
-
 ### ECS module output maps
 
 | Variable                | Description |
