@@ -4,6 +4,7 @@
     - Change variables names from`cwl2es_lambda_*` to `cwl2es_*`
     - Fix defaults for `cwl2es_*` variables
     - Add `cwl2es_subnets` variables if Lambda VPC is different than the project VPC
+    - Move Cloudwatch to lambda subscription from ecs-service module to ecs module
     - Fix kms_key_id variable name
 
 # 1.2.0
