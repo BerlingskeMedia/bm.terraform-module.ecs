@@ -251,21 +251,18 @@ variable "cwl2es_es_endpoint" {
   type        = string
   default     = ""
   description = "Elasticsearch endpoint url"
-  default     = ""
 }
 
 variable "cwl2es_iam_role_arn" {
   type        = string
   default     = ""
   description = "Cloudwatch Lambda execution role arn"
-  default     = ""
 }
 
 variable "cwl2es_security_group" {
   type        = string
   default     = ""
   description = "Cloudwatch Lambda security group"
-  default     = ""
 }
 
 variable "cwl2es_subnets" {
