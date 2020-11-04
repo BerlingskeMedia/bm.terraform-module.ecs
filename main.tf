@@ -1,5 +1,5 @@
 module "label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.16.0"
+  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.2"
   namespace  = var.namespace
   name       = var.name
   stage      = var.stage
@@ -139,7 +139,7 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
 }
 
 module "ecr" {
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=tags/0.1.0"
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=tags/0.2.0"
   enabled    = var.enabled && var.ecr_enabled
   name       = var.name
   namespace  = var.namespace
@@ -173,7 +173,7 @@ resource "aws_security_group" "ecs_sg_internal" {
 # Create user for drone.io
 
 module "drone-io" {
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.2.0"
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.3.0"
   enabled    = var.drone-io_enabled
   name       = var.name
   namespace  = var.namespace
@@ -265,7 +265,7 @@ locals {
 }
 
 module "alb_default_internal" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.19.0"
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_internal_name_short
   stage                                   = local.alb_stage_short
@@ -291,7 +291,7 @@ module "alb_default_internal" {
 }
 
 module "alb_default_external" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.18.0"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.19.0"
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_external_name_short
   stage                                   = local.alb_stage_short
@@ -386,7 +386,7 @@ resource "aws_lambda_function" "cwl2es_function" {
     }
   }
 
-  tags              = module.label.tags
+  tags = module.label.tags
 }
 
 resource "aws_lambda_permission" "cwl2es_cloudwatch_allow" {
