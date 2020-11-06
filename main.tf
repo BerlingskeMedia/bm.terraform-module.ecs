@@ -138,6 +138,53 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
   }
 }
 
+# Datadog Agent
+# Only if cluster mode is EC2
+
+module "container_definition_datadog_agent" {
+  source               = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.41.0"
+  container_name       = "${module.label.id}-datadog-agent"
+  container_image      = "datadog/agent:latest"
+  environment          = local.drone_runner_environemnt_variables
+  secrets              = local.drone_runner_environemnt_secrets
+  port_mappings        = local.drone_runner_port_mapping
+  container_depends_on = null
+  mount_points         = local.drone_runner_mount_points
+
+  log_configuration = {
+    logDriver = var.log_driver
+    options = {
+      "awslogs-region"        = var.aws_logs_region
+      "awslogs-group"         = module.ecs.aws_cloudwatch_log_group_name
+      "awslogs-stream-prefix" = local.name
+    }
+    secretOptions = null
+  }
+}
+
+module "ecs_service_task_datadog_agent" {
+  source                         = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task.git?ref=tags/0.40.1"
+  name                           = local.name
+  namespace                      = local.namespace
+  stage                          = local.stage
+  ignore_changes_task_definition = false
+  attributes                     = concat(local.global_attributes, ["datadog_agent"])
+  use_alb_security_group         = false
+  container_definition_json      = "[${module.container_definition_datadog_agent.json_map_encoded}]"
+  desired_count                  = local.desired_count_drone_runner
+  ecs_cluster_arn                = module.ecs.ecs_cluster_arn
+  launch_type                    = "DAEMON"
+  network_mode                   = "awsvpc"
+  vpc_id                         = local.vpc_id
+  security_group_ids = [
+    module.ecs.service_internal_security_group
+  ]
+  subnet_ids         = local.private_subnets
+  tags               = module.label.tags
+  volumes            = local.drone_runner_volumes
+  ecs_load_balancers = []
+}
+
 module "ecr" {
   source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=tags/0.2.0"
   enabled    = var.enabled && var.ecr_enabled
