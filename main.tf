@@ -141,47 +141,131 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
 # Datadog Agent
 # Only if cluster mode is EC2
 
+locals {
+  datadog_environments = [
+    {
+      name = "DD_API_KEY"
+      value = var.datadog_api_key
+    },
+    {
+      name = "DD_PROCESS_AGENT_ENABLED"
+      value = "true"
+    },
+    {
+      name = "DD_SYSTEM_PROBE_ENABLED"
+      value = "true"
+    }
+  ]
+  datadog_port_mapping = []
+  datadog_linux_parameters = {
+    capabilities = {
+      add = [
+        "SYS_ADMIN",
+        "SYS_RESOURCE",
+        "SYS_PTRACE",
+        "NET_ADMIN"
+      ]
+    }
+  }
+  datadog_runner_mount_points = [
+    {
+      readOnly      = true
+      sourceVolume  = "docker-socket"
+      containerPath = "/var/run/docker.sock"
+    },
+    {
+      readOnly      = true
+      sourceVolume  = "proc"
+      containerPath = "/host/proc/"
+    },
+    {
+      readOnly      = true
+      sourceVolume  = "cgroup"
+      containerPath = "/host/sys/fs/cgroup"
+    },
+    {
+      readOnly      = true
+      sourceVolume  = "passwd"
+      containerPath = "/etc/passwd"
+    },
+    {
+      readOnly      = true
+      sourceVolume  = "debug"
+      containerPath = "/sys/kernel/debug"
+    }
+  ]
+  datadog_runner_volumes = [
+    {
+      name                        = "docker-socket"
+      host_path                   = "/var/run/docker.sock"
+      docker_volume_configuration = []
+    },
+    {
+      name                        = "proc"
+      host_path                   = "/proc/"
+      docker_volume_configuration = []
+    },
+    {
+      name                        = "cgroup"
+      host_path                   = "/sys/fs/cgroup/"
+      docker_volume_configuration = []
+    },
+    {
+      name                        = "passwd"
+      host_path                   = "/etc/passwd"
+      dcker_volume_configuration = []
+    },
+    {
+      name                        = "debug"
+      host_path                   = "/sys/kernel/debug"
+      dcker_volume_configuration = []
+    }
+  ]
+}
+
 module "container_definition_datadog_agent" {
-  source               = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.41.0"
-  container_name       = "${module.label.id}-datadog-agent"
-  container_image      = "datadog/agent:latest"
-  environment          = local.drone_runner_environemnt_variables
-  secrets              = local.drone_runner_environemnt_secrets
-  port_mappings        = local.drone_runner_port_mapping
-  container_depends_on = null
-  mount_points         = local.drone_runner_mount_points
+  source                        = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.41.0"
+  container_name                = "${module.label.id}-datadog-agent-container"
+  container_image               = "datadog/agent:latest"
+  environment                   = local.datadog_environments
+  port_mappings                 = local.datadog_port_mapping
+  container_depends_on          = null
+  container_cpu                 = 10
+  container_memory              = 128
+  container_memory_reservation  = 256
+  mount_points                  = local.datadog_runner_mount_points
 
   log_configuration = {
-    logDriver = var.log_driver
+    logDriver = "awslogs"
     options = {
-      "awslogs-region"        = var.aws_logs_region
-      "awslogs-group"         = module.ecs.aws_cloudwatch_log_group_name
-      "awslogs-stream-prefix" = local.name
+      "awslogs-region"        = var.region
+      "awslogs-group"         = aws_cloudwatch_log_group.app.name
+      "awslogs-stream-prefix" = "${module.label.id}-datadog-agent"
     }
     secretOptions = null
   }
 }
 
 module "ecs_service_task_datadog_agent" {
+  enabled                        = var.datadog_enabled ? true : false
   source                         = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task.git?ref=tags/0.40.1"
-  name                           = local.name
-  namespace                      = local.namespace
-  stage                          = local.stage
+  name                           = module.label.name
+  namespace                      = module.label.namespace
+  stage                          = module.label.stage
   ignore_changes_task_definition = false
-  attributes                     = concat(local.global_attributes, ["datadog_agent"])
+  attributes                     = concat(local.global_attributes, ["datadog-agent"])
   use_alb_security_group         = false
   container_definition_json      = "[${module.container_definition_datadog_agent.json_map_encoded}]"
-  desired_count                  = local.desired_count_drone_runner
-  ecs_cluster_arn                = module.ecs.ecs_cluster_arn
-  launch_type                    = "DAEMON"
+  ecs_cluster_arn                = aws_ecs_cluster.default.arn
+  launch_type                    = "EC2"
   network_mode                   = "awsvpc"
   vpc_id                         = local.vpc_id
   security_group_ids = [
-    module.ecs.service_internal_security_group
+    aws_security_group.ecs_sg_internal.id
   ]
-  subnet_ids         = local.private_subnets
+  subnet_ids         = var.private_subnets
   tags               = module.label.tags
-  volumes            = local.drone_runner_volumes
+  volumes            = local.datadog_runner_volumes
   ecs_load_balancers = []
 }
 
