@@ -165,9 +165,15 @@ variable "datadog_enabled" {
   default     = false
 }
 
-variable "datadog_api_key" {
+variable "datadog_agent_ssm_parameter_path" {
   type        = string
-  description = "Datadog api key for datadog agent"
+  description = "Datadog api key SSM path for datadog agent"
+  default     = ""
+}
+
+variable "datadog_agent_ssm_parameter_kms_key_arn" {
+  type        = string
+  description = "Datadog api key SSM KMS key arn"
   default     = ""
 }
 

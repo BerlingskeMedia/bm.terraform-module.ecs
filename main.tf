@@ -144,16 +144,18 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
 locals {
   datadog_environments = [
     {
-      name = "DD_API_KEY"
-      value = var.datadog_api_key
-    },
-    {
       name = "DD_PROCESS_AGENT_ENABLED"
       value = "true"
     },
     {
       name = "DD_SYSTEM_PROBE_ENABLED"
       value = "true"
+    }
+  ]
+  datadog_secrets = [
+    {
+      name = "DD_API_KEY"
+      valueFrom = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? var.datadog_agent_ssm_parameter_path : ""
     }
   ]
   datadog_port_mapping = []
@@ -228,6 +230,7 @@ module "container_definition_datadog_agent" {
   container_name                = "${module.label.id}-datadog-agent-container"
   container_image               = "datadog/agent:latest"
   environment                   = local.datadog_environments
+  secrets                       = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? local.datadog_secrets : {}
   port_mappings                 = local.datadog_port_mapping
   container_depends_on          = null
   container_cpu                 = 10
@@ -247,7 +250,7 @@ module "container_definition_datadog_agent" {
 }
 
 module "ecs_service_task_datadog_agent" {
-  enabled                        = var.datadog_enabled ? true : false
+  enabled                        = var.datadog_enabled && var.launch_type == "EC2" ? true : false
   source                         = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task.git?ref=tags/0.40.1"
   name                           = module.label.name
   namespace                      = module.label.namespace
@@ -460,12 +463,14 @@ module "kms_key" {
   enable_key_rotation     = true
 }
 
+locals {
+  kms_arns_list = var.datadog_enabled && var.datadog_agent_ssm_parameter_kms_key_arn != "" && var.launch_type == "EC2" ? [module.kms_key.key_arn,var.datadog_agent_ssm_parameter_kms_key_arn] : [module.kms_key.key_arn]
+}
+
 data "aws_iam_policy_document" "kms_key_policy_document" {
   statement {
     effect = "Allow"
-    resources = [
-      module.kms_key.key_arn
-    ]
+    resources = local.kms_arns_list
     actions = [
       "kms:GenerateDataKey",
       "kms:DescribeKey",
