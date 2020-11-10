@@ -239,8 +239,8 @@ module "container_definition_datadog_agent" {
   port_mappings                 = local.datadog_port_mapping
   container_depends_on          = null
   container_cpu                 = 10
-  container_memory              = 128
-  container_memory_reservation  = 256
+  container_memory              = 256
+  container_memory_reservation  = 128
   mount_points                  = local.datadog_runner_mount_points
 
   log_configuration = {
@@ -279,7 +279,7 @@ module "ecs_service_task_datadog_agent" {
 
 resource "aws_iam_role_policy_attachment" "datadog_agent_kms_access_policy_attachement" {
   count       = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_kms_access_policy_arn != "" ? 1 : 0
-  role        = module.ecs_service_task_datadog_agent.task_exec_role_arn
+  role        = module.ecs_service_task_datadog_agent.task_exec_role_name
   policy_arn  = var.datadog_agent_ssm_parameter_kms_access_policy_arn
 }
 
