@@ -235,7 +235,7 @@ module "container_definition_datadog_agent" {
   container_name                = "${module.label.id}-datadog-agent-container"
   container_image               = "datadog/agent:latest"
   environment                   = local.datadog_environments
-  secrets                       = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? local.datadog_secrets : [{}]
+  secrets                       = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? local.datadog_secrets : null
   port_mappings                 = local.datadog_port_mapping
   container_depends_on          = null
   container_cpu                 = 10
