@@ -5,7 +5,7 @@
 
 # 1.3.0
 # Main Changes
-    - Terraform v0.13.x support
+    - Terraform v0.13.x support (Terraform 0.12 not supported anymore)
 
 # 1.2.1
 ## Main changes

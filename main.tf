@@ -201,36 +201,41 @@ locals {
       name                        = "docker-socket"
       host_path                   = "/var/run/docker.sock"
       docker_volume_configuration = []
+      efs_volume_configuration    = []
     },
     {
       name                        = "proc"
       host_path                   = "/proc/"
       docker_volume_configuration = []
+      efs_volume_configuration    = []
     },
     {
       name                        = "cgroup"
       host_path                   = "/sys/fs/cgroup/"
       docker_volume_configuration = []
+      efs_volume_configuration    = []
     },
     {
       name                        = "passwd"
       host_path                   = "/etc/passwd"
-      dcker_volume_configuration = []
+      docker_volume_configuration = []
+      efs_volume_configuration    = []
     },
     {
       name                        = "debug"
       host_path                   = "/sys/kernel/debug"
-      dcker_volume_configuration = []
+      docker_volume_configuration = []
+      efs_volume_configuration    = []
     }
   ]
 }
 
 module "container_definition_datadog_agent" {
-  source                        = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.41.0"
+  source                        = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.44.0"
   container_name                = "${module.label.id}-datadog-agent-container"
   container_image               = "datadog/agent:latest"
   environment                   = local.datadog_environments
-  secrets                       = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? local.datadog_secrets : {}
+  secrets                       = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? local.datadog_secrets : [{}]
   port_mappings                 = local.datadog_port_mapping
   container_depends_on          = null
   container_cpu                 = 10
@@ -256,13 +261,13 @@ module "ecs_service_task_datadog_agent" {
   namespace                      = module.label.namespace
   stage                          = module.label.stage
   ignore_changes_task_definition = false
-  attributes                     = concat(local.global_attributes, ["datadog-agent"])
+  attributes                     = concat(var.attributes, ["datadog-agent"])
   use_alb_security_group         = false
   container_definition_json      = "[${module.container_definition_datadog_agent.json_map_encoded}]"
   ecs_cluster_arn                = aws_ecs_cluster.default.arn
   launch_type                    = "EC2"
   network_mode                   = "awsvpc"
-  vpc_id                         = local.vpc_id
+  vpc_id                         = var.vpc_id
   security_group_ids = [
     aws_security_group.ecs_sg_internal.id
   ]
