@@ -102,7 +102,7 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
   user_data = templatefile(
     "${path.module}/additional_config_files/cloud-config.yml",
     {
-      ecs_cluster_name = "${aws_ecs_cluster.default.name}"
+      ecs_cluster_name = aws_ecs_cluster.default.name
     }
   )
   associate_public_ip_address = false
