@@ -267,6 +267,7 @@ module "ecs_service_task_datadog_agent" {
   ecs_cluster_arn                = aws_ecs_cluster.default.arn
   launch_type                    = "EC2"
   network_mode                   = "awsvpc"
+  scheduling_strategy            = "DAEMON"
   vpc_id                         = var.vpc_id
   security_group_ids = [
     aws_security_group.ecs_sg_internal.id
