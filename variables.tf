@@ -171,9 +171,9 @@ variable "datadog_agent_ssm_parameter_path" {
   default     = ""
 }
 
-variable "datadog_agent_ssm_parameter_kms_key_arn" {
+variable "datadog_agent_ssm_parameter_kms_access_policy_arn" {
   type        = string
-  description = "Datadog api key SSM KMS key arn"
+  description = "Datadog api key SSM KMS key IAM policy arn"
   default     = ""
 }
 

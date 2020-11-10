@@ -272,6 +272,12 @@ module "ecs_service_task_datadog_agent" {
   ecs_load_balancers = []
 }
 
+resource "aws_iam_role_policy_attachment" "datadog_agent_kms_access_policy_attachement" {
+  count       = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_kms_access_policy_arn != "" ? 1 : 0
+  role        = module.ecs_service_task_datadog_agent.task_exec_role_arn
+  policy_arn  = var.datadog_agent_ssm_parameter_kms_access_policy_arn
+}
+
 module "ecr" {
   source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=tags/0.2.0"
   enabled    = var.enabled && var.ecr_enabled
@@ -463,14 +469,12 @@ module "kms_key" {
   enable_key_rotation     = true
 }
 
-locals {
-  kms_arns_list = var.datadog_enabled && var.datadog_agent_ssm_parameter_kms_key_arn != "" && var.launch_type == "EC2" ? [module.kms_key.key_arn,var.datadog_agent_ssm_parameter_kms_key_arn] : [module.kms_key.key_arn]
-}
-
 data "aws_iam_policy_document" "kms_key_policy_document" {
   statement {
     effect = "Allow"
-    resources = local.kms_arns_list
+    resources = [
+      module.kms_key.key_arn
+    ]
     actions = [
       "kms:GenerateDataKey",
       "kms:DescribeKey",
