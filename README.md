@@ -77,16 +77,16 @@ module "ecs" {
 
 #### ECS EC2 cluster variables
 
-| Variable                       | Type           | Required | Default Value                                    | Description |
-| ------------------------------ |:--------------:|:--------:|:------------------------------------------------:|:-----------:|
-| instance_ami_name_regex        | `string`       | **no**   | `amzn2-ami-ecs-hvm-2.0*`                         | Instance ami name regex |
-| instance_type                  | `string`       | **no**   | `false`                                          | Instances type for ECS EC2 cluster |
-| aws_key_pair                   | `string`       | **no**   | `empty`                                          | AWS instances key pair |
-| asg_instances_desired_capacity | `string`       | **no**   | `3`                                              | Launch configuration desired capacity for ecs ec2 cluster |
-| asg_instances_max_size         | `string`       | **no**   | `3`                                              | Launch configuration maximum capacity for ecs ec2 cluster |
-| asg_instances_min_size         | `string`       | **no**   | `3`                                              | Launch configuration minimum capacity for ecs ec2 cluster |
-| asg_max_instance_lifetime      | `string`       | **no**   | `604800`                                         | Time of life for instances in Autoscalling group |
-| asg_termination_policies       | `list(string)` | **no**   | `["OldestLaunchConfiguration","OldestInstance"]` | Default policies for vm termination in ASG |
+| Variable                       | Type           | Required                                 | Default Value                                    | Description |
+| ------------------------------ |:--------------:|:----------------------------------------:|:------------------------------------------------:|:-----------:|
+| instance_ami_name_regex        | `string`       | **no**                                   | `amzn2-ami-ecs-hvm-2.0*`                         | Instance ami name regex |
+| instance_type                  | `string`       | **no**                                   | `t3a.medium`                                     | Instances type for ECS EC2 cluster |
+| aws_key_pair                   | `string`       | **only if `launch_type` is set to`EC2`** | `empty`                                          | AWS instances key pair |
+| asg_instances_desired_capacity | `string`       | **no**                                   | `3`                                              | Launch configuration desired capacity for ecs ec2 cluster |
+| asg_instances_max_size         | `string`       | **no**                                   | `3`                                              | Launch configuration maximum capacity for ecs ec2 cluster |
+| asg_instances_min_size         | `string`       | **no**                                   | `3`                                              | Launch configuration minimum capacity for ecs ec2 cluster |
+| asg_max_instance_lifetime      | `string`       | **no**                                   | `604800`                                         | Time of life for instances in Autoscalling group |
+| asg_termination_policies       | `list(string)` | **no**                                   | `["OldestLaunchConfiguration","OldestInstance"]` | Default policies for vm termination in ASG |
 
 ### ALB variables
 
