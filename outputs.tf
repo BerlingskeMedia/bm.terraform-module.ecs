@@ -1,3 +1,8 @@
+output "label_id" {
+  value       = module.label.id
+  description = "Whole project id"
+}
+
 output "ecs_cluster_arn" {
   value       = aws_ecs_cluster.default.arn
   description = "Project ECS cluster arn"

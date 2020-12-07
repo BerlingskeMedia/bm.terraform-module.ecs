@@ -127,13 +127,14 @@ module "ecs" {
 
 | Variable                        | Description |
 | -------------------------------:|:-----------:|
+| label_id                        | Whole project id |
 | ecs_cluster_arn                 | Project ECS cluster arn |
 | service_internal_security_group | Security group used for communication between services |
 | iam_policy_document_json        | |
 | aws_cloudwatch_log_group_name   | |
 | access_key                      | Access key used for pushing new ECR images |
 | secret_key                      | Secret key used for pushing new ECR images |
-| ecr_urls                        | |
+| ecr_urls                        | List of created ecr registries urls|
 | ecs_ec2_role_arn                | ECS EC2 cluster role arn |
 | ecs_ec2_instance_profile_arn    | ECS EC2 cluster instance profile arn |
 | ecs_ec2_asg                     | ECS EC2 cluster autoscalling group arn |

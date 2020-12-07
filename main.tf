@@ -570,6 +570,7 @@ locals {
   # Map passed to ecs-service module to simplify manifests
   output_map = {
     #General variables
+    "label_id"   = module.label.id
     "name"       = var.name
     "stage"      = var.stage
     "namespace"  = var.namespace
