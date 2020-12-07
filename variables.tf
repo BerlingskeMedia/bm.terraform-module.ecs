@@ -157,6 +157,26 @@ variable "asg_termination_policies" {
   description = "Default policies for vm termination in ASG"
 }
 
+# Datadog variables
+
+variable "datadog_enabled" {
+  type        = bool
+  description = "Determines if Datadog will be enabled in ECS EC2 cluster"
+  default     = false
+}
+
+variable "datadog_agent_ssm_parameter_path" {
+  type        = string
+  description = "Datadog api key SSM path for datadog agent"
+  default     = ""
+}
+
+variable "datadog_agent_ssm_parameter_kms_access_policy_arn" {
+  type        = string
+  description = "Datadog api key SSM KMS key IAM policy arn"
+  default     = ""
+}
+
 # ALB variables
 
 variable "alb_main_domain" {

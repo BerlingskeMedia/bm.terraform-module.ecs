@@ -1,8 +1,11 @@
 ---
+# 1.3.1
+# Main Changes
+    - Add Datadog agent to each EC2 ECS cluster with right permissions
+
 # 1.3.0
 # Main Changes
-    - Terraform v0.13.x support
-    - Non obligatory cwl2es_lambda_* parameters are now defaulted
+    - Terraform v0.13.x support (Terraform 0.12 not supported anymore)
 
 # 1.2.1
 ## Main changes
