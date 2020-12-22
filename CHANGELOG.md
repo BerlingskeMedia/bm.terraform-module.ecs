@@ -1,4 +1,9 @@
 ---
+# 1.3.2
+# Main Changes
+    - Output label id in both outputs and output map
+    - Update ALB module and add enabled flag to internal and external alb
+
 # 1.3.1
 # Main Changes
     - Add Datadog agent to each EC2 ECS cluster with right permissions

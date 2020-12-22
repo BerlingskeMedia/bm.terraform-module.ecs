@@ -411,7 +411,8 @@ locals {
 }
 
 module "alb_default_internal" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.19.0"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.24.0"
+  enabled                                 = var.alb_internal_enabled
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_internal_name_short
   stage                                   = local.alb_stage_short
@@ -425,10 +426,9 @@ module "alb_default_internal" {
   http_redirect                           = var.alb_internal_http_redirect && var.alb_internal_http_enable && var.alb_internal_enabled ? true : false
   https_enabled                           = var.alb_internal_https_enable && var.alb_internal_enabled ? true : false
   https_ssl_policy                        = var.alb_internal_https_enable && var.alb_internal_enabled ? var.alb_https_policy : null
-  certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
+  certificate_arn                         = var.alb_internal_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
-  access_logs_region                      = var.region
   cross_zone_load_balancing_enabled       = true
   http2_enabled                           = var.alb_internal_http2_enable && var.alb_internal_enabled ? true : false
   deletion_protection_enabled             = false
@@ -437,7 +437,8 @@ module "alb_default_internal" {
 }
 
 module "alb_default_external" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.19.0"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.24.0"
+  enabled                                 = var.alb_external_enabled
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_external_name_short
   stage                                   = local.alb_stage_short
@@ -451,10 +452,9 @@ module "alb_default_external" {
   http_redirect                           = var.alb_external_http_redirect && var.alb_external_http_enable && var.alb_external_enabled ? true : false
   https_enabled                           = var.alb_external_https_enable && var.alb_external_enabled ? true : false
   https_ssl_policy                        = var.alb_external_https_enable && var.alb_external_enabled ? var.alb_https_policy : null
-  certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
+  certificate_arn                         = var.alb_external_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
-  access_logs_region                      = var.region
   cross_zone_load_balancing_enabled       = true
   http2_enabled                           = var.alb_external_http2_enable && var.alb_external_enabled ? true : false
   deletion_protection_enabled             = false
@@ -570,6 +570,7 @@ locals {
   # Map passed to ecs-service module to simplify manifests
   output_map = {
     #General variables
+    "label_id"   = module.label.id
     "name"       = var.name
     "stage"      = var.stage
     "namespace"  = var.namespace
