@@ -426,7 +426,7 @@ module "alb_default_internal" {
   http_redirect                           = var.alb_internal_http_redirect && var.alb_internal_http_enable && var.alb_internal_enabled ? true : false
   https_enabled                           = var.alb_internal_https_enable && var.alb_internal_enabled ? true : false
   https_ssl_policy                        = var.alb_internal_https_enable && var.alb_internal_enabled ? var.alb_https_policy : null
-  certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
+  certificate_arn                         = var.alb_internal_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
   cross_zone_load_balancing_enabled       = true
@@ -452,7 +452,7 @@ module "alb_default_external" {
   http_redirect                           = var.alb_external_http_redirect && var.alb_external_http_enable && var.alb_external_enabled ? true : false
   https_enabled                           = var.alb_external_https_enable && var.alb_external_enabled ? true : false
   https_ssl_policy                        = var.alb_external_https_enable && var.alb_external_enabled ? var.alb_https_policy : null
-  certificate_arn                         = aws_acm_certificate.alb_cert[0].arn
+  certificate_arn                         = var.alb_external_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
   cross_zone_load_balancing_enabled       = true
