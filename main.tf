@@ -144,17 +144,17 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
 locals {
   datadog_environments = [
     {
-      name = "DD_PROCESS_AGENT_ENABLED"
+      name  = "DD_PROCESS_AGENT_ENABLED"
       value = "true"
     },
     {
-      name = "DD_SYSTEM_PROBE_ENABLED"
+      name  = "DD_SYSTEM_PROBE_ENABLED"
       value = "true"
     }
   ]
   datadog_secrets = [
     {
-      name = "DD_API_KEY"
+      name      = "DD_API_KEY"
       valueFrom = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? var.datadog_agent_ssm_parameter_path : ""
     }
   ]
@@ -231,17 +231,17 @@ locals {
 }
 
 module "container_definition_datadog_agent" {
-  source                        = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.44.0"
-  container_name                = "${module.label.id}-datadog-agent-container"
-  container_image               = "datadog/agent:latest"
-  environment                   = local.datadog_environments
-  secrets                       = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? local.datadog_secrets : null
-  port_mappings                 = local.datadog_port_mapping
-  container_depends_on          = null
-  container_cpu                 = 10
-  container_memory              = 256
-  container_memory_reservation  = 128
-  mount_points                  = local.datadog_runner_mount_points
+  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.44.0"
+  container_name               = "${module.label.id}-datadog-agent-container"
+  container_image              = "datadog/agent:latest"
+  environment                  = local.datadog_environments
+  secrets                      = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? local.datadog_secrets : null
+  port_mappings                = local.datadog_port_mapping
+  container_depends_on         = null
+  container_cpu                = 10
+  container_memory             = 256
+  container_memory_reservation = 128
+  mount_points                 = local.datadog_runner_mount_points
 
   log_configuration = {
     logDriver = "awslogs"
@@ -279,9 +279,9 @@ module "ecs_service_task_datadog_agent" {
 }
 
 resource "aws_iam_role_policy_attachment" "datadog_agent_kms_access_policy_attachement" {
-  count       = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_kms_access_policy_arn != "" ? 1 : 0
-  role        = module.ecs_service_task_datadog_agent.task_exec_role_name
-  policy_arn  = var.datadog_agent_ssm_parameter_kms_access_policy_arn
+  count      = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_kms_access_policy_arn != "" ? 1 : 0
+  role       = module.ecs_service_task_datadog_agent.task_exec_role_name
+  policy_arn = var.datadog_agent_ssm_parameter_kms_access_policy_arn
 }
 
 module "ecr" {
@@ -512,23 +512,23 @@ data "archive_file" "cwl2es_code" {
 }
 
 resource "aws_lambda_function" "cwl2es_function" {
-  count             = var.cwl2es_enabled ? 1 : 0
-  filename          = data.archive_file.cwl2es_code[0].output_path
-  function_name     = "${module.label.id}-LogsToElasticsearch"
-  role              = var.cwl2es_iam_role_arn
-  handler           = "index.handler"
-  source_code_hash  = filebase64sha256(data.archive_file.cwl2es_code[0].output_path)
-  runtime           = "nodejs10.x"
+  count            = var.cwl2es_enabled ? 1 : 0
+  filename         = data.archive_file.cwl2es_code[0].output_path
+  function_name    = "${module.label.id}-LogsToElasticsearch"
+  role             = var.cwl2es_iam_role_arn
+  handler          = "index.handler"
+  source_code_hash = filebase64sha256(data.archive_file.cwl2es_code[0].output_path)
+  runtime          = "nodejs10.x"
 
   vpc_config {
-    subnet_ids          = var.cwl2es_subnets != [] ? var.cwl2es_subnets : var.private_subnets
-    security_group_ids  = [var.cwl2es_security_group]
+    subnet_ids         = var.cwl2es_subnets != [] ? var.cwl2es_subnets : var.private_subnets
+    security_group_ids = [var.cwl2es_security_group]
   }
 
   environment {
     variables = {
-      es_endpoint       = var.cwl2es_es_endpoint
-      ecs_cluster_name  = module.label.id
+      es_endpoint      = var.cwl2es_es_endpoint
+      ecs_cluster_name = module.label.id
     }
   }
 
@@ -594,11 +594,11 @@ locals {
     "domain_zone_id"          = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? data.aws_route53_zone.zone.zone_id : ""
     "alb_acm_certificate_arn" = (var.alb_internal_enabled || var.alb_external_enabled) && length(aws_acm_certificate.alb_cert) > 0 ? aws_acm_certificate.alb_cert[0].arn : ""
     # KMS outputs
-    "kms_key_alias_arn"              = module.kms_key.alias_arn
-    "kms_key_alias_name"             = module.kms_key.alias_name
-    "kms_key_arn"                    = module.kms_key.key_arn
-    "kms_key_id"                     = module.kms_key.key_id
-    "kms_key_access_policy_arn"      = aws_iam_policy.kms_key_access_policy.arn
+    "kms_key_alias_arn"         = module.kms_key.alias_arn
+    "kms_key_alias_name"        = module.kms_key.alias_name
+    "kms_key_arn"               = module.kms_key.key_arn
+    "kms_key_id"                = module.kms_key.key_id
+    "kms_key_access_policy_arn" = aws_iam_policy.kms_key_access_policy.arn
     # Service discovery outputs
     "service_discovery_namespace_id" = join("", aws_service_discovery_private_dns_namespace.default.*.id)
     "service_discovery_name"         = join("", aws_service_discovery_private_dns_namespace.default.*.name)
