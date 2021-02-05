@@ -13,8 +13,10 @@
   context = var.context
 }*/
 
+
+
 module "this" {
-  source = "../bm.terraform-module.context-ecs"
+  source = "../bm.terraform-module.context"
 
   //context = module.this.context
   //context = module.label.context
@@ -45,7 +47,20 @@ module "this" {
   service_discovery_namespace_id = join("", aws_service_discovery_private_dns_namespace.default.*.id)
   service_discovery_name         = join("", aws_service_discovery_private_dns_namespace.default.*.name)
   service_internal_security_group = aws_security_group.ecs_sg_internal.id
+  private_subnets = var.private_subnets
+  alb_external_enabled                = var.alb_external_enabled
+    alb_external_listener_arn           = var.alb_external_enabled ? module.alb_default_external.https_listener_arn : null
+    alb_external_dns_name               = var.alb_external_enabled ? module.alb_default_external.alb_dns_name : null
+    alb_external_dns_zone_id            = var.alb_external_enabled ? module.alb_default_external.alb_zone_id : null
+    alb_external_allowed_security_group = var.alb_external_enabled ? module.alb_default_external.security_group_id : null
+    alb_internal_enabled                = var.alb_internal_enabled
+    alb_internal_listener_arn           = var.alb_internal_enabled ? module.alb_default_internal.https_listener_arn : null
+    alb_internal_dns_name               = var.alb_internal_enabled ? module.alb_default_internal.alb_dns_name : null
+    alb_internal_dns_zone_id            = var.alb_internal_enabled ? module.alb_default_internal.alb_zone_id : null
+    alb_internal_allowed_security_group = var.alb_internal_enabled ? module.alb_default_internal.security_group_id : null
 }
+
+
 
 /*
 variable "context" {
