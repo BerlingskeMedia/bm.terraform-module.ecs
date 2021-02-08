@@ -1,25 +1,5 @@
-/*module "this" {
-  source  = "cloudposse/label/null"
-  version = "0.22.1" // requires Terraform >= 0.12.26
-
-  enabled             = var.enabled
-  namespace           = var.namespace
-  stage               = var.stage
-  name                = var.name
-  delimiter           = var.delimiter
-  attributes          = var.attributes
-  tags                = var.tags
-
-  context = var.context
-}*/
-
-
-
 module "this" {
-  source = "../bm.terraform-module.context"
-
-  //context = module.this.context
-  //context = module.label.context
+  source = "git@github.com:BerlingskeMedia/bm.terraform-module.context?ref=tags/1.0.0"
 
   enabled                        = var.enabled
   namespace                      = var.namespace
@@ -60,17 +40,3 @@ module "this" {
     alb_internal_allowed_security_group = var.alb_internal_enabled ? module.alb_default_internal.security_group_id : null
 }
 
-
-
-/*
-variable "context" {
-  type = object({
-    enabled = bool
-    namespace = string
-    name = string
-    stage = string
-    global_attributes = string
-    tags = map(string)
-
-  })
-}*/
