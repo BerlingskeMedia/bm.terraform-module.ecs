@@ -165,3 +165,11 @@ output "output_map" {
   value       = local.output_map
   description = "Output map with most of the variables used for https://github.com/BerlingskeMedia/bm.terraform-module.ecs-service module"
 }
+
+output "context" {
+  value = module.this.context
+}
+
+output "normalized_context" {
+  value = module.this.normalized_context
+}

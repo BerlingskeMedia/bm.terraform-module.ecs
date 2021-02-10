@@ -1,15 +1,19 @@
 ---
+# 1.4.0
+## Main Changes
+    - Support for bm.terraform-module.context - now parameters are being handed over by context module. We still have backward compatibility for old ecs-service modules
+
 # 1.3.2
-# Main Changes
+## Main Changes
     - Output label id in both outputs and output map
     - Update ALB module and add enabled flag to internal and external alb
 
 # 1.3.1
-# Main Changes
+## Main Changes
     - Add Datadog agent to each EC2 ECS cluster with right permissions
 
 # 1.3.0
-# Main Changes
+## Main Changes
     - Terraform v0.13.x support (Terraform 0.12 not supported anymore)
 
 # 1.2.1
