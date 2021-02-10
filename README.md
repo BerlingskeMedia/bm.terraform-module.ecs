@@ -140,7 +140,57 @@ module "ecs" {
 | ecs_ec2_asg                     | ECS EC2 cluster autoscalling group arn |
 | ecs_ec2_launch_configuration    | ECS EC2 cluster launch configuration arn |
 
-### ALB outputs
+### Context output
+Refer to https://github.com/BerlingskeMedia/bm.terraform-module.context
+Returns two objects: `context` and `normalized_context`.
+`context` has raw structure, ready for reuse in dependent modules.
+`normalized_context` has defaulted values (depending on types) instead of nulls.
+E.g. null strings are empty strings `""`, null booleans have defined true/false state, etc.
+
+Keys' names corresponding to the values of the same name, just passes the values.
+
+| Key                        | Description |
+| -------------------------------:|:-----------:|
+| enabled | see var.enabled |
+| namespace | see var.namespace |
+| stage | see var.stage |
+| name | see var.name |
+| delimiter | see var.delimiter |
+| attributes | see var.attributes |
+| tags | see var.tags |
+| region | see var.region |
+| vpc_id | see var.vpc_id |
+| launch_type | see var.launch_type |
+| ecs_cluster_arn | Project ECS cluster arn |
+| aws_logs_region | CloudWatch log group region |
+| aws_cloudwatch_log_group_name | CloudWatch log group name |
+| deploy_iam_access_key | Access key used for pushing new ECR images |
+| deploy_iam_secret_key | Secret key used for pushing new ECR images |
+| domain_name | Domain name for all projects in the cluster |
+| domain_zone_id | Domain zone id for all projects in the cluster |
+| alb_acm_certificate_arn | ACM certificate arn for all services in this cluster |
+| kms_key_alias_arn | Common KMS key alias arn for all services in the cluster |
+| kms_key_alias_name | Common KMS key alias name for all services in the cluster |
+| kms_key_arn | Common KMS key arn for all services in the cluster |
+| kms_key_id | Common KMS key ID for all services in the cluster |
+| kms_key_access_policy_arn | Common KMS IAM access policy arn |
+| service_discovery_namespace_id | Service discovery namespace ID |
+| service_discovery_name | Service discovery namespace name |
+| service_internal_security_group | Security group used for communication between services |
+| private_subnets | see var.private_subnets |
+| alb_external_enabled | see var.alb_external_enabled |
+| alb_external_listener_arn | External ALB https listener arn |
+| alb_external_dns_name | External ALB DNS endpoint |
+| alb_external_dns_zone_id | External ALB DNS zone ID for aliases |
+| alb_external_allowed_security_group  | External ALB security group ID |
+| alb_internal_enabled | see var.alb_internal_enabled |
+| alb_internal_listener_arn | Internal ALB https listener arn |
+| alb_internal_dns_name | Internal ALB DNS endpoint |
+| alb_internal_dns_zone_id | Internal ALB DNS zone ID for aliases |
+| alb_internal_allowed_security_group  | Internal ALB security group ID |
+
+
+### ALB outputs (deprecated on favor of the context)
 
 | Variable                        | Description |
 | -------------------------------:|:-----------:|
@@ -173,10 +223,10 @@ module "ecs" {
 | service_discovery_namespace_id | Service discovery namespace ID |
 | service_discovery_name         | Service discovery namespace name |
 
-### ECS module output maps
+### ECS module output maps (deprecated on favor of the context)
 
 | Variable                | Description |
 | -----------------------:|:-----------:|
-| internal_alb_output_map | Internal ALB Output map with variables `listener_arn`, `dns_name`, `dns_zone_id` and `allowed_security_group_id` inside. Replaces variables with the same names in [bm.terraform-module.ecs-service](https://github.com/BerlingskeMedia/bm.terraform-module.ecs-service module) |
-| external_alb_output_map | External ALB Output map with variables `listener_arn`, `dns_name`, `dns_zone_id` and `allowed_security_group_id` inside. Replaces variables with the same names in [bm.terraform-module.ecs-service](https://github.com/BerlingskeMedia/bm.terraform-module.ecs-service module) |
-| output_map              | Output map with most of the variables used for [bm.terraform-module.ecs-service](https://github.com/BerlingskeMedia/bm.terraform-module.ecs-service module) |
+| internal_alb_output_map | Internal ALB Output map with variables `listener_arn`, `dns_name`, `dns_zone_id` and `allowed_security_group_id` inside. Replaces variables with the same names in [bm.terraform-module.ecs-service](https://github.com/BerlingskeMedia/bm.terraform-module.ecs-service) module |
+| external_alb_output_map | External ALB Output map with variables `listener_arn`, `dns_name`, `dns_zone_id` and `allowed_security_group_id` inside. Replaces variables with the same names in [bm.terraform-module.ecs-service](https://github.com/BerlingskeMedia/bm.terraform-module.ecs-service) module |
+| output_map              | Output map with most of the variables used for [bm.terraform-module.ecs-service](https://github.com/BerlingskeMedia/bm.terraform-module.ecs-service) module |
