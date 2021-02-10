@@ -420,7 +420,7 @@ module "alb_default_internal" {
   stage                                   = local.alb_stage_short
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
-  security_group_enabled                  = var.alb_internal_enable_default_security_group_enabled
+  security_group_enabled                  = var.alb_internal_default_security_group_enabled
   security_group_ids                      = var.alb_internal_additional_security_groups_list
   http_ingress_cidr_blocks                = local.alb_internal_default_security_group_cidr_blocks
   https_ingress_cidr_blocks               = local.alb_internal_default_security_group_cidr_blocks
@@ -449,7 +449,7 @@ module "alb_default_external" {
   stage                                   = local.alb_stage_short
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
-  security_group_enabled                  = var.alb_external_enable_default_security_group_enabled
+  security_group_enabled                  = var.alb_external_default_security_group_enabled
   security_group_ids                      = var.alb_external_additional_security_groups_list
   http_ingress_cidr_blocks                = local.alb_external_default_security_group_cidr_blocks
   https_ingress_cidr_blocks               = local.alb_external_default_security_group_cidr_blocks
