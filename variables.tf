@@ -240,7 +240,7 @@ variable "alb_internal_default_security_group_ingress_cidrs_blocks" {
 }
 
 variable "alb_internal_additional_security_groups_list" {
-  type        = bool
+  type        = list(string)
   default     = []
   description = "List of internal ALB security groups - If empty you need to enable variable `alb_internal_default_security_group_enabled`"
 }
@@ -294,7 +294,7 @@ variable "alb_external_default_security_group_ingress_cidrs_blocks" {
 }
 
 variable "alb_external_additional_security_groups_list" {
-  type        = bool
+  type        = list(string)
   default     = []
   description = "List of external ALB security groups - If empty you need to enable variable `alb_external_default_security_group_enabled`"
 }
