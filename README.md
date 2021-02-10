@@ -100,8 +100,7 @@ module "ecs" {
 | alb_internal_https_enable                                | `bool`         | **no**   | `true`                              | Determine if you want to enable https listener |
 | alb_internal_http2_enable                                | `bool`         | **no**   | `true`                              | Determine if you want to enable http2 listener |
 | alb_internal_default_security_group_enabled              | `bool`         | **no**   | `true`                              | Determine if you want to create default security group - If set to `false` you need to provide list of security group to `alb_internal_additional_security_groups_list` |
-| alb_internal_default_security_group_allow_all_ingress    | `bool`         | **no**   | `true`                              | Determine if you want to allow all traffic to internal ALB - If set to `false` manifest will use `alb_internal_default_security_group_ingress_cidrs_blocks` value |
-| alb_internal_default_security_group_ingress_cidrs_blocks | `list(string)` | **no**   | `[]`                                | Determine what CIDR blocks will be allowed to access internal ALB - this value will be ignored if `alb_internal_default_security_group_allow_all_ingress` is set to `true` |
+| alb_internal_default_security_group_ingress_cidrs_blocks | `list(string)` | **no**   | `["0.0.0.0/0"]`                     | Determine what CIDR blocks will be allowed to access internal ALB |
 | alb_internal_additional_security_groups_list             | `list(string)` | **no**   | `[]`                                | List of internal ALB security groups - If empty you need to enable variable `alb_internal_default_security_group_enabled` |
 | alb_external_enabled                                     | `bool`         | **no**   | `false`                             | Determine if module will create external ALB |
 | alb_external_http_enable                                 | `bool`         | **no**   | `false`                             | Determine if you want to enable http listener |
@@ -109,8 +108,7 @@ module "ecs" {
 | alb_external_https_enable                                | `bool`         | **no**   | `true`                              | Determine if you want to enable https listener |
 | alb_external_http2_enable                                | `bool`         | **no**   | `true`                              | Determine if you want to enable http2 listener |
 | alb_external_default_security_group_enabled              | `bool`         | **no**   | `true`                              | Determine if you want to create default security group - If set to `false` you need to provide list of security group to `alb_external_additional_security_groups_list` |
-| alb_external_default_security_group_allow_all_ingress    | `bool`         | **no**   | `true`                              | Determine if you want to allow all traffic to external ALB - If set to `false` manifest will use `alb_external_default_security_group_ingress_cidrs_blocks` value |
-| alb_external_default_security_group_ingress_cidrs_blocks | `list(string)` | **no**   | `[]`                                | Determine what CIDR blocks will be allowed to access external ALB - this value will be ignored if `alb_external_default_security_group_allow_all_ingress` is set to `true` |
+| alb_external_default_security_group_ingress_cidrs_blocks | `list(string)` | **no**   | `["0.0.0.0/0"]`                     | Determine what CIDR blocks will be allowed to access external ALB |
 | alb_external_additional_security_groups_list             | `list(string)` | **no**   | `[]`                                | List of external ALB security groups - If empty you need to enable variable `alb_external_default_security_group_enabled` |
 
 ### Service Discovery settings
