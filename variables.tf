@@ -221,6 +221,30 @@ variable "alb_internal_http2_enable" {
   description = "Determine if you want to enable http2 listener"
 }
 
+variable "alb_internal_default_security_group_enabled" {
+  type        = bool
+  default     = true
+  description = "Determine if you want to create default security group - If set to `false` you need to provide list of security group to `alb_internal_additional_security_groups_list`"
+}
+
+variable "alb_internal_default_security_group_allow_all_ingress" {
+  type        = bool
+  default     = false
+  description = "Determine if you want to allow all traffic to internal ALB - If set to `false` manifest will use `alb_internal_default_security_group_ingress_cidrs_blocks` value"
+}
+
+variable "alb_internal_default_security_group_ingress_cidrs_blocks" {
+  type        = list(string)
+  default     = []
+  description = "Determine what CIDR blocks will be allowed to access internal ALB - this value will be ignored if `alb_internal_default_security_group_allow_all_ingress` is set to `true`"
+}
+
+variable "alb_internal_additional_security_groups_list" {
+  type        = bool
+  default     = []
+  description = "List of internal ALB security groups - If empty you need to enable variable `alb_internal_default_security_group_enabled`"
+}
+
 variable "alb_external_enabled" {
   type        = bool
   description = "Determine if module will create external ALB"
@@ -249,6 +273,30 @@ variable "alb_external_http2_enable" {
   type        = bool
   default     = true
   description = "Determine if you want to enable http2 listener"
+}
+
+variable "alb_external_default_security_group_enabled" {
+  type        = bool
+  default     = true
+  description = "Determine if you want to create default security group - If set to `false` you need to provide list of security group to `alb_external_security_groups_list`"
+}
+
+variable "alb_external_default_security_group_allow_all_ingress" {
+  type        = bool
+  default     = false
+  description = "Determine if you want to allow all traffic to external ALB - If set to `false` manifest will use `alb_external_default_security_group_ingress_cidrs_blocks` value"
+}
+
+variable "alb_external_default_security_group_ingress_cidrs_blocks" {
+  type        = list(string)
+  default     = []
+  description = "Determine what CIDR blocks will be allowed to access external ALB - this value will be ignored if `alb_external_default_security_group_allow_all_ingress` is set to `true`"
+}
+
+variable "alb_external_additional_security_groups_list" {
+  type        = bool
+  default     = []
+  description = "List of external ALB security groups - If empty you need to enable variable `alb_external_default_security_group_enabled`"
 }
 
 # Service Discovery variables

@@ -402,12 +402,14 @@ resource "aws_acm_certificate_validation" "alb_cert" {
 
 # ALB short names and ALBs target groups names
 locals {
-  alb_namespace_short          = substr(var.namespace, 0, 4)
-  alb_stage_short              = substr(var.stage, 0, 1)
-  alb_internal_name_short      = "${substr(var.name, 0, min(length(var.name), 18))}-i"
-  alb_external_name_short      = "${substr(var.name, 0, min(length(var.name), 18))}-e"
-  internal_alb_default_tg_name = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_internal_name_short}dtg"
-  external_alb_default_tg_name = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_external_name_short}dtg"
+  alb_namespace_short                               = substr(var.namespace, 0, 4)
+  alb_stage_short                                   = substr(var.stage, 0, 1)
+  alb_internal_name_short                           = "${substr(var.name, 0, min(length(var.name), 18))}-i"
+  alb_external_name_short                           = "${substr(var.name, 0, min(length(var.name), 18))}-e"
+  alb_internal_default_tg_name                      = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_internal_name_short}dtg"
+  alb_external_default_tg_name                      = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_external_name_short}dtg"
+  alb_internal_default_security_group_cidr_blocks   = var.alb_internal_default_security_group_enabled ? var.alb_internal_default_security_group_allow_all_ingress ? null : var.alb_internal_default_security_group_ingress_cidrs_blocks : null
+  alb_external_default_security_group_cidr_blocks   = var.alb_external_default_security_group_enabled ? var.alb_external_default_security_group_allow_all_ingress ? null : var.alb_external_default_security_group_ingress_cidrs_blocks : null
 }
 
 module "alb_default_internal" {
@@ -418,11 +420,13 @@ module "alb_default_internal" {
   stage                                   = local.alb_stage_short
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
-  security_group_enabled                  = var.alb_default_internal_security_group_enabled
-  security_group_ids                      = var.alb_additional_internal_security_groups_list
+  security_group_enabled                  = var.alb_internal_enable_default_security_group_enabled
+  security_group_ids                      = var.alb_internal_additional_security_groups_list
+  http_ingress_cidr_blocks                = local.alb_internal_default_security_group_cidr_blocks
+  https_ingress_cidr_blocks               = local.alb_internal_default_security_group_cidr_blocks
   subnet_ids                              = var.private_subnets
   internal                                = true
-  target_group_name                       = local.internal_alb_default_tg_name
+  target_group_name                       = local.alb_internal_default_tg_name
   http_enabled                            = var.alb_internal_http_enable && var.alb_internal_enabled ? true : false
   http_redirect                           = var.alb_internal_http_redirect && var.alb_internal_http_enable && var.alb_internal_enabled ? true : false
   https_enabled                           = var.alb_internal_https_enable && var.alb_internal_enabled ? true : false
@@ -445,11 +449,13 @@ module "alb_default_external" {
   stage                                   = local.alb_stage_short
   attributes                              = var.attributes
   vpc_id                                  = var.vpc_id
-  security_group_enabled                  = var.alb_default_external_security_group_enabled
-  security_group_ids                      = var.alb_additional_external_security_groups_list
-  subnet_ids                              = var.public_subnets
+  security_group_enabled                  = var.alb_external_enable_default_security_group_enabled
+  security_group_ids                      = var.alb_external_additional_security_groups_list
+  http_ingress_cidr_blocks                = local.alb_external_default_security_group_cidr_blocks
+  https_ingress_cidr_blocks               = local.alb_external_default_security_group_cidr_blocks
+  subnet_ids                              = var.private_subnets
   internal                                = false
-  target_group_name                       = local.external_alb_default_tg_name
+  target_group_name                       = local.alb_external_default_tg_name
   http_enabled                            = var.alb_external_http_enable && var.alb_external_enabled ? true : false
   http_redirect                           = var.alb_external_http_redirect && var.alb_external_http_enable && var.alb_external_enabled ? true : false
   https_enabled                           = var.alb_external_https_enable && var.alb_external_enabled ? true : false
