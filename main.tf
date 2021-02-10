@@ -408,8 +408,8 @@ locals {
   alb_external_name_short                           = "${substr(var.name, 0, min(length(var.name), 18))}-e"
   alb_internal_default_tg_name                      = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_internal_name_short}dtg"
   alb_external_default_tg_name                      = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_external_name_short}dtg"
-  alb_internal_default_security_group_cidr_blocks   = var.alb_internal_default_security_group_enabled ? var.alb_internal_default_security_group_allow_all_ingress ? null : var.alb_internal_default_security_group_ingress_cidrs_blocks : null
-  alb_external_default_security_group_cidr_blocks   = var.alb_external_default_security_group_enabled ? var.alb_external_default_security_group_allow_all_ingress ? null : var.alb_external_default_security_group_ingress_cidrs_blocks : null
+  alb_internal_default_security_group_cidr_blocks   = var.alb_internal_default_security_group_enabled ? var.alb_internal_default_security_group_allow_all_ingress ? ["0.0.0.0/0"] : var.alb_internal_default_security_group_ingress_cidrs_blocks : []
+  alb_external_default_security_group_cidr_blocks   = var.alb_external_default_security_group_enabled ? var.alb_external_default_security_group_allow_all_ingress ? ["0.0.0.0/0"] : var.alb_external_default_security_group_ingress_cidrs_blocks : []
 }
 
 module "alb_default_internal" {
