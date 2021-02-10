@@ -453,7 +453,7 @@ module "alb_default_external" {
   security_group_ids                      = var.alb_external_additional_security_groups_list
   http_ingress_cidr_blocks                = local.alb_external_default_security_group_cidr_blocks
   https_ingress_cidr_blocks               = local.alb_external_default_security_group_cidr_blocks
-  subnet_ids                              = var.private_subnets
+  subnet_ids                              = var.public_subnets
   internal                                = false
   target_group_name                       = local.alb_external_default_tg_name
   http_enabled                            = var.alb_external_http_enable && var.alb_external_enabled ? true : false
