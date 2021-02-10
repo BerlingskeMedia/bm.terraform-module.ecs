@@ -2,7 +2,7 @@
 # 1.4.1
 ## Main Changes
     - Add option for enabling/disabling default ALB security group - default set to true because of backward compatibility
-    - Add options for managing default ALB security group allowed CIDR blocks - default set to allow CIDR ["0.0.0.0/0"] because of backward compatibility
+    - Add option for managing default ALB security group allowed CIDR blocks - default set to allow CIDR ["0.0.0.0/0"] because of backward compatibility
     - Add option for adding additional ALB security groups - they are not passed in context module
 
 # 1.4.0
