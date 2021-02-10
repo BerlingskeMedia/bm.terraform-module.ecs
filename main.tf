@@ -413,7 +413,7 @@ locals {
 }
 
 module "alb_default_internal" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.24.0"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.4"
   enabled                                 = var.alb_internal_enabled
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_internal_name_short
@@ -442,7 +442,7 @@ module "alb_default_internal" {
 }
 
 module "alb_default_external" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.24.0"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.4"
   enabled                                 = var.alb_external_enabled
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_external_name_short
