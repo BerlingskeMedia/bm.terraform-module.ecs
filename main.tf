@@ -408,8 +408,6 @@ locals {
   alb_external_name_short                           = "${substr(var.name, 0, min(length(var.name), 18))}-e"
   alb_internal_default_tg_name                      = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_internal_name_short}dtg"
   alb_external_default_tg_name                      = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_external_name_short}dtg"
-  alb_internal_default_security_group_cidr_blocks   = var.alb_internal_default_security_group_enabled ? var.alb_internal_default_security_group_allow_all_ingress ? ["0.0.0.0/0"] : var.alb_internal_default_security_group_ingress_cidrs_blocks : []
-  alb_external_default_security_group_cidr_blocks   = var.alb_external_default_security_group_enabled ? var.alb_external_default_security_group_allow_all_ingress ? ["0.0.0.0/0"] : var.alb_external_default_security_group_ingress_cidrs_blocks : []
 }
 
 module "alb_default_internal" {
@@ -422,8 +420,8 @@ module "alb_default_internal" {
   vpc_id                                  = var.vpc_id
   security_group_enabled                  = var.alb_internal_default_security_group_enabled
   security_group_ids                      = var.alb_internal_additional_security_groups_list
-  http_ingress_cidr_blocks                = local.alb_internal_default_security_group_cidr_blocks
-  https_ingress_cidr_blocks               = local.alb_internal_default_security_group_cidr_blocks
+  http_ingress_cidr_blocks                = var.alb_internal_default_security_group_ingress_cidrs_blocks
+  https_ingress_cidr_blocks               = var.alb_internal_default_security_group_ingress_cidrs_blocks
   subnet_ids                              = var.private_subnets
   internal                                = true
   target_group_name                       = local.alb_internal_default_tg_name
@@ -451,8 +449,8 @@ module "alb_default_external" {
   vpc_id                                  = var.vpc_id
   security_group_enabled                  = var.alb_external_default_security_group_enabled
   security_group_ids                      = var.alb_external_additional_security_groups_list
-  http_ingress_cidr_blocks                = local.alb_external_default_security_group_cidr_blocks
-  https_ingress_cidr_blocks               = local.alb_external_default_security_group_cidr_blocks
+  http_ingress_cidr_blocks                = var.alb_external_default_security_group_ingress_cidrs_blocks
+  https_ingress_cidr_blocks               = var.alb_external_default_security_group_ingress_cidrs_blocks
   subnet_ids                              = var.public_subnets
   internal                                = false
   target_group_name                       = local.alb_external_default_tg_name

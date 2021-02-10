@@ -227,16 +227,10 @@ variable "alb_internal_default_security_group_enabled" {
   description = "Determine if you want to create default security group - If set to `false` you need to provide list of security group to `alb_internal_additional_security_groups_list`"
 }
 
-variable "alb_internal_default_security_group_allow_all_ingress" {
-  type        = bool
-  default     = true
-  description = "Determine if you want to allow all traffic to internal ALB - If set to `false` manifest will use `alb_internal_default_security_group_ingress_cidrs_blocks` value"
-}
-
 variable "alb_internal_default_security_group_ingress_cidrs_blocks" {
   type        = list(string)
-  default     = []
-  description = "Determine what CIDR blocks will be allowed to access internal ALB - this value will be ignored if `alb_internal_default_security_group_allow_all_ingress` is set to `true`"
+  default     = ["0.0.0.0/0"]
+  description = "Determine what CIDR blocks will be allowed to access internal ALB"
 }
 
 variable "alb_internal_additional_security_groups_list" {
@@ -281,16 +275,10 @@ variable "alb_external_default_security_group_enabled" {
   description = "Determine if you want to create default security group - If set to `false` you need to provide list of security group to `alb_external_security_groups_list`"
 }
 
-variable "alb_external_default_security_group_allow_all_ingress" {
-  type        = bool
-  default     = true
-  description = "Determine if you want to allow all traffic to external ALB - If set to `false` manifest will use `alb_external_default_security_group_ingress_cidrs_blocks` value"
-}
-
 variable "alb_external_default_security_group_ingress_cidrs_blocks" {
   type        = list(string)
-  default     = []
-  description = "Determine what CIDR blocks will be allowed to access external ALB - this value will be ignored if `alb_external_default_security_group_allow_all_ingress` is set to `true`"
+  default     = ["0.0.0.0/0"]
+  description = "Determine what CIDR blocks will be allowed to access external ALB"
 }
 
 variable "alb_external_additional_security_groups_list" {
