@@ -229,7 +229,7 @@ variable "alb_internal_default_security_group_enabled" {
 
 variable "alb_internal_default_security_group_allow_all_ingress" {
   type        = bool
-  default     = false
+  default     = true
   description = "Determine if you want to allow all traffic to internal ALB - If set to `false` manifest will use `alb_internal_default_security_group_ingress_cidrs_blocks` value"
 }
 
@@ -283,7 +283,7 @@ variable "alb_external_default_security_group_enabled" {
 
 variable "alb_external_default_security_group_allow_all_ingress" {
   type        = bool
-  default     = false
+  default     = true
   description = "Determine if you want to allow all traffic to external ALB - If set to `false` manifest will use `alb_external_default_security_group_ingress_cidrs_blocks` value"
 }
 
