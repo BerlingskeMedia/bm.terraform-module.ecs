@@ -221,6 +221,24 @@ variable "alb_internal_http2_enable" {
   description = "Determine if you want to enable http2 listener"
 }
 
+variable "alb_internal_default_security_group_enabled" {
+  type        = bool
+  default     = true
+  description = "Determine if you want to create default security group - If set to `false` you need to provide list of security group to `alb_internal_additional_security_groups_list`"
+}
+
+variable "alb_internal_default_security_group_ingress_cidrs_blocks" {
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+  description = "Determine what CIDR blocks will be allowed to access internal ALB"
+}
+
+variable "alb_internal_additional_security_groups_list" {
+  type        = list(string)
+  default     = []
+  description = "List of internal ALB security groups - If empty you need to enable variable `alb_internal_default_security_group_enabled`"
+}
+
 variable "alb_external_enabled" {
   type        = bool
   description = "Determine if module will create external ALB"
@@ -249,6 +267,24 @@ variable "alb_external_http2_enable" {
   type        = bool
   default     = true
   description = "Determine if you want to enable http2 listener"
+}
+
+variable "alb_external_default_security_group_enabled" {
+  type        = bool
+  default     = true
+  description = "Determine if you want to create default security group - If set to `false` you need to provide list of security group to `alb_external_security_groups_list`"
+}
+
+variable "alb_external_default_security_group_ingress_cidrs_blocks" {
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+  description = "Determine what CIDR blocks will be allowed to access external ALB"
+}
+
+variable "alb_external_additional_security_groups_list" {
+  type        = list(string)
+  default     = []
+  description = "List of external ALB security groups - If empty you need to enable variable `alb_external_default_security_group_enabled`"
 }
 
 # Service Discovery variables

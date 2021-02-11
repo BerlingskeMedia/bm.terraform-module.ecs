@@ -1,4 +1,10 @@
 ---
+# 1.4.1
+## Main Changes
+    - Add option for enabling/disabling default ALB security group - default set to true because of backward compatibility
+    - Add option for managing default ALB security group allowed CIDR blocks - default set to allow CIDR ["0.0.0.0/0"] because of backward compatibility
+    - Add option for adding additional ALB security groups - they are not passed in context module
+
 # 1.4.0
 ## Main Changes
     - Support for bm.terraform-module.context - now parameters are being handed over by context module. We still have backward compatibility for old ecs-service modules

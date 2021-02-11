@@ -90,20 +90,26 @@ module "ecs" {
 
 ### ALB variables
 
-| Variable                   | Type     | Required | Default Value                       | Description |
-| -------------------------- |:--------:|:--------:|:-----------------------------------:|:-----------:|
-| alb_main_domain            | `string` | **no**   | `berlingskemedia-testing.net`       | Main domain name for all services and acm certificate |
-| alb_https_policy           | `string` | **no**   | `ELBSecurityPolicy-TLS-1-2-2017-01` | Set ALB https listener TLS policy |
-| alb_internal_enabled       | `bool`   | **no**   | `false`                             | Determine if module will create internal ALB |
-| alb_internal_http_enable   | `bool`   | **no**   | `false`                             | Determine if you want to enable http listener |
-| alb_internal_http_redirect | `bool`   | **no**   | `false`                             | Determine if you want to enable http to https redirects |
-| alb_internal_https_enable  | `bool`   | **no**   | `true`                              | Determine if you want to enable https listener |
-| alb_internal_http2_enable  | `bool`   | **no**   | `true`                              | Determine if you want to enable http2 listener |
-| alb_external_enabled       | `bool`   | **no**   | `false`                             | Determine if module will create external ALB |
-| alb_external_http_enable   | `bool`   | **no**   | `false`                             | Determine if you want to enable http listener |
-| alb_external_http_redirect | `bool`   | **no**   | `false`                             | Determine if you want to enable http to https redirects |
-| alb_external_https_enable  | `bool`   | **no**   | `true`                              | Determine if you want to enable https listener |
-| alb_external_http2_enable  | `bool`   | **no**   | `true`                              | Determine if you want to enable http2 listener |
+| Variable                                                 | Type           | Required | Default Value                       | Description |
+| -------------------------------------------------------- |:--------------:|:--------:|:-----------------------------------:|:-----------:|
+| alb_main_domain                                          | `string`       | **no**   | `berlingskemedia-testing.net`       | Main domain name for all services and acm certificate |
+| alb_https_policy                                         | `string`       | **no**   | `ELBSecurityPolicy-TLS-1-2-2017-01` | Set ALB https listener TLS policy |
+| alb_internal_enabled                                     | `bool`         | **no**   | `false`                             | Determine if module will create internal ALB |
+| alb_internal_http_enable                                 | `bool`         | **no**   | `false`                             | Determine if you want to enable http listener |
+| alb_internal_http_redirect                               | `bool`         | **no**   | `false`                             | Determine if you want to enable http to https redirects |
+| alb_internal_https_enable                                | `bool`         | **no**   | `true`                              | Determine if you want to enable https listener |
+| alb_internal_http2_enable                                | `bool`         | **no**   | `true`                              | Determine if you want to enable http2 listener |
+| alb_internal_default_security_group_enabled              | `bool`         | **no**   | `true`                              | Determine if you want to create default security group - If set to `false` you need to provide list of security group to `alb_internal_additional_security_groups_list` |
+| alb_internal_default_security_group_ingress_cidrs_blocks | `list(string)` | **no**   | `["0.0.0.0/0"]`                     | Determine what CIDR blocks will be allowed to access internal ALB |
+| alb_internal_additional_security_groups_list             | `list(string)` | **no**   | `[]`                                | List of internal ALB security groups - If empty you need to enable variable `alb_internal_default_security_group_enabled` |
+| alb_external_enabled                                     | `bool`         | **no**   | `false`                             | Determine if module will create external ALB |
+| alb_external_http_enable                                 | `bool`         | **no**   | `false`                             | Determine if you want to enable http listener |
+| alb_external_http_redirect                               | `bool`         | **no**   | `false`                             | Determine if you want to enable http to https redirects |
+| alb_external_https_enable                                | `bool`         | **no**   | `true`                              | Determine if you want to enable https listener |
+| alb_external_http2_enable                                | `bool`         | **no**   | `true`                              | Determine if you want to enable http2 listener |
+| alb_external_default_security_group_enabled              | `bool`         | **no**   | `true`                              | Determine if you want to create default security group - If set to `false` you need to provide list of security group to `alb_external_additional_security_groups_list` |
+| alb_external_default_security_group_ingress_cidrs_blocks | `list(string)` | **no**   | `["0.0.0.0/0"]`                     | Determine what CIDR blocks will be allowed to access external ALB |
+| alb_external_additional_security_groups_list             | `list(string)` | **no**   | `[]`                                | List of external ALB security groups - If empty you need to enable variable `alb_external_default_security_group_enabled` |
 
 ### Service Discovery settings
 | Variable                       | Type   | Required | Default Value | Description |
