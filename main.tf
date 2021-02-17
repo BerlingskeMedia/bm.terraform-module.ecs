@@ -333,10 +333,6 @@ module "drone-io" {
   attributes = compact(concat(var.attributes, ["drone"]))
 }
 
-# locals {
-#   repository_name = length(module.ecr.repository_name) > 0 ? element(module.ecr.repository_name, 0) : ""
-# }
-
 data "aws_iam_policy_document" "ecs_exec" {
   count = var.enabled ? 1 : 0
 
