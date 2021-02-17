@@ -67,13 +67,15 @@ module "ecs" {
 
 #### Common settings variables
 
-| Variable              | Type           | Required | Default Value  | Description |
-| --------------------- |:--------------:|:--------:|:--------------:|:-----------:|
-| log_retention_in_days | `string`       | **no**   | `14`           | Log retention measured in days |
-| drone-io_enabled      | `bool`         | **no**   | `false`        | Determines if should use Drone.io |
-| ecr_enabled           | `bool`         | **no**   | `false`        | Determine if ECR should be created (codepipeline_enabled=true also will result creating ECR) |
-| ecr_namespaces        | `list(string)` | **no**   | `[]`           | List of public subnet's ID |
-| launch_type           | `string`       | **no**   | `FARGATE`      | ECS default cluster laynch type |
+| Variable                   | Type           | Required | Default Value  | Description |
+| -------------------------- |:--------------:|:--------:|:--------------:|:-----------:|
+| log_retention_in_days      | `string`       | **no**   | `14`           | Log retention measured in days |
+| drone-io_enabled           | `bool`         | **no**   | `false`        | Determines if should use Drone.io |
+| ecr_enabled                | `bool`         | **no**   | `false`        | Determine if ECR should be created (codepipeline_enabled=true also will result creating ECR) |
+| ecr_namespaces             | `list(string)` | **no**   | `[]`           | List of public subnet's ID |
+| ecr_protected_tag_prefixes | `list(string)` | **no**   | `[]`           | If provided, will create Lifecycle rules for specified ecr image tag prefixes |
+| ecr_max_image_count        | `number`       | **no**   | `500`          | How many Docker Image versions AWS ECR will store |
+| launch_type                | `string`       | **no**   | `FARGATE`      | ECS default cluster laynch type |
 
 #### ECS EC2 cluster variables
 
@@ -140,7 +142,7 @@ module "ecs" {
 | aws_cloudwatch_log_group_name   | |
 | access_key                      | Access key used for pushing new ECR images |
 | secret_key                      | Secret key used for pushing new ECR images |
-| ecr_urls                        | List of created ecr registries urls|
+| ecr_urls                        | Map of created ecr registries urls|
 | ecs_ec2_role_arn                | ECS EC2 cluster role arn |
 | ecs_ec2_instance_profile_arn    | ECS EC2 cluster instance profile arn |
 | ecs_ec2_asg                     | ECS EC2 cluster autoscalling group arn |

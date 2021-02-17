@@ -1,4 +1,26 @@
 ---
+# 1.4.2
+## Main Changes
+    - Add option for lifecycle rules for ECR repositories
+    - Move away from our ECR module fork to cloudposse mainstream
+
+## Warning
+<b><u>(Only when updating existing projects)</u></b> This change require removing ecr states and importing to new module. You can do this with below commands
+```bash
+# ECR repository Lifecycle policy
+terraform state rm 'module.ecs.module.ecr.aws_ecr_lifecycle_policy.default[REPOSITORY_ID]'
+terraform import 'module.ecs.module.ecr.aws_ecr_lifecycle_policy.name["REPOSITORY_NAME"]' REPOSITORY_NAME
+
+# ECR repository
+terraform state rm 'module.ecs.module.ecr.aws_ecr_repository.default[REPOSITORY_ID]'
+terraform import 'module.ecs.module.ecr.aws_ecr_repository.name["REPOSITORY_NAME"]' REPOSITORY_NAME
+```
+Where:
+- <b>REPOSITORY_NAME</b> - full name of existing repository name
+- <b>REPOSITORY_ID</b> - terraform repository id
+
+Run `terraform plan` to get both variables from changes output. After successfull importing existing resources there will be only change for tags, but resources will be intact.
+
 # 1.4.1
 ## Main Changes
     - Add option for enabling/disabling default ALB security group - default set to true because of backward compatibility

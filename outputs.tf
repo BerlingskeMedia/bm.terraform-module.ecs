@@ -31,7 +31,7 @@ output "secret_key" {
 }
 
 output "ecr_urls" {
-  value = module.ecr.name_to_url
+  value = module.ecr.repository_url_map
 }
 
 output "ecs_ec2_role_arn" {
