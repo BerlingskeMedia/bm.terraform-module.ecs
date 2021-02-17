@@ -285,7 +285,7 @@ resource "aws_iam_role_policy_attachment" "datadog_agent_kms_access_policy_attac
 }
 
 locals {
-  full_ecr_namespaces = var.enabled && var.ecr_enabled && length(var.ecr_namespaces) > 0 ? formatlist("${module.label.id}/%s", var.ecr_namespaces) : []
+  full_ecr_namespaces = var.enabled && var.ecr_enabled && length(var.ecr_namespaces) > 0 ? formatlist("${module.label.id}-ecr/%s", var.ecr_namespaces) : []
 }
 
 module "ecr" {
@@ -294,6 +294,7 @@ module "ecr" {
   name            = var.name
   namespace       = var.namespace
   stage           = var.stage
+  tags            = module.label.tags
   protected_tags  = var.ecr_protected_tag_prefixes
   max_image_count = var.ecr_max_image_count
   image_names     = local.full_ecr_namespaces
