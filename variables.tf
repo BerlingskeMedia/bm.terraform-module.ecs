@@ -102,6 +102,18 @@ variable "ecr_namespaces" {
   default     = []
 }
 
+variable "ecr_protected_tag_prefixes" {
+  type        = list(string)
+  description = "If provided, will create Lifecycle rules for specified ecr image tag prefixes"
+  default     = []
+}
+
+variable "ecr_max_image_count" {
+  type        = number
+  description = "How many Docker Image versions AWS ECR will store"
+  default     = 500
+}
+
 variable "launch_type" {
   type        = string
   description = "ECS default cluster laynch type"

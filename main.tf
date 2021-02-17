@@ -284,14 +284,19 @@ resource "aws_iam_role_policy_attachment" "datadog_agent_kms_access_policy_attac
   policy_arn = var.datadog_agent_ssm_parameter_kms_access_policy_arn
 }
 
+locals {
+  full_ecr_namespaces = var.enabled && var.ecr_enabled && length(var.ecr_namespaces) > 0 ? formatlist("${module.label.id}/%s", var.ecr_namespaces) : []
+}
+
 module "ecr" {
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.ecr?ref=tags/0.2.0"
-  enabled    = var.enabled && var.ecr_enabled
-  name       = var.name
-  namespace  = var.namespace
-  stage      = var.stage
-  attributes = compact(concat(var.attributes, ["ecr"]))
-  namespaces = var.ecr_namespaces
+  source          = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.25.0"
+  enabled         = var.enabled && var.ecr_enabled
+  name            = var.name
+  namespace       = var.namespace
+  stage           = var.stage
+  protected_tags  = var.ecr_protected_tag_prefixes
+  max_image_count = var.ecr_max_image_count
+  image_names     = local.full_ecr_namespaces
 }
 
 resource "aws_security_group" "ecs_sg_internal" {

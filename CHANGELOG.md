@@ -1,4 +1,9 @@
 ---
+# 1.4.2
+## Main Changes
+    - Add option for lifecycle rules for ECR repositories
+    - Move away from our ECR module fork to cloudposse mainstream
+
 # 1.4.1
 ## Main Changes
     - Add option for enabling/disabling default ALB security group - default set to true because of backward compatibility
