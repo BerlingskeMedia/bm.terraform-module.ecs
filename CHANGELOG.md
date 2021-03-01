@@ -1,4 +1,10 @@
 ---
+# 1.4.3
+## Main Changes
+    - Remove datadog agent settings from ecs
+    - Upgrade all submodules
+    - Change AWS provider version to 3.0 by default
+
 # 1.4.2
 ## Main Changes
     - Add option for lifecycle rules for ECR repositories

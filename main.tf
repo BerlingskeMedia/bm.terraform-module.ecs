@@ -1,5 +1,5 @@
 module "label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.2"
+  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.24.1"
   namespace  = var.namespace
   name       = var.name
   stage      = var.stage
@@ -138,158 +138,12 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
   }
 }
 
-# Datadog Agent
-# Only if cluster mode is EC2
-
-locals {
-  datadog_environments = [
-    {
-      name  = "DD_PROCESS_AGENT_ENABLED"
-      value = "true"
-    },
-    {
-      name  = "DD_SYSTEM_PROBE_ENABLED"
-      value = "true"
-    }
-  ]
-  datadog_secrets = [
-    {
-      name      = "DD_API_KEY"
-      valueFrom = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? var.datadog_agent_ssm_parameter_path : ""
-    }
-  ]
-  datadog_port_mapping = []
-  datadog_linux_parameters = {
-    capabilities = {
-      add = [
-        "SYS_ADMIN",
-        "SYS_RESOURCE",
-        "SYS_PTRACE",
-        "NET_ADMIN"
-      ]
-    }
-  }
-  datadog_runner_mount_points = [
-    {
-      readOnly      = true
-      sourceVolume  = "docker-socket"
-      containerPath = "/var/run/docker.sock"
-    },
-    {
-      readOnly      = true
-      sourceVolume  = "proc"
-      containerPath = "/host/proc/"
-    },
-    {
-      readOnly      = true
-      sourceVolume  = "cgroup"
-      containerPath = "/host/sys/fs/cgroup"
-    },
-    {
-      readOnly      = true
-      sourceVolume  = "passwd"
-      containerPath = "/etc/passwd"
-    },
-    {
-      readOnly      = true
-      sourceVolume  = "debug"
-      containerPath = "/sys/kernel/debug"
-    }
-  ]
-  datadog_runner_volumes = [
-    {
-      name                        = "docker-socket"
-      host_path                   = "/var/run/docker.sock"
-      docker_volume_configuration = []
-      efs_volume_configuration    = []
-    },
-    {
-      name                        = "proc"
-      host_path                   = "/proc/"
-      docker_volume_configuration = []
-      efs_volume_configuration    = []
-    },
-    {
-      name                        = "cgroup"
-      host_path                   = "/sys/fs/cgroup/"
-      docker_volume_configuration = []
-      efs_volume_configuration    = []
-    },
-    {
-      name                        = "passwd"
-      host_path                   = "/etc/passwd"
-      docker_volume_configuration = []
-      efs_volume_configuration    = []
-    },
-    {
-      name                        = "debug"
-      host_path                   = "/sys/kernel/debug"
-      docker_volume_configuration = []
-      efs_volume_configuration    = []
-    }
-  ]
-}
-
-module "container_definition_datadog_agent" {
-  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.44.0"
-  container_name               = "${module.label.id}-datadog-agent-container"
-  container_image              = "datadog/agent:latest"
-  environment                  = local.datadog_environments
-  secrets                      = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? local.datadog_secrets : null
-  port_mappings                = local.datadog_port_mapping
-  container_depends_on         = null
-  container_cpu                = 10
-  container_memory             = 256
-  container_memory_reservation = 128
-  mount_points                 = local.datadog_runner_mount_points
-
-  log_configuration = {
-    logDriver = "awslogs"
-    options = {
-      "awslogs-region"        = var.region
-      "awslogs-group"         = aws_cloudwatch_log_group.app.name
-      "awslogs-stream-prefix" = "${module.label.id}-datadog-agent"
-    }
-    secretOptions = null
-  }
-}
-
-module "ecs_service_task_datadog_agent" {
-  enabled                        = var.datadog_enabled && var.launch_type == "EC2" ? true : false
-  source                         = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task.git?ref=tags/0.40.1"
-  name                           = module.label.name
-  namespace                      = module.label.namespace
-  stage                          = module.label.stage
-  ignore_changes_task_definition = false
-  attributes                     = concat(var.attributes, ["datadog-agent"])
-  use_alb_security_group         = false
-  container_definition_json      = "[${module.container_definition_datadog_agent.json_map_encoded}]"
-  ecs_cluster_arn                = aws_ecs_cluster.default.arn
-  launch_type                    = "EC2"
-  network_mode                   = "awsvpc"
-  scheduling_strategy            = "DAEMON"
-  vpc_id                         = var.vpc_id
-  security_group_ids = [
-    aws_security_group.ecs_sg_internal.id
-  ]
-  subnet_ids         = var.private_subnets
-  tags               = module.label.tags
-  volumes            = local.datadog_runner_volumes
-  ecs_load_balancers = []
-}
-
-resource "aws_iam_role_policy_attachment" "datadog_agent_kms_access_policy_attachement" {
-  count      = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_kms_access_policy_arn != "" ? 1 : 0
-  role       = module.ecs_service_task_datadog_agent.task_exec_role_name
-  policy_arn = var.datadog_agent_ssm_parameter_kms_access_policy_arn
-}
-
 locals {
   full_ecr_namespaces = var.enabled && var.ecr_enabled && length(var.ecr_namespaces) > 0 ? formatlist("${module.label.id}-ecr/%s", var.ecr_namespaces) : []
 }
 
 module "ecr" {
-  source          = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.25.0"
+  source          = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.32.2"
   enabled         = var.enabled && var.ecr_enabled
   name            = var.name
   namespace       = var.namespace
@@ -325,7 +179,8 @@ resource "aws_security_group" "ecs_sg_internal" {
 # Create user for drone.io
 
 module "drone-io" {
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.3.0"
+  #source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.4.0"
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=BMD-7479"
   enabled    = var.drone-io_enabled
   name       = var.name
   namespace  = var.namespace
@@ -413,7 +268,7 @@ locals {
 }
 
 module "alb_default_internal" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.4"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.6"
   enabled                                 = var.alb_internal_enabled
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_internal_name_short
@@ -442,7 +297,7 @@ module "alb_default_internal" {
 }
 
 module "alb_default_external" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.4"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.6"
   enabled                                 = var.alb_external_enabled
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_external_name_short
@@ -473,7 +328,7 @@ module "alb_default_external" {
 # KMS key for all services
 
 module "kms_key" {
-  source                  = "git::https://github.com/cloudposse/terraform-aws-kms-key.git?ref=tags/0.7.0"
+  source                  = "git::https://github.com/cloudposse/terraform-aws-kms-key.git?ref=tags/0.9.0"
   namespace               = var.namespace
   stage                   = var.stage
   name                    = var.name
