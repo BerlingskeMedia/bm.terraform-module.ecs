@@ -365,56 +365,6 @@ resource "aws_service_discovery_private_dns_namespace" "default" {
   vpc         = var.vpc_id
 }
 
-# Create cloudwatch lambda
-
-data "archive_file" "cwl2es_code" {
-  count       = var.cwl2es_enabled ? 1 : 0
-  type        = "zip"
-  source_file = "${path.module}/additional_config_files/cwl2es_code/index.js"
-  output_path = "${path.module}/additional_config_files/cwl2es_code/cwl2eslambda.zip"
-}
-
-resource "aws_lambda_function" "cwl2es_function" {
-  count            = var.cwl2es_enabled ? 1 : 0
-  filename         = data.archive_file.cwl2es_code[0].output_path
-  function_name    = "${module.label.id}-LogsToElasticsearch"
-  role             = var.cwl2es_iam_role_arn
-  handler          = "index.handler"
-  source_code_hash = filebase64sha256(data.archive_file.cwl2es_code[0].output_path)
-  runtime          = "nodejs10.x"
-
-  vpc_config {
-    subnet_ids         = var.cwl2es_subnets != [] ? var.cwl2es_subnets : var.private_subnets
-    security_group_ids = [var.cwl2es_security_group]
-  }
-
-  environment {
-    variables = {
-      es_endpoint      = var.cwl2es_es_endpoint
-      ecs_cluster_name = module.label.id
-    }
-  }
-
-  tags = module.label.tags
-}
-
-resource "aws_lambda_permission" "cwl2es_cloudwatch_allow" {
-  count         = var.cwl2es_enabled ? 1 : 0
-  statement_id  = "cloudwatch_allow"
-  action        = "lambda:InvokeFunction"
-  function_name = "${module.label.id}-LogsToElasticsearch"
-  principal     = var.cwl2es_cwl_endpoint
-  source_arn    = aws_cloudwatch_log_group.app.arn
-}
-
-resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_to_es" {
-  count           = var.cwl2es_enabled ? 1 : 0
-  name            = "cloudwatch_logs_to_elasticsearch"
-  log_group_name  = aws_cloudwatch_log_group.app.name
-  filter_pattern  = ""
-  destination_arn = aws_lambda_function.cwl2es_function[0].arn
-}
-
 locals {
   # External ALB output map
   external_alb_output_map = {

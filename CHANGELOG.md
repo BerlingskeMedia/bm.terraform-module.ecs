@@ -4,6 +4,7 @@
     - Remove datadog agent settings from ecs
     - Upgrade all submodules
     - Change AWS provider version to 3.0 by default
+    - Remove setting for pushing logs from cloudwatch into elasticsearch
 
 # 1.4.2
 ## Main Changes
