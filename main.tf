@@ -143,15 +143,16 @@ locals {
 }
 
 module "ecr" {
-  source          = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.32.2"
-  enabled         = var.enabled && var.ecr_enabled
-  name            = var.name
-  namespace       = var.namespace
-  stage           = var.stage
-  tags            = module.label.tags
-  protected_tags  = var.ecr_protected_tag_prefixes
-  max_image_count = var.ecr_max_image_count
-  image_names     = local.full_ecr_namespaces
+  source                = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.32.2"
+  enabled               = var.enabled && var.ecr_enabled
+  name                  = var.name
+  namespace             = var.namespace
+  stage                 = var.stage
+  tags                  = module.label.tags
+  protected_tags        = var.ecr_protected_tag_prefixes
+  max_image_count       = var.ecr_max_image_count
+  image_tag_mutability  = var.ecr_image_tag_mutability
+  image_names           = local.full_ecr_namespaces
 }
 
 resource "aws_security_group" "ecs_sg_internal" {

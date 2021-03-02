@@ -102,6 +102,12 @@ variable "ecr_namespaces" {
   default     = []
 }
 
+variable "ecr_image_tag_mutability" {
+  type = "string"
+  description = "The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE"
+  default = "MUTABLE"
+}
+
 variable "ecr_protected_tag_prefixes" {
   type        = list(string)
   description = "If provided, will create Lifecycle rules for specified ecr image tag prefixes"

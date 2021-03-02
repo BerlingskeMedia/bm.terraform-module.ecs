@@ -73,6 +73,7 @@ module "ecs" {
 | drone-io_enabled           | `bool`         | **no**   | `false`        | Determines if should use Drone.io |
 | ecr_enabled                | `bool`         | **no**   | `false`        | Determine if ECR should be created (codepipeline_enabled=true also will result creating ECR) |
 | ecr_namespaces             | `list(string)` | **no**   | `[]`           | List of public subnet's ID |
+| ecr_image_tag_mutability   | `string`       | **no**   | `MUTABLE`      | The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE |
 | ecr_protected_tag_prefixes | `list(string)` | **no**   | `[]`           | If provided, will create Lifecycle rules for specified ecr image tag prefixes |
 | ecr_max_image_count        | `number`       | **no**   | `500`          | How many Docker Image versions AWS ECR will store |
 | launch_type                | `string`       | **no**   | `FARGATE`      | ECS default cluster laynch type |
