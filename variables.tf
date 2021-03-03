@@ -102,6 +102,12 @@ variable "ecr_namespaces" {
   default     = []
 }
 
+variable "ecr_image_tag_mutability" {
+  type        = string
+  description = "The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE"
+  default     = "MUTABLE"
+}
+
 variable "ecr_protected_tag_prefixes" {
   type        = list(string)
   description = "If provided, will create Lifecycle rules for specified ecr image tag prefixes"
@@ -167,26 +173,6 @@ variable "asg_termination_policies" {
   type        = list(string)
   default     = ["OldestLaunchConfiguration", "OldestInstance"]
   description = "Default policies for vm termination in ASG"
-}
-
-# Datadog variables
-
-variable "datadog_enabled" {
-  type        = bool
-  description = "Determines if Datadog will be enabled in ECS EC2 cluster"
-  default     = false
-}
-
-variable "datadog_agent_ssm_parameter_path" {
-  type        = string
-  description = "Datadog api key SSM path for datadog agent"
-  default     = ""
-}
-
-variable "datadog_agent_ssm_parameter_kms_access_policy_arn" {
-  type        = string
-  description = "Datadog api key SSM KMS key IAM policy arn"
-  default     = ""
 }
 
 # ALB variables
@@ -305,42 +291,4 @@ variable "service_discovery_enabled" {
   type        = bool
   default     = false
   description = "Determine, wheter servicediscovery should be enabled for this service."
-}
-
-# Cloudwatch Lambda variables
-
-variable "cwl2es_enabled" {
-  type        = bool
-  default     = false
-  description = "Set this variable to true if there is need to create cloudwatch to elasticsearch lambda"
-}
-
-variable "cwl2es_es_endpoint" {
-  type        = string
-  default     = ""
-  description = "Elasticsearch endpoint url"
-}
-
-variable "cwl2es_iam_role_arn" {
-  type        = string
-  default     = ""
-  description = "Cloudwatch Lambda execution role arn"
-}
-
-variable "cwl2es_security_group" {
-  type        = string
-  default     = ""
-  description = "Cloudwatch Lambda security group"
-}
-
-variable "cwl2es_subnets" {
-  type        = list(string)
-  default     = []
-  description = "Cloudwatch Lambda subnets id list - use it when lambda is in different VPC than ecs cluster"
-}
-
-variable "cwl2es_cwl_endpoint" {
-  type        = string
-  default     = "logs.eu-west-1.amazonaws.com"
-  description = "Cloudwatch endpoint url"
 }

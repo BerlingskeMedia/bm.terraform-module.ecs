@@ -1,5 +1,5 @@
 module "label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.19.2"
+  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.24.1"
   namespace  = var.namespace
   name       = var.name
   stage      = var.stage
@@ -138,166 +138,21 @@ resource "aws_autoscaling_group" "ecs_ec2_autoscalling_group" {
   }
 }
 
-# Datadog Agent
-# Only if cluster mode is EC2
-
-locals {
-  datadog_environments = [
-    {
-      name  = "DD_PROCESS_AGENT_ENABLED"
-      value = "true"
-    },
-    {
-      name  = "DD_SYSTEM_PROBE_ENABLED"
-      value = "true"
-    }
-  ]
-  datadog_secrets = [
-    {
-      name      = "DD_API_KEY"
-      valueFrom = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? var.datadog_agent_ssm_parameter_path : ""
-    }
-  ]
-  datadog_port_mapping = []
-  datadog_linux_parameters = {
-    capabilities = {
-      add = [
-        "SYS_ADMIN",
-        "SYS_RESOURCE",
-        "SYS_PTRACE",
-        "NET_ADMIN"
-      ]
-    }
-  }
-  datadog_runner_mount_points = [
-    {
-      readOnly      = true
-      sourceVolume  = "docker-socket"
-      containerPath = "/var/run/docker.sock"
-    },
-    {
-      readOnly      = true
-      sourceVolume  = "proc"
-      containerPath = "/host/proc/"
-    },
-    {
-      readOnly      = true
-      sourceVolume  = "cgroup"
-      containerPath = "/host/sys/fs/cgroup"
-    },
-    {
-      readOnly      = true
-      sourceVolume  = "passwd"
-      containerPath = "/etc/passwd"
-    },
-    {
-      readOnly      = true
-      sourceVolume  = "debug"
-      containerPath = "/sys/kernel/debug"
-    }
-  ]
-  datadog_runner_volumes = [
-    {
-      name                        = "docker-socket"
-      host_path                   = "/var/run/docker.sock"
-      docker_volume_configuration = []
-      efs_volume_configuration    = []
-    },
-    {
-      name                        = "proc"
-      host_path                   = "/proc/"
-      docker_volume_configuration = []
-      efs_volume_configuration    = []
-    },
-    {
-      name                        = "cgroup"
-      host_path                   = "/sys/fs/cgroup/"
-      docker_volume_configuration = []
-      efs_volume_configuration    = []
-    },
-    {
-      name                        = "passwd"
-      host_path                   = "/etc/passwd"
-      docker_volume_configuration = []
-      efs_volume_configuration    = []
-    },
-    {
-      name                        = "debug"
-      host_path                   = "/sys/kernel/debug"
-      docker_volume_configuration = []
-      efs_volume_configuration    = []
-    }
-  ]
-}
-
-module "container_definition_datadog_agent" {
-  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.44.0"
-  container_name               = "${module.label.id}-datadog-agent-container"
-  container_image              = "datadog/agent:latest"
-  environment                  = local.datadog_environments
-  secrets                      = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_path != "" ? local.datadog_secrets : null
-  port_mappings                = local.datadog_port_mapping
-  container_depends_on         = null
-  container_cpu                = 10
-  container_memory             = 256
-  container_memory_reservation = 128
-  mount_points                 = local.datadog_runner_mount_points
-
-  log_configuration = {
-    logDriver = "awslogs"
-    options = {
-      "awslogs-region"        = var.region
-      "awslogs-group"         = aws_cloudwatch_log_group.app.name
-      "awslogs-stream-prefix" = "${module.label.id}-datadog-agent"
-    }
-    secretOptions = null
-  }
-}
-
-module "ecs_service_task_datadog_agent" {
-  enabled                        = var.datadog_enabled && var.launch_type == "EC2" ? true : false
-  source                         = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task.git?ref=tags/0.40.1"
-  name                           = module.label.name
-  namespace                      = module.label.namespace
-  stage                          = module.label.stage
-  ignore_changes_task_definition = false
-  attributes                     = concat(var.attributes, ["datadog-agent"])
-  use_alb_security_group         = false
-  container_definition_json      = "[${module.container_definition_datadog_agent.json_map_encoded}]"
-  ecs_cluster_arn                = aws_ecs_cluster.default.arn
-  launch_type                    = "EC2"
-  network_mode                   = "awsvpc"
-  scheduling_strategy            = "DAEMON"
-  vpc_id                         = var.vpc_id
-  security_group_ids = [
-    aws_security_group.ecs_sg_internal.id
-  ]
-  subnet_ids         = var.private_subnets
-  tags               = module.label.tags
-  volumes            = local.datadog_runner_volumes
-  ecs_load_balancers = []
-}
-
-resource "aws_iam_role_policy_attachment" "datadog_agent_kms_access_policy_attachement" {
-  count      = var.datadog_enabled && var.launch_type == "EC2" && var.datadog_agent_ssm_parameter_kms_access_policy_arn != "" ? 1 : 0
-  role       = module.ecs_service_task_datadog_agent.task_exec_role_name
-  policy_arn = var.datadog_agent_ssm_parameter_kms_access_policy_arn
-}
-
 locals {
   full_ecr_namespaces = var.enabled && var.ecr_enabled && length(var.ecr_namespaces) > 0 ? formatlist("${module.label.id}-ecr/%s", var.ecr_namespaces) : []
 }
 
 module "ecr" {
-  source          = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.25.0"
-  enabled         = var.enabled && var.ecr_enabled
-  name            = var.name
-  namespace       = var.namespace
-  stage           = var.stage
-  tags            = module.label.tags
-  protected_tags  = var.ecr_protected_tag_prefixes
-  max_image_count = var.ecr_max_image_count
-  image_names     = local.full_ecr_namespaces
+  source                = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.32.2"
+  enabled               = var.enabled && var.ecr_enabled
+  name                  = var.name
+  namespace             = var.namespace
+  stage                 = var.stage
+  tags                  = module.label.tags
+  protected_tags        = var.ecr_protected_tag_prefixes
+  max_image_count       = var.ecr_max_image_count
+  image_tag_mutability  = var.ecr_image_tag_mutability
+  image_names           = local.full_ecr_namespaces
 }
 
 resource "aws_security_group" "ecs_sg_internal" {
@@ -325,7 +180,7 @@ resource "aws_security_group" "ecs_sg_internal" {
 # Create user for drone.io
 
 module "drone-io" {
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.3.0"
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.4.0"
   enabled    = var.drone-io_enabled
   name       = var.name
   namespace  = var.namespace
@@ -378,26 +233,15 @@ data "aws_route53_zone" "zone" {
   private_zone = false
 }
 
-resource "aws_acm_certificate" "alb_cert" {
-  count                     = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? 1 : 0
-  domain_name               = "${var.name}.${var.namespace}.${var.alb_main_domain}"
-  subject_alternative_names = ["*.${var.name}.${var.namespace}.${var.alb_main_domain}"]
-  validation_method         = "DNS"
-}
-
-resource "aws_route53_record" "alb_cert_validation" {
-  count   = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? 1 : 0
-  name    = aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_name
-  type    = aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_type
-  zone_id = data.aws_route53_zone.zone.zone_id
-  records = [aws_acm_certificate.alb_cert.0.domain_validation_options.0.resource_record_value]
-  ttl     = 60
-}
-
-resource "aws_acm_certificate_validation" "alb_cert" {
-  count                   = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? 1 : 0
-  certificate_arn         = aws_acm_certificate.alb_cert.0.arn
-  validation_record_fqdns = [aws_route53_record.alb_cert_validation.0.fqdn]
+module "acm_certificate" {
+  source                      = "git::https://github.com/cloudposse/terraform-aws-acm-request-certificate.git?ref=tags/0.13.1"
+  enabled                     = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? true : false
+  domain_name                 = "${var.name}.${var.namespace}.${var.alb_main_domain}"
+  subject_alternative_names   = ["*.${var.name}.${var.namespace}.${var.alb_main_domain}"]
+  ttl                         = "60"
+  wait_for_certificate_issued = true
+  zone_name                   = "${var.alb_main_domain}."
+  context                     = module.label.context
 }
 
 # ALB
@@ -413,7 +257,7 @@ locals {
 }
 
 module "alb_default_internal" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.4"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.6"
   enabled                                 = var.alb_internal_enabled
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_internal_name_short
@@ -431,7 +275,7 @@ module "alb_default_internal" {
   http_redirect                           = var.alb_internal_http_redirect && var.alb_internal_http_enable && var.alb_internal_enabled ? true : false
   https_enabled                           = var.alb_internal_https_enable && var.alb_internal_enabled ? true : false
   https_ssl_policy                        = var.alb_internal_https_enable && var.alb_internal_enabled ? var.alb_https_policy : null
-  certificate_arn                         = var.alb_internal_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
+  certificate_arn                         = var.alb_internal_enabled ? module.acm_certificate.arn : ""
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
   cross_zone_load_balancing_enabled       = true
@@ -442,7 +286,7 @@ module "alb_default_internal" {
 }
 
 module "alb_default_external" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.4"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.6"
   enabled                                 = var.alb_external_enabled
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_external_name_short
@@ -460,7 +304,7 @@ module "alb_default_external" {
   http_redirect                           = var.alb_external_http_redirect && var.alb_external_http_enable && var.alb_external_enabled ? true : false
   https_enabled                           = var.alb_external_https_enable && var.alb_external_enabled ? true : false
   https_ssl_policy                        = var.alb_external_https_enable && var.alb_external_enabled ? var.alb_https_policy : null
-  certificate_arn                         = var.alb_external_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
+  certificate_arn                         = var.alb_external_enabled ? module.acm_certificate.arn : ""
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
   cross_zone_load_balancing_enabled       = true
@@ -473,7 +317,7 @@ module "alb_default_external" {
 # KMS key for all services
 
 module "kms_key" {
-  source                  = "git::https://github.com/cloudposse/terraform-aws-kms-key.git?ref=tags/0.7.0"
+  source                  = "git::https://github.com/cloudposse/terraform-aws-kms-key.git?ref=tags/0.9.0"
   namespace               = var.namespace
   stage                   = var.stage
   name                    = var.name
@@ -508,56 +352,6 @@ resource "aws_service_discovery_private_dns_namespace" "default" {
   name        = "${module.label.id}.local"
   description = "Service discovery for ${module.label.id}"
   vpc         = var.vpc_id
-}
-
-# Create cloudwatch lambda
-
-data "archive_file" "cwl2es_code" {
-  count       = var.cwl2es_enabled ? 1 : 0
-  type        = "zip"
-  source_file = "${path.module}/additional_config_files/cwl2es_code/index.js"
-  output_path = "${path.module}/additional_config_files/cwl2es_code/cwl2eslambda.zip"
-}
-
-resource "aws_lambda_function" "cwl2es_function" {
-  count            = var.cwl2es_enabled ? 1 : 0
-  filename         = data.archive_file.cwl2es_code[0].output_path
-  function_name    = "${module.label.id}-LogsToElasticsearch"
-  role             = var.cwl2es_iam_role_arn
-  handler          = "index.handler"
-  source_code_hash = filebase64sha256(data.archive_file.cwl2es_code[0].output_path)
-  runtime          = "nodejs10.x"
-
-  vpc_config {
-    subnet_ids         = var.cwl2es_subnets != [] ? var.cwl2es_subnets : var.private_subnets
-    security_group_ids = [var.cwl2es_security_group]
-  }
-
-  environment {
-    variables = {
-      es_endpoint      = var.cwl2es_es_endpoint
-      ecs_cluster_name = module.label.id
-    }
-  }
-
-  tags = module.label.tags
-}
-
-resource "aws_lambda_permission" "cwl2es_cloudwatch_allow" {
-  count         = var.cwl2es_enabled ? 1 : 0
-  statement_id  = "cloudwatch_allow"
-  action        = "lambda:InvokeFunction"
-  function_name = "${module.label.id}-LogsToElasticsearch"
-  principal     = var.cwl2es_cwl_endpoint
-  source_arn    = aws_cloudwatch_log_group.app.arn
-}
-
-resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_logs_to_es" {
-  count           = var.cwl2es_enabled ? 1 : 0
-  name            = "cloudwatch_logs_to_elasticsearch"
-  log_group_name  = aws_cloudwatch_log_group.app.name
-  filter_pattern  = ""
-  destination_arn = aws_lambda_function.cwl2es_function[0].arn
 }
 
 locals {
@@ -600,7 +394,7 @@ locals {
     # ALB variables
     "domain_name"             = "${var.name}.${var.namespace}.${var.alb_main_domain}"
     "domain_zone_id"          = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? data.aws_route53_zone.zone.zone_id : ""
-    "alb_acm_certificate_arn" = (var.alb_internal_enabled || var.alb_external_enabled) && length(aws_acm_certificate.alb_cert) > 0 ? aws_acm_certificate.alb_cert[0].arn : ""
+    "alb_acm_certificate_arn" = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? module.acm_certificate.arn : ""
     # KMS outputs
     "kms_key_alias_arn"         = module.kms_key.alias_arn
     "kms_key_alias_name"        = module.kms_key.alias_name

@@ -1,4 +1,25 @@
 ---
+# 1.4.3
+## Main Changes
+    - Remove datadog agent settings from ecs
+    - Upgrade all submodules
+    - Change AWS provider version to 3.0 by default
+    - Remove setting for pushing logs from cloudwatch into elasticsearch
+    - Replace resources based certificate request to cloudposse module
+
+## Warning
+1. <b><u>(Only when updating existing projects)</u></b> This change require removing acm
+certificate states and importing to new module. You can do this with below commands
+    ```bash
+    # ACM certificate import
+    terraform state rm 'module.ecs.aws_acm_certificate.alb_cert[0]'
+    terraform import 'module.ecs.module.acm_certificate.aws_acm_certificate.default[0]' EXISTING_CERTIFICATE_ARN
+    ```
+    Also remember that DNS validation records and validation resource will be recreated on terraform run. This is normal and will not break anything if certificate was imported into new state.
+2. <b>Cloudposse ACM</b> will create duplicate DNS records, but because of the `overwrite` option set to `true` everything is fine. <u>There is no need to import existing DNS record</u>
+3. <b>Cloudposse ACM</b> certificate module will add tags to certificate
+4. <b>Cloudposse ECR</b> module is setting by default `scan_on_push` variable to `true`
+
 # 1.4.2
 ## Main Changes
     - Add option for lifecycle rules for ECR repositories

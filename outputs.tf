@@ -67,7 +67,7 @@ output "domain_zone_id" {
 }
 
 output "alb_acm_certificate_arn" {
-  value       = var.alb_internal_enabled || var.alb_external_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
+  value       = var.alb_internal_enabled || var.alb_external_enabled ? module.acm_certificate.arn : ""
   description = "ACM certificate arn for all services in this cluster"
 }
 
