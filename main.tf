@@ -254,11 +254,12 @@ locals {
 resource "aws_route53_record" "alb_cert_validation" {
   for_each = local.dvo
 
-  name    = each.value.name
-  type    = each.value.type
-  zone_id = data.aws_route53_zone.zone.zone_id
-  records = [each.value.record]
-  ttl     = 60
+  allow_overwrite = true
+  name            = each.value.name
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.zone.zone_id
+  records         = [each.value.record]
+  ttl             = 60
 }
 
 resource "aws_acm_certificate_validation" "alb_cert" {
