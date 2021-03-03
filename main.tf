@@ -180,8 +180,7 @@ resource "aws_security_group" "ecs_sg_internal" {
 # Create user for drone.io
 
 module "drone-io" {
-  #source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.4.0"
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=BMD-7479"
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.4.0"
   enabled    = var.drone-io_enabled
   name       = var.name
   namespace  = var.namespace
@@ -234,40 +233,6 @@ data "aws_route53_zone" "zone" {
   private_zone = false
 }
 
-# resource "aws_acm_certificate" "alb_cert" {
-#   count                     = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? 1 : 0
-#   domain_name               = "${var.name}.${var.namespace}.${var.alb_main_domain}"
-#   subject_alternative_names = ["*.${var.name}.${var.namespace}.${var.alb_main_domain}"]
-#   validation_method         = "DNS"
-# }
-
-# locals {
-#   dvo = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? {
-#     for dvo in aws_acm_certificate.alb_cert.0.domain_validation_options : dvo.domain_name => {
-#       name   = dvo.resource_record_name
-#       record = dvo.resource_record_value
-#       type   = dvo.resource_record_type
-#     }
-#   } : {}
-# }
-
-# resource "aws_route53_record" "alb_cert_validation" {
-#   for_each = local.dvo
-
-#   allow_overwrite = true
-#   name            = each.value.name
-#   type            = each.value.type
-#   zone_id         = data.aws_route53_zone.zone.zone_id
-#   records         = [each.value.record]
-#   ttl             = 60
-# }
-
-# resource "aws_acm_certificate_validation" "alb_cert" {
-#   count                   = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? 1 : 0
-#   certificate_arn         = aws_acm_certificate.alb_cert.0.arn
-#   validation_record_fqdns = [for record in aws_route53_record.alb_cert_validation : record.fqdn]
-# }
-
 module "acm_certificate" {
   source                      = "git::https://github.com/cloudposse/terraform-aws-acm-request-certificate.git?ref=tags/0.13.1"
   enabled                     = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? true : false
@@ -310,7 +275,6 @@ module "alb_default_internal" {
   http_redirect                           = var.alb_internal_http_redirect && var.alb_internal_http_enable && var.alb_internal_enabled ? true : false
   https_enabled                           = var.alb_internal_https_enable && var.alb_internal_enabled ? true : false
   https_ssl_policy                        = var.alb_internal_https_enable && var.alb_internal_enabled ? var.alb_https_policy : null
-  #certificate_arn                         = var.alb_internal_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
   certificate_arn                         = var.alb_internal_enabled ? module.acm_certificate.arn : ""
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
@@ -340,7 +304,6 @@ module "alb_default_external" {
   http_redirect                           = var.alb_external_http_redirect && var.alb_external_http_enable && var.alb_external_enabled ? true : false
   https_enabled                           = var.alb_external_https_enable && var.alb_external_enabled ? true : false
   https_ssl_policy                        = var.alb_external_https_enable && var.alb_external_enabled ? var.alb_https_policy : null
-  #certificate_arn                         = var.alb_external_enabled ? aws_acm_certificate.alb_cert[0].arn : ""
   certificate_arn                         = var.alb_external_enabled ? module.acm_certificate.arn : ""
   access_logs_enabled                     = false
   alb_access_logs_s3_bucket_force_destroy = true
@@ -431,7 +394,6 @@ locals {
     # ALB variables
     "domain_name"             = "${var.name}.${var.namespace}.${var.alb_main_domain}"
     "domain_zone_id"          = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? data.aws_route53_zone.zone.zone_id : ""
-    #"alb_acm_certificate_arn" = (var.alb_internal_enabled || var.alb_external_enabled) && length(aws_acm_certificate.alb_cert) > 0 ? aws_acm_certificate.alb_cert[0].arn : ""
     "alb_acm_certificate_arn" = (var.alb_internal_enabled || var.alb_external_enabled) && var.alb_main_domain != "" ? module.acm_certificate.arn : ""
     # KMS outputs
     "kms_key_alias_arn"         = module.kms_key.alias_arn
