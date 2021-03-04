@@ -143,7 +143,8 @@ locals {
 }
 
 module "ecr" {
-  source                = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.32.2"
+  #source                = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.32.2"
+  source                = "git::https://github.com/BerlingskeMedia/terraform-aws-ecr?ref=import_issue_fix"
   enabled               = var.enabled && var.ecr_enabled
   name                  = var.name
   namespace             = var.namespace
