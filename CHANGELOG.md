@@ -1,5 +1,5 @@
 ---
-# 1.4.3
+# 1.5.0
 ## Main Changes
     - Remove datadog agent settings from ecs
     - Upgrade all submodules
@@ -8,6 +8,7 @@
     - Replace resources based certificate request to cloudposse module
 
 ## Warning
+<b>Please update to `1.4.2` before running this update</b>
 1. <b><u>(Only when updating existing projects)</u></b> This change require removing acm
 certificate states and importing to new module. You can do this with below commands
     ```bash
