@@ -17,9 +17,6 @@ resource "aws_ecs_cluster" "default" {
 # ECS cluster configuration when "EC2" launch type is set
 
 data "aws_iam_policy_document" "ecs_instance_policy" {
-  count = var.enabled && var.launch_type == "EC2" ? 1 : 0
-
-  # ECR
   statement {
     effect    = "Allow"
     resources = ["*"]
