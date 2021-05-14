@@ -15,14 +15,41 @@ resource "aws_ecs_cluster" "default" {
 }
 
 # ECS cluster configuration when "EC2" launch type is set
-locals {
-  ecs_ec2_role_policies_list = [
-    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess",
-    "arn:aws:iam::aws:policy/AmazonECS_FullAccess",
-    "arn:aws:iam::aws:policy/AWSApplicationDiscoveryServiceFullAccess",
-    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role",
-    "arn:aws:iam::aws:policy/AmazonRoute53FullAccess"
-  ]
+
+data "aws_iam_policy_document" "ecs_instance_policy" {
+  count = var.enabled && var.launch_type == "EC2" ? 1 : 0
+
+  # ECR
+  statement {
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
+      "ec2:DescribeTags",
+      "ecs:DeregisterContainerInstance",
+      "ecs:DiscoverPollEndpoint",
+      "ecs:Poll",
+      "ecs:RegisterContainerInstance",
+      "ecs:StartTelemetrySession",
+      "ecs:UpdateContainerInstancesState",
+      "ecs:Submit*",
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "ecs_instance_policy" {
+  count       = var.launch_type == "EC2" ? 1 : 0
+  name        = "${module.label.id}-ecs-ec2-policy"
+  path        = "/"
+  description = "${module.label.id} ECS cluster policy used for EC2 instances"
+  policy      = data.aws_iam_policy_document.ecs_instance_policy.json
+  tags        = module.label.tags
 }
 
 data "aws_iam_policy_document" "ec2_role_document" {
@@ -49,9 +76,9 @@ resource "aws_iam_instance_profile" "ecs_ec2_instance_profile" {
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_ec2_role_attachement" {
+  count      = var.launch_type == "EC2" ? 1 : 0
   role       = join("", aws_iam_role.ecs_ec2_role.*.name)
-  for_each   = var.launch_type == "EC2" ? toset(local.ecs_ec2_role_policies_list) : toset([])
-  policy_arn = each.value
+  policy_arn = join("", aws_iam_policy.ecs_instance_policy.*.arn)
 }
 
 data "aws_ami" "vm_ami" {

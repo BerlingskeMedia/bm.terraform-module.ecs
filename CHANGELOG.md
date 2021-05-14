@@ -1,4 +1,8 @@
 ---
+# 1.5.1
+## Main Changes
+    - Revoke all unnecessary IAM permissions from EC2 instances - it was massive security issue
+
 # 1.5.0
 ## Main Changes
     - Remove datadog agent settings from ecs
