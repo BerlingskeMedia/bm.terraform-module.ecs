@@ -46,7 +46,6 @@ resource "aws_iam_policy" "ecs_instance_policy" {
   path        = "/"
   description = "${module.label.id} ECS cluster policy used for EC2 instances"
   policy      = data.aws_iam_policy_document.ecs_instance_policy.json
-  tags        = module.label.tags
 }
 
 data "aws_iam_policy_document" "ec2_role_document" {
