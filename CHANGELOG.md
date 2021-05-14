@@ -1,5 +1,5 @@
 ---
-# 1.5.1
+# 1.6.0
 ## Main Changes
     - Revoke all unnecessary IAM permissions from EC2 instances - it was massive security issue
 

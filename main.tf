@@ -16,6 +16,10 @@ resource "aws_ecs_cluster" "default" {
 
 # ECS cluster configuration when "EC2" launch type is set
 
+data "aws_region" "current" {}
+
+data "aws_caller_identity" "current" {}
+
 data "aws_iam_policy_document" "ecs_instance_policy" {
   statement {
     effect    = "Allow"
@@ -23,18 +27,74 @@ data "aws_iam_policy_document" "ecs_instance_policy" {
 
     actions = [
       "ec2:DescribeTags",
-      "ecs:DeregisterContainerInstance",
-      "ecs:DiscoverPollEndpoint",
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = [
+      "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:container-instance/${module.label.id}/*"
+    ]
+
+    actions = [
       "ecs:Poll",
-      "ecs:RegisterContainerInstance",
       "ecs:StartTelemetrySession",
       "ecs:UpdateContainerInstancesState",
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
+      "ecs:DiscoverPollEndpoint",
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = [
+      aws_ecs_cluster.default.arn
+    ]
+
+    actions = [
+      "ecs:DeregisterContainerInstance",
+      "ecs:RegisterContainerInstance",
       "ecs:Submit*",
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
       "ecr:GetAuthorizationToken",
       "ecr:BatchCheckLayerAvailability",
       "ecr:GetDownloadUrlForLayer",
       "ecr:BatchGetImage",
-      "logs:CreateLogStream",
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = [
+      aws_cloudwatch_log_group.app.arn
+    ]
+
+    actions = [
+      "logs:CreateLogStream"
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = [
+      "${aws_cloudwatch_log_group.app.arn}:log-stream:*"
+    ]
+
+    actions = [
       "logs:PutLogEvents"
     ]
   }
