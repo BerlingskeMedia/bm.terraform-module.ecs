@@ -15,14 +15,97 @@ resource "aws_ecs_cluster" "default" {
 }
 
 # ECS cluster configuration when "EC2" launch type is set
-locals {
-  ecs_ec2_role_policies_list = [
-    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess",
-    "arn:aws:iam::aws:policy/AmazonECS_FullAccess",
-    "arn:aws:iam::aws:policy/AWSApplicationDiscoveryServiceFullAccess",
-    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role",
-    "arn:aws:iam::aws:policy/AmazonRoute53FullAccess"
-  ]
+
+data "aws_region" "current" {}
+
+data "aws_caller_identity" "current" {}
+
+data "aws_iam_policy_document" "ecs_instance_policy" {
+  statement {
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
+      "ec2:DescribeTags",
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = [
+      "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:container-instance/${module.label.id}/*"
+    ]
+
+    actions = [
+      "ecs:Poll",
+      "ecs:StartTelemetrySession",
+      "ecs:UpdateContainerInstancesState",
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
+      "ecs:DiscoverPollEndpoint",
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = [
+      aws_ecs_cluster.default.arn
+    ]
+
+    actions = [
+      "ecs:DeregisterContainerInstance",
+      "ecs:RegisterContainerInstance",
+      "ecs:Submit*",
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = ["*"]
+
+    actions = [
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = [
+      aws_cloudwatch_log_group.app.arn
+    ]
+
+    actions = [
+      "logs:CreateLogStream"
+    ]
+  }
+
+  statement {
+    effect    = "Allow"
+    resources = [
+      "${aws_cloudwatch_log_group.app.arn}:log-stream:*"
+    ]
+
+    actions = [
+      "logs:PutLogEvents"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "ecs_instance_policy" {
+  count       = var.launch_type == "EC2" ? 1 : 0
+  name        = "${module.label.id}-ecs-ec2-policy"
+  path        = "/"
+  description = "${module.label.id} ECS cluster policy used for EC2 instances"
+  policy      = data.aws_iam_policy_document.ecs_instance_policy.json
 }
 
 data "aws_iam_policy_document" "ec2_role_document" {
@@ -49,9 +132,9 @@ resource "aws_iam_instance_profile" "ecs_ec2_instance_profile" {
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_ec2_role_attachement" {
+  count      = var.launch_type == "EC2" ? 1 : 0
   role       = join("", aws_iam_role.ecs_ec2_role.*.name)
-  for_each   = var.launch_type == "EC2" ? toset(local.ecs_ec2_role_policies_list) : toset([])
-  policy_arn = each.value
+  policy_arn = join("", aws_iam_policy.ecs_instance_policy.*.arn)
 }
 
 data "aws_ami" "vm_ami" {
