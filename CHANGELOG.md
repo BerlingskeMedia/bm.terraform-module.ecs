@@ -1,4 +1,8 @@
 ---
+# 1.7.0
+# Main Changes
+    - support for drone-io module 0.5.0, which fixes drone policies security concerns
+
 # 1.6.0
 ## Main Changes
     - Revoke all unnecessary IAM permissions from EC2 instances - it was massive security issue
