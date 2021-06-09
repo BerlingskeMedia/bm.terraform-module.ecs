@@ -1,4 +1,8 @@
 ---
+# 1.7.1
+# Main Changes
+    - Add possibility to mount EFS volumes from different VPC if cluster is in EC2 mode (Fargate not avaliable)
+
 # 1.7.0
 # Main Changes
     - support for drone-io module 0.5.0, which fixes drone policies security concerns
