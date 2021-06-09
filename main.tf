@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "ecs_instance_policy" {
   }
 
   statement {
-    effect    = "Allow"
+    effect = "Allow"
     resources = [
       "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:container-instance/${module.label.id}/*"
     ]
@@ -53,7 +53,7 @@ data "aws_iam_policy_document" "ecs_instance_policy" {
   }
 
   statement {
-    effect    = "Allow"
+    effect = "Allow"
     resources = [
       aws_ecs_cluster.default.arn
     ]
@@ -78,7 +78,7 @@ data "aws_iam_policy_document" "ecs_instance_policy" {
   }
 
   statement {
-    effect    = "Allow"
+    effect = "Allow"
     resources = [
       aws_cloudwatch_log_group.app.arn
     ]
@@ -89,7 +89,7 @@ data "aws_iam_policy_document" "ecs_instance_policy" {
   }
 
   statement {
-    effect    = "Allow"
+    effect = "Allow"
     resources = [
       "${aws_cloudwatch_log_group.app.arn}:log-stream:*"
     ]
@@ -227,16 +227,16 @@ locals {
 }
 
 module "ecr" {
-  source                = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.32.2"
-  enabled               = var.enabled && var.ecr_enabled
-  name                  = var.name
-  namespace             = var.namespace
-  stage                 = var.stage
-  tags                  = module.label.tags
-  protected_tags        = var.ecr_protected_tag_prefixes
-  max_image_count       = var.ecr_max_image_count
-  image_tag_mutability  = var.ecr_image_tag_mutability
-  image_names           = local.full_ecr_namespaces
+  source               = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.32.2"
+  enabled              = var.enabled && var.ecr_enabled
+  name                 = var.name
+  namespace            = var.namespace
+  stage                = var.stage
+  tags                 = module.label.tags
+  protected_tags       = var.ecr_protected_tag_prefixes
+  max_image_count      = var.ecr_max_image_count
+  image_tag_mutability = var.ecr_image_tag_mutability
+  image_names          = local.full_ecr_namespaces
 }
 
 resource "aws_security_group" "ecs_sg_internal" {
@@ -264,12 +264,13 @@ resource "aws_security_group" "ecs_sg_internal" {
 # Create user for drone.io
 
 module "drone-io" {
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.4.0"
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.5.0"
   enabled    = var.drone-io_enabled
   name       = var.name
   namespace  = var.namespace
   stage      = var.stage
   attributes = compact(concat(var.attributes, ["drone"]))
+  ecr_arns   = values(module.ecr.repository_arn_map)
 }
 
 data "aws_iam_policy_document" "ecs_exec" {
@@ -332,12 +333,12 @@ module "acm_certificate" {
 
 # ALB short names and ALBs target groups names
 locals {
-  alb_namespace_short           = substr(var.namespace, 0, 4)
-  alb_stage_short               = substr(var.stage, 0, 1)
-  alb_internal_name_short       = "${substr(var.name, 0, min(length(var.name), 18))}-i"
-  alb_external_name_short       = "${substr(var.name, 0, min(length(var.name), 18))}-e"
-  alb_internal_default_tg_name  = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_internal_name_short}dtg"
-  alb_external_default_tg_name  = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_external_name_short}dtg"
+  alb_namespace_short          = substr(var.namespace, 0, 4)
+  alb_stage_short              = substr(var.stage, 0, 1)
+  alb_internal_name_short      = "${substr(var.name, 0, min(length(var.name), 18))}-i"
+  alb_external_name_short      = "${substr(var.name, 0, min(length(var.name), 18))}-e"
+  alb_internal_default_tg_name = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_internal_name_short}dtg"
+  alb_external_default_tg_name = "${local.alb_namespace_short}-${local.alb_stage_short}-${local.alb_external_name_short}dtg"
 }
 
 module "alb_default_internal" {
