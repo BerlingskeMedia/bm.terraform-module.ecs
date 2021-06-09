@@ -186,6 +186,7 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
     "${path.module}/additional_config_files/cloud-config.yml",
     {
       ecs_cluster_name = aws_ecs_cluster.default.name
+      efs_mounts_hosts_entries = var.efs_mounts_hosts_entries
     }
   )
   associate_public_ip_address = false

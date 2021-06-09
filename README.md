@@ -90,6 +90,7 @@ module "ecs" {
 | asg_instances_min_size         | `string`       | **no**                                   | `3`                                              | Launch configuration minimum capacity for ecs ec2 cluster |
 | asg_max_instance_lifetime      | `string`       | **no**                                   | `604800`                                         | Time of life for instances in Autoscalling group |
 | asg_termination_policies       | `list(string)` | **no**                                   | `["OldestLaunchConfiguration","OldestInstance"]` | Default policies for vm termination in ASG |
+| efs_mounts_hosts_entries       | `map(string)`  | **no**                                   | `{}`                                             | Map of EFS volumes hosts entries. Each entry should contain key-value where key is `mount target dns name` and value is `mount target ip address` |
 
 ### ALB variables
 
