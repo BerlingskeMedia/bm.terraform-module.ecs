@@ -5,8 +5,10 @@ bootcmd:
   - echo 'ECS_CLUSTER=${ecs_cluster_name}' >> /etc/ecs/ecs.config
   - echo 'ECS_BACKEND_HOST= ' >> /etc/ecs/ecs.config
 %{ if length(efs_mounts_hosts_entries) > 0 ~}
-%{ for efs_mount_dns, efs_mount_ip in efs_mounts_hosts_entries ~}
-  - echo '${efs_mount_ip} ${efs_mount_dns}' >> /etc/hosts
+%{ for efs_mount_dns, efs_mount_ips in efs_mounts_hosts_entries ~}
+%{ for mount_ip in efs_mount_ips ~}
+  - echo '${mount_ip} ${efs_mount_dns}' >> /etc/hosts
+%{ endfor ~}
 %{ endfor ~}
   - yum install -y amazon-efs-utils
 %{ endif ~}
