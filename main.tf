@@ -137,6 +137,26 @@ resource "aws_iam_role_policy_attachment" "ecs_ec2_role_attachement" {
   policy_arn = join("", aws_iam_policy.ecs_instance_policy.*.arn)
 }
 
+data "aws_iam_policy" "AmazonSSMManagedInstanceCore" {
+  name = "AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonSSMManagedInstanceCore" {
+  count      = var.launch_type == "EC2" ? 1 : 0
+  role       = join("", aws_iam_role.ecs_ec2_role.*.name)
+  policy_arn = data.aws_iam_policy.AmazonSSMManagedInstanceCore.arn
+}
+
+data "aws_iam_policy" "EC2InstanceConnect" {
+  name = "EC2InstanceConnect"
+}
+
+resource "aws_iam_role_policy_attachment" "EC2InstanceConnect" {
+  count      = var.launch_type == "EC2" ? 1 : 0
+  role       = join("", aws_iam_role.ecs_ec2_role.*.name)
+  policy_arn = data.aws_iam_policy.EC2InstanceConnect.arn
+}
+
 data "aws_ami" "vm_ami" {
   most_recent = true
   filter {
