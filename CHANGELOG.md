@@ -1,5 +1,5 @@
 ---
-# 1.7.1
+# 1.8.0
 # Main Changes
     - Add possibility to mount EFS volumes from different VPC if cluster is in EC2 mode (Fargate not avaliable)
     - Add possibility to connect with Session manager to ECS instances
