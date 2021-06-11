@@ -54,6 +54,11 @@ output "ecs_ec2_launch_configuration" {
   description = "ECS EC2 cluster launch configuration arn"
 }
 
+output "ecs_ec2_launch_configuration_user_data" {
+  value       = local.user_data_file
+  description = "ECS EC2 cluster launch configuration user_data file content"
+}
+
 #ALB
 
 output "domain_name" {

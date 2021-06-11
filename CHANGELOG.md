@@ -1,4 +1,9 @@
 ---
+# 1.8.0
+# Main Changes
+    - Add possibility to mount EFS volumes from different VPC if cluster is in EC2 mode (Fargate not avaliable)
+    - Add possibility to connect with Session manager to ECS instances
+
 # 1.7.0
 # Main Changes
     - support for drone-io module 0.5.0, which fixes drone policies security concerns
