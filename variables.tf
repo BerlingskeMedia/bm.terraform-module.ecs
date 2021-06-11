@@ -175,6 +175,12 @@ variable "asg_termination_policies" {
   description = "Default policies for vm termination in ASG"
 }
 
+variable "efs_mounts_hosts_entries" {
+  type        = map(list(string))
+  default     = {}
+  description = "Map of EFS volumes hosts entries. Each entry should contain key-value where key is `mount target dns name` and value is a list of `mount target ip address`"
+}
+
 # ALB variables
 
 variable "alb_main_domain" {

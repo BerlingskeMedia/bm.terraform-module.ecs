@@ -137,6 +137,26 @@ resource "aws_iam_role_policy_attachment" "ecs_ec2_role_attachement" {
   policy_arn = join("", aws_iam_policy.ecs_instance_policy.*.arn)
 }
 
+data "aws_iam_policy" "AmazonSSMManagedInstanceCore" {
+  name = "AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonSSMManagedInstanceCore" {
+  count      = var.launch_type == "EC2" ? 1 : 0
+  role       = join("", aws_iam_role.ecs_ec2_role.*.name)
+  policy_arn = data.aws_iam_policy.AmazonSSMManagedInstanceCore.arn
+}
+
+data "aws_iam_policy" "EC2InstanceConnect" {
+  name = "EC2InstanceConnect"
+}
+
+resource "aws_iam_role_policy_attachment" "EC2InstanceConnect" {
+  count      = var.launch_type == "EC2" ? 1 : 0
+  role       = join("", aws_iam_role.ecs_ec2_role.*.name)
+  policy_arn = data.aws_iam_policy.EC2InstanceConnect.arn
+}
+
 data "aws_ami" "vm_ami" {
   most_recent = true
   filter {
@@ -175,6 +195,16 @@ resource "aws_security_group" "ecs_ec2_security_group" {
   tags = module.label.tags
 }
 
+locals {
+  user_data_file = var.launch_type != "EC2" ? "" : templatefile(
+    "${path.module}/additional_config_files/cloud-config.yml",
+    {
+      ecs_cluster_name = aws_ecs_cluster.default.name
+      efs_mounts_hosts_entries = var.efs_mounts_hosts_entries
+    }
+  )
+}
+
 resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
   count                = var.launch_type == "EC2" && var.aws_key_pair != "" ? 1 : 0
   name_prefix          = "${module.label.id}-launch-configuration-"
@@ -182,12 +212,7 @@ resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
   image_id             = data.aws_ami.vm_ami.id
   instance_type        = var.instance_type
   iam_instance_profile = join("", aws_iam_instance_profile.ecs_ec2_instance_profile.*.arn)
-  user_data = templatefile(
-    "${path.module}/additional_config_files/cloud-config.yml",
-    {
-      ecs_cluster_name = aws_ecs_cluster.default.name
-    }
-  )
+  user_data            = local.user_data_file 
   associate_public_ip_address = false
   security_groups             = [join("", aws_security_group.ecs_ec2_security_group.*.id)]
   root_block_device {
