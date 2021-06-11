@@ -1,4 +1,9 @@
 ---
+# 1.7.1
+# Main Changes
+    - upgrade module cloudposse/terraform-aws-alb to 0.33.1
+    - upgrade module cloudposse/terraform-aws-kms-key to 0.10.0
+
 # 1.7.0
 # Main Changes
     - support for drone-io module 0.5.0, which fixes drone policies security concerns

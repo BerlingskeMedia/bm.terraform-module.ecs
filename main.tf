@@ -341,7 +341,7 @@ locals {
 }
 
 module "alb_default_internal" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.6"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.33.1"
   enabled                                 = var.alb_internal_enabled
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_internal_name_short
@@ -370,7 +370,7 @@ module "alb_default_internal" {
 }
 
 module "alb_default_external" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.6"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.33.1"
   enabled                                 = var.alb_external_enabled
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_external_name_short
@@ -401,7 +401,7 @@ module "alb_default_external" {
 # KMS key for all services
 
 module "kms_key" {
-  source                  = "git::https://github.com/cloudposse/terraform-aws-kms-key.git?ref=tags/0.9.0"
+  source                  = "git::https://github.com/cloudposse/terraform-aws-kms-key.git?ref=tags/0.10.0"
   namespace               = var.namespace
   stage                   = var.stage
   name                    = var.name
