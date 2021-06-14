@@ -1,8 +1,11 @@
 ---
-# 1.8.1
+# 1.9.0
 ## Main Changes
     - upgrade module cloudposse/terraform-aws-alb to 0.33.1
     - upgrade module cloudposse/terraform-aws-kms-key to 0.10.0
+    - upgrade module BerlingskeMedia/bm.terraform-module.context to v1.1.0
+    - providers no longer stick to fixed major version
+    - added required provider hashicorp/aws in v3.38
 
 # 1.8.0
 ## Main Changes
