@@ -288,7 +288,7 @@ resource "aws_security_group" "ecs_sg_internal" {
 # Create user for drone.io
 
 module "drone-io" {
-  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.5.0"
+  source     = "git::https://github.com/BerlingskeMedia/bm.terraform-module.drone-io?ref=tags/0.5.1"
   enabled    = var.drone-io_enabled
   name       = var.name
   namespace  = var.namespace

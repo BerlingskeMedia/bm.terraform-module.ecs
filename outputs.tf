@@ -21,6 +21,10 @@ output "aws_cloudwatch_log_group_name" {
   value = aws_cloudwatch_log_group.app.name
 }
 
+output "drone_builder_username" {
+  value       = module.drone-io.builder_username
+  description = "Username of the user used for tasks in drone"
+}
 output "access_key" {
   value       = module.drone-io.access_key
   description = "Access key used for pushing new ECR images"
