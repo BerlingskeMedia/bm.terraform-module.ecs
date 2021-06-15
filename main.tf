@@ -199,20 +199,20 @@ locals {
   user_data_file = var.launch_type != "EC2" ? "" : templatefile(
     "${path.module}/additional_config_files/cloud-config.yml",
     {
-      ecs_cluster_name = aws_ecs_cluster.default.name
+      ecs_cluster_name         = aws_ecs_cluster.default.name
       efs_mounts_hosts_entries = var.efs_mounts_hosts_entries
     }
   )
 }
 
 resource "aws_launch_configuration" "ecs_ec2_launch_configuration" {
-  count                = var.launch_type == "EC2" && var.aws_key_pair != "" ? 1 : 0
-  name_prefix          = "${module.label.id}-launch-configuration-"
-  key_name             = var.aws_key_pair
-  image_id             = data.aws_ami.vm_ami.id
-  instance_type        = var.instance_type
-  iam_instance_profile = join("", aws_iam_instance_profile.ecs_ec2_instance_profile.*.arn)
-  user_data            = local.user_data_file 
+  count                       = var.launch_type == "EC2" && var.aws_key_pair != "" ? 1 : 0
+  name_prefix                 = "${module.label.id}-launch-configuration-"
+  key_name                    = var.aws_key_pair
+  image_id                    = data.aws_ami.vm_ami.id
+  instance_type               = var.instance_type
+  iam_instance_profile        = join("", aws_iam_instance_profile.ecs_ec2_instance_profile.*.arn)
+  user_data                   = local.user_data_file
   associate_public_ip_address = false
   security_groups             = [join("", aws_security_group.ecs_ec2_security_group.*.id)]
   root_block_device {
@@ -366,7 +366,7 @@ locals {
 }
 
 module "alb_default_internal" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.6"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.33.1"
   enabled                                 = var.alb_internal_enabled
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_internal_name_short
@@ -395,7 +395,7 @@ module "alb_default_internal" {
 }
 
 module "alb_default_external" {
-  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.29.6"
+  source                                  = "git::https://github.com/cloudposse/terraform-aws-alb.git?ref=tags/0.33.1"
   enabled                                 = var.alb_external_enabled
   namespace                               = local.alb_namespace_short
   name                                    = local.alb_external_name_short
@@ -426,7 +426,7 @@ module "alb_default_external" {
 # KMS key for all services
 
 module "kms_key" {
-  source                  = "git::https://github.com/cloudposse/terraform-aws-kms-key.git?ref=tags/0.9.0"
+  source                  = "git::https://github.com/cloudposse/terraform-aws-kms-key.git?ref=tags/0.10.0"
   namespace               = var.namespace
   stage                   = var.stage
   name                    = var.name

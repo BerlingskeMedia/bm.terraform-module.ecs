@@ -1,5 +1,5 @@
 module "this" {
-  source = "git@github.com:BerlingskeMedia/bm.terraform-module.context?ref=tags/1.0.0"
+  source = "git@github.com:BerlingskeMedia/bm.terraform-module.context?ref=tags/1.1.0"
 
   enabled                             = var.enabled
   namespace                           = var.namespace

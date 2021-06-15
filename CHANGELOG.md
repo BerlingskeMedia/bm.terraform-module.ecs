@@ -1,11 +1,19 @@
 ---
+# 1.9.0
+## Main Changes
+    - upgrade module cloudposse/terraform-aws-alb to 0.33.1
+    - upgrade module cloudposse/terraform-aws-kms-key to 0.10.0
+    - upgrade module BerlingskeMedia/bm.terraform-module.context to v1.1.0
+    - providers no longer stick to fixed major version
+    - added required provider hashicorp/aws in v3.38
+
 # 1.8.0
-# Main Changes
+## Main Changes
     - Add possibility to mount EFS volumes from different VPC if cluster is in EC2 mode (Fargate not avaliable)
     - Add possibility to connect with Session manager to ECS instances
 
 # 1.7.0
-# Main Changes
+## Main Changes
     - support for drone-io module 0.5.0, which fixes drone policies security concerns
 
 # 1.6.0
