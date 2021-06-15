@@ -131,6 +131,7 @@ module "ecs" {
 | service_internal_security_group | Security group used for communication between services |
 | iam_policy_document_json        | |
 | aws_cloudwatch_log_group_name   | |
+| drone_builder_username          | Username of the user used for tasks in drone |
 | access_key                      | Access key used for pushing new ECR images |
 | secret_key                      | Secret key used for pushing new ECR images |
 | ecr_urls                        | Map of created ecr registries urls|
