@@ -106,6 +106,7 @@ resource "aws_iam_policy" "ecs_instance_policy" {
   path        = "/"
   description = "${module.label.id} ECS cluster policy used for EC2 instances"
   policy      = data.aws_iam_policy_document.ecs_instance_policy.json
+  tags        = module.label.tags
 }
 
 data "aws_iam_policy_document" "ec2_role_document" {
@@ -282,7 +283,7 @@ resource "aws_security_group" "ecs_sg_internal" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(var.tags, { "Name" = "${module.label.id}-ecs-internal" })
+  tags = merge(module.label.tags, { "Name" = "${module.label.id}-ecs-internal" })
 }
 
 # Create user for drone.io
@@ -430,7 +431,7 @@ module "kms_key" {
   namespace               = var.namespace
   stage                   = var.stage
   name                    = var.name
-  tags                    = var.tags
+  tags                    = module.label.tags
   description             = "KMS key for all ${module.label.id} projects"
   deletion_window_in_days = 10
   enable_key_rotation     = true
@@ -486,7 +487,7 @@ locals {
     "stage"      = var.stage
     "namespace"  = var.namespace
     "attributes" = var.attributes
-    "tags"       = var.tags
+    "tags"       = module.label.tags
     "region"     = var.region
     "delimiter"  = var.delimiter
     #Network variables

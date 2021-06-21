@@ -1,4 +1,8 @@
 ---
+# 1.10.1
+## Main Changes
+    - Fix tags management in few resources
+
 # 1.10.0
 ## Main Changes
     - Output builder username to have it when we need to apply policy outside of the module to it (ex. with `aws_iam_user_policy_attachment`).
