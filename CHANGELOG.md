@@ -1,5 +1,5 @@
 ---
-# 1.10.1
+# 1.11.0
 ## Main Changes
     - Fix tags management in few resources
 
