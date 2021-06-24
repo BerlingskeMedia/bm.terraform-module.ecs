@@ -1,4 +1,8 @@
 ---
+# 1.11.2
+## Main Changes
+    - Add tags where it was possible to add them
+
 # 1.11.1
 ## Main Changes
     - Add tags to Service discovery resource
