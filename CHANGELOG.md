@@ -1,4 +1,8 @@
 ---
+# 1.12.0
+## Main Changes
+    - Add permissions to fetch any ECR from within a drone build.
+
 # 1.11.2
 ## Main Changes
     - Add tags where it was possible to add them
