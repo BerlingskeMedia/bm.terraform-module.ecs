@@ -1,4 +1,8 @@
 ---
+# 1.11.1
+## Main Changes
+    - Add tags to Service discovery resource
+
 # 1.11.0
 ## Main Changes
     - Fix tags management in few resources

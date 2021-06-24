@@ -462,6 +462,7 @@ resource "aws_service_discovery_private_dns_namespace" "default" {
   name        = "${module.label.id}.local"
   description = "Service discovery for ${module.label.id}"
   vpc         = var.vpc_id
+  tags        = module.label.tags
 }
 
 locals {
