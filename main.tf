@@ -130,6 +130,7 @@ resource "aws_iam_instance_profile" "ecs_ec2_instance_profile" {
   count = var.launch_type == "EC2" ? 1 : 0
   name  = "${module.label.id}-ec2-instance-profile"
   role  = join("", aws_iam_role.ecs_ec2_role.*.name)
+  tags  = module.label.tags
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_ec2_role_attachement" {
@@ -296,6 +297,7 @@ module "drone-io" {
   stage      = var.stage
   attributes = compact(concat(var.attributes, ["drone"]))
   ecr_arns   = values(module.ecr.repository_arn_map)
+  tags       = module.label.tags
 }
 
 data "aws_iam_policy_document" "ecs_exec" {
@@ -352,6 +354,7 @@ module "acm_certificate" {
   wait_for_certificate_issued = true
   zone_name                   = "${var.alb_main_domain}."
   context                     = module.label.context
+  tags                        = module.label.tags
 }
 
 # ALB
@@ -454,6 +457,7 @@ data "aws_iam_policy_document" "kms_key_policy_document" {
 resource "aws_iam_policy" "kms_key_access_policy" {
   name   = "${module.label.id}-kms_access_policy"
   policy = data.aws_iam_policy_document.kms_key_policy_document.json
+  tags   = module.label.tags
 }
 
 # create service discovery
